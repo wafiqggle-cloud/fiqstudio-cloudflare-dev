@@ -1,0 +1,25 @@
+{
+  "name": "fiqstudio-dev",
+  "main": "src/worker.js",
+  "compatibility_date": "2025-11-01",
+  "keep_vars": true,
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "fiqstudio-pm-db",
+      "database_id": "36842472-9cec-43f9-a342-07741cbcd0d8"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "FILES",
+      "bucket_name": "fiqstudio-files"
+    }
+  ],
+  "observability": { "enabled": true }
+}
