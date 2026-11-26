@@ -3402,14 +3402,18 @@
       return (dev && dev.type) || 'switch';
     }
 
+    // On any host other than the old InfinityFree site, device calls go through the Cloudflare
+    // Worker (/api/daikin/*), which holds the secret server-side. No secret is typed in the browser.
+    var SERVER_PROXY = !/\.page\.gd$/i.test(location.hostname);
+
     async function callDaikinWorkerControl(dev, controlPayload) {
       const cfg = getSmartDevicesCfg();
       const baseUrl = String(cfg.workerUrl || '').trim().replace(/\/+$/, '');
       const secret = String(cfg.workerSecret || '').trim();
-      if (!baseUrl) throw new Error('Enter your GO DAIKIN Worker URL in Settings / Devices');
+      if (!baseUrl && !SERVER_PROXY) throw new Error('Enter your GO DAIKIN Worker URL in Settings / Devices');
       const headers = { 'Content-Type': 'application/json' };
-      if (secret) headers['X-API-Secret'] = secret;
-      const res = await fetch(`${baseUrl}/api/control`, {
+      if (secret && !SERVER_PROXY) headers['X-API-Secret'] = secret;
+      const res = await fetch(SERVER_PROXY ? '/api/daikin/control' : `${baseUrl}/api/control`, {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -3451,7 +3455,7 @@
       if (mode === 'worker') {
         const baseUrl = String(cfg.workerUrl || '').trim().replace(/\/+$/, '');
         const secret = String(cfg.workerSecret || '').trim();
-        if (!baseUrl) {
+        if (!baseUrl && !SERVER_PROXY) {
           haConnStatus = 'idle';
           renderHubDevices();
           if (activeView === 'settings') renderSettingsDevices();
@@ -3463,8 +3467,8 @@
         if (activeView === 'settings') renderSettingsDevices();
         try {
           const headers = {};
-          if (secret) headers['X-API-Secret'] = secret;
-          const res = await fetch(`${baseUrl}/api/devices?t=${Date.now()}`, { headers, cache: 'no-store' });
+          if (secret && !SERVER_PROXY) headers['X-API-Secret'] = secret;
+          const res = await fetch(SERVER_PROXY ? `/api/daikin/devices?t=${Date.now()}` : `${baseUrl}/api/devices?t=${Date.now()}`, { headers, cache: 'no-store' });
           const json = await res.json().catch(() => ({}));
           if (!res.ok || !json.ok || !Array.isArray(json.devices)) {
             throw new Error(json.error || `HTTP ${res.status}`);
@@ -3739,7 +3743,7 @@
           badge.textContent = 'Offline';
           badge.className = 'text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-red-500/15 text-red-700 dark:text-red-300';
         } else {
-          badge.textContent = (cfg.workerUrl || cfg.haUrl) ? 'Ready' : 'Setup Needed';
+          badge.textContent = (cfg.workerUrl || cfg.haUrl || SERVER_PROXY) ? 'Ready' : 'Setup Needed';
           badge.className = 'text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/60 dark:bg-zinc-800 text-[#57534E] dark:text-[#C7B8AC]';
         }
       }
@@ -3815,7 +3819,7 @@
           badge.textContent = 'Connection Error';
           badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/15 text-red-700 dark:text-red-300';
         } else {
-          badge.textContent = (cfg.workerUrl || cfg.haUrl) ? 'Saved (Tap Sync)' : 'Not Connected';
+          badge.textContent = (cfg.workerUrl || cfg.haUrl || SERVER_PROXY) ? 'Saved (Tap Sync)' : 'Not Connected';
           badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/70 dark:bg-zinc-800 text-[#57534E] dark:text-[#D6C9BE]';
         }
       }
@@ -5292,7 +5296,7 @@
     pullLiveLogs(true);
     pullConfigFromServer();
     fetchTokenMonitorStats(true);
-    if (getSmartDevicesCfg().workerUrl || getSmartDevicesCfg().haUrl) syncSmartDevices(true);
+    if (getSmartDevicesCfg().workerUrl || getSmartDevicesCfg().haUrl || SERVER_PROXY) syncSmartDevices(true);
     if (getDriveApiKey() && extractDriveFolderId(state.settings.googleDrive.folderId) && flacQueue.length === 0) {
       syncGoogleDriveFolder(true);
     }
