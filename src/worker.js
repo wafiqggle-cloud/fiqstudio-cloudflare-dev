@@ -4,6 +4,9 @@
  *   env.DB    -> D1 database fiqstudio-pm-db
  *   env.FILES -> R2 bucket fiqstudio-files
  *   env.ASSETS -> static dashboard files in /public
+ * Daikin proxy (Cloudflare dashboard, kept on every deploy):
+ *   DAIKIN_WORKER_URL  -> Variable: https://godaikin-hub.<your-account>.workers.dev
+ *   DAIKIN_API_SECRET  -> Secret: the godaikin-hub API secret
  * Variables to set in the Cloudflare dashboard (they are kept on every deploy):
  *   ACCESS_TEAM_DOMAIN -> your-team.cloudflareaccess.com (no https://)
  *   ACCESS_AUD         -> Cloudflare Access application AUD tag of THIS Worker
@@ -118,6 +121,47 @@ function safeFilename(name) {
 
 async function bodyJson(request) {
   try { return await request.json(); } catch { return null; }
+}
+
+// Server-side proxy to the GO DAIKIN hub. The hub's secret lives only in this Worker
+// (env.DAIKIN_API_SECRET), so the browser never sees it. Fixed allow-list of two calls.
+async function daikinProxy(request, env, path, method) {
+  const base = String(env.DAIKIN_WORKER_URL || "").trim().replace(/\/+$/, "");
+  if (!base || !env.DAIKIN_API_SECRET) {
+    return json({ ok: false, error: "Daikin proxy is not configured" }, 503);
+  }
+  const headers = new Headers({ "X-API-Secret": env.DAIKIN_API_SECRET, "Accept": "application/json" });
+  let target;
+  let init;
+
+  if (path === "/api/daikin/devices" && method === "GET") {
+    target = `${base}/api/devices?t=${Date.now()}`;
+    init = { method: "GET", headers };
+  } else if (path === "/api/daikin/control" && method === "POST") {
+    const origin = request.headers.get("Origin");
+    if (origin && origin !== env.APP_ORIGIN) return json({ ok: false, error: "Origin not allowed" }, 403);
+    const text = await request.text();
+    if (text.length > 4000) return json({ ok: false, error: "Payload too large" }, 413);
+    let body;
+    try { body = JSON.parse(text); } catch { return json({ ok: false, error: "Invalid JSON" }, 400); }
+    if (!body || typeof body !== "object" || Array.isArray(body)) return json({ ok: false, error: "Invalid body" }, 400);
+    headers.set("Content-Type", "application/json");
+    target = `${base}/api/control`;
+    init = { method: "POST", headers, body: JSON.stringify(body) };
+  } else {
+    return null;
+  }
+
+  try {
+    const res = await fetch(target, init);
+    const out = await res.text();
+    return new Response(out, {
+      status: res.status,
+      headers: { "content-type": res.headers.get("content-type") || "application/json; charset=utf-8", "cache-control": "no-store" }
+    });
+  } catch {
+    return json({ ok: false, error: "Daikin hub is unreachable" }, 502);
+  }
 }
 
 async function route(request, env, user) {
@@ -319,6 +363,11 @@ async function route(request, env, user) {
     await env.FILES.delete(item.object_key);
     await env.DB.prepare("DELETE FROM task_attachments WHERE id = ?").bind(attachmentMatch[1]).run();
     return json({ deleted: true });
+  }
+
+  if (path.startsWith("/api/daikin/")) {
+    const proxied = await daikinProxy(request, env, path, method);
+    if (proxied) return proxied;
   }
 
   return json({ error: "Not found" }, 404);
