@@ -1,0 +1,134 @@
+{
+    "darkMode": false,
+    "selectedHubCam": "cam_1",
+    "websites": [
+        {
+            "id": "site_dms",
+            "name": "Design Mania Studio",
+            "status": "Active",
+            "url": "https://designmaniastudio.page.gd/"
+        }
+    ],
+    "orders": [
+        {
+            "id": "ord_1795694533_174",
+            "ref": "ORD-8901F",
+            "siteId": "site_dms",
+            "siteName": "Design Mania Studio",
+            "pkg": "Logo",
+            "customer": "Website Visitor",
+            "phone": "",
+            "pageUrl": "https://designmaniastudio.page.gd/index.php#logo",
+            "stage": "Clicked Order Now",
+            "notes": "Clicked Order Now on https://designmaniastudio.page.gd/index.php#logo",
+            "timestamp": "2026-11-26 07:02"
+        },
+        {
+            "id": "ord_1795517748_915",
+            "ref": "ORD-8F3A6",
+            "siteId": "site_dms",
+            "siteName": "Design Mania Studio",
+            "pkg": "Banner",
+            "customer": "Website Visitor",
+            "phone": "",
+            "pageUrl": "https://designmaniastudio.page.gd/index.php#banner",
+            "stage": "Clicked Order Now",
+            "notes": "Clicked Order Now on https://designmaniastudio.page.gd/index.php#banner",
+            "timestamp": "2026-11-24 05:55"
+        }
+    ],
+    "reports": [],
+    "cameras": [
+        {
+            "id": "cam_1",
+            "name": "Tapo C225",
+            "nightVision": false,
+            "streamUrl": ""
+        }
+    ],
+    "settings": {
+        "brandTitle": "FiqStudio",
+        "brandSubtitle": "HomeLab",
+        "showClock": true,
+        "ribbedGlass": true,
+        "hubLayout": "bento",
+        "hubCards": {
+            "cctv": true,
+            "music": true,
+            "websites": true,
+            "playlist": true
+        },
+        "hubCardOrder": [
+            "cctv",
+            "music",
+            "websites",
+            "playlist"
+        ],
+        "hubCctvHeight": "compact",
+        "defaultMusicMode": "flac",
+        "webSync": {
+            "ordersEndpoint": "orders_log.json",
+            "reportsEndpoint": "reports_log.json",
+            "webhookEndpoint": "order_webhook.php",
+            "autoSyncSeconds": 0,
+            "showOnlyActiveOnHub": true,
+            "showReportsOnWebTab": true,
+            "showOrdersOnWebTab": true
+        },
+        "googleDrive": {
+            "apiKey": "",
+            "clientId": "598598339873-iq0qpl8jdg8f6uujg7otd90d7ncqpcmp.apps.googleusercontent.com",
+            "folderId": "17tAAiNW6MNRyNZUp7JvwgULsKgCGezME"
+        },
+        "tokenMonitor": {
+            "mode": "public",
+            "proxyEndpoint": "token_proxy.php",
+            "publicUrl": "",
+            "refreshSeconds": 60
+        },
+        "smartDevices": {
+            "mode": "worker",
+            "workerUrl": "https://godaikin-hub.wafiq-ggle.workers.dev",
+            "workerSecret": "",
+            "haUrl": "",
+            "haToken": "",
+            "showOnHub": true,
+            "items": [
+                {
+                    "id": "daikin_daikin_00bfaff25651",
+                    "name": "AC",
+                    "entityId": "Daikin_00bfaff25651",
+                    "thingName": "Daikin_00bfaff25651",
+                    "shadowKey": "",
+                    "type": "climate",
+                    "power": false,
+                    "temp": 25,
+                    "currentTemp": 29,
+                    "outdoorTemp": 32,
+                    "powerWatts": 0,
+                    "mode": "cool",
+                    "fan": "low",
+                    "swing": false,
+                    "preset": "none",
+                    "updatedOn": "2026-11-26 16:28:58"
+                }
+            ]
+        },
+        "fiqAi": {
+            "provider": "openai",
+            "workerUrl": "",
+            "workerSecret": "",
+            "model": ""
+        },
+        "fiqAiUrl": "https://fiq-ai.wafiq-ggle.workers.dev",
+        "fiqAiSecret": "",
+        "fiqAiVoice": ""
+    },
+    "musicMode": "flac",
+    "_savedAt": "2026-11-26T13:22:38Z",
+    "favoriteTracks": [
+        "gd:1tU7vwPDZ7Sq8oT7ITIKrrnMY5R1RYUIj",
+        "gd:156HHvYws5LO0TbDyUOd9IlgoZUO24-Cq"
+    ],
+    "aiMemories": []
+}
