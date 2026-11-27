@@ -7,6 +7,7 @@
  *
  *   GET|POST /order   ?site_id=&site_name=&package=&page_url=&to=https://wa.me/...
  *   GET|POST /report  ?site_id=&site_name=&issue_type=&reporter=&message=&page_url=&return_url=
+ *   GET|POST /order_webhook.php  same as the old PHP URL (action=report -> /report, no action -> /order)
  *
  * Binding: env.DB -> D1 fiqstudio-pm-db (same database as the dashboard).
  */
@@ -72,9 +73,19 @@ export default {
     try {
       const p = await params(request);
       if (!p) return json({ status: "error", reason: "too large" }, 413);
+
+      // Legacy drop-in: client sites can keep the old path and only change the domain.
+      // ?action=report -> report; no action -> order click. Admin actions are refused here.
+      let route = path;
+      if (path === "/order_webhook.php") {
+        const action = String(p.action || "").trim();
+        if (action === "report") route = "/report";
+        else if (!action) route = "/order";
+        else return json({ status: "error", reason: "action not allowed on the public webhook" }, 403);
+      }
       await ensureTables(env);
 
-      if (path === "/report") {
+      if (route === "/report") {
         const message = clip(p.message, 2000);
         if (message) {
           const id = "rep_" + Date.now() + "_" + shortRef();
@@ -90,7 +101,7 @@ export default {
         return json({ status: message ? "reported" : "ignored" }, message ? 200 : 400);
       }
 
-      if (path === "/order") {
+      if (route === "/order") {
         const siteId = clip(p.site_id, 60);
         if (!siteId) return json({ status: "ignored", reason: "missing site_id" }, 400);
         const pageUrl = isHttps(p.page_url) ? clip(p.page_url, 500) : "";
