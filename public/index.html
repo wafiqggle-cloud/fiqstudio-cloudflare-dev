@@ -840,15 +840,11 @@
       </div>
 
       <!-- Center: Desktop 5-Tab Sliding Pill Navigation -->
-      <nav id="desktopNavTrack" class="hidden md:grid grid-cols-5 gap-1 items-center relative h-10 p-1 rounded-full bg-white/40 dark:bg-zinc-900/50 border border-white/60 dark:border-zinc-800 shrink-0" aria-label="Main navigation">
+      <nav id="desktopNavTrack" class="hidden md:grid grid-cols-4 gap-1 items-center relative h-10 p-1 rounded-full bg-white/40 dark:bg-zinc-900/50 border border-white/60 dark:border-zinc-800 shrink-0" aria-label="Main navigation">
         <div id="desktopNavSlider" class="nav-pill-slider absolute top-1 bottom-1 left-0 rounded-full bg-[#B8431B] shadow-md  pointer-events-none" style="width:0;opacity:0;"></div>
         <button type="button" data-view="hub" class="nav-btn relative z-10 h-8 px-4 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer tap-pop transition-colors">
           <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
           <span>Hub</span>
-        </button>
-        <button type="button" data-view="tasks" class="nav-btn relative z-10 h-8 px-4 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer tap-pop transition-colors">
-          <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-          <span>Tasks</span>
         </button>
         <button type="button" data-view="websites" class="nav-btn relative z-10 h-8 px-4 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer tap-pop transition-colors">
           <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/></svg>
@@ -1243,46 +1239,14 @@
       </div>
     </section>
 
-    <!-- ================================================================== -->
-    <!-- TAB: TASKS (Tasks, Projects & Clients stored in Cloudflare D1)     -->
-    <!-- ================================================================== -->
-    <section id="view-tasks" class="view-section hidden space-y-4">
-      <div class="glass-surface rounded-2xl p-4 sm:p-5 space-y-3.5">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <div class="min-w-0">
-            <h2 class="font-display text-base font-bold text-[#1C1917] dark:text-[#F5EFE6]">Task Manager</h2>
-            <p id="tmgrSummary" class="text-xs text-[#57534E] dark:text-[#C7B8AC] mt-0.5">Loading your tasks…</p>
-          </div>
-          <button type="button" id="tmgrNewBtn" class="min-h-[40px] px-4 rounded-full bg-[#B8431B] hover:bg-[#9A3412] text-white text-xs font-semibold cursor-pointer tap-pop shadow-sm">+ New Task</button>
-        </div>
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <div class="inline-flex p-1 rounded-full bg-white/50 dark:bg-zinc-900/65 border border-white/75 dark:border-zinc-700 text-xs font-semibold" role="tablist" aria-label="Task manager sections">
-            <button type="button" data-tmgr-tab="tasks" role="tab" class="tmgr-tab min-h-[36px] px-4 rounded-full cursor-pointer tap-pop transition-colors">Tasks</button>
-            <button type="button" data-tmgr-tab="projects" role="tab" class="tmgr-tab min-h-[36px] px-4 rounded-full cursor-pointer tap-pop transition-colors">Projects</button>
-            <button type="button" data-tmgr-tab="clients" role="tab" class="tmgr-tab min-h-[36px] px-4 rounded-full cursor-pointer tap-pop transition-colors">Clients</button>
-          </div>
-          <div id="tmgrFilters" class="inline-flex p-1 rounded-full bg-white/50 dark:bg-zinc-900/65 border border-white/75 dark:border-zinc-700 text-[11px] font-semibold">
-            <button type="button" data-tmgr-filter="open" class="tmgr-filter min-h-[32px] px-3 rounded-full cursor-pointer tap-pop transition-colors">Open</button>
-            <button type="button" data-tmgr-filter="done" class="tmgr-filter min-h-[32px] px-3 rounded-full cursor-pointer tap-pop transition-colors">Done</button>
-            <button type="button" data-tmgr-filter="all" class="tmgr-filter min-h-[32px] px-3 rounded-full cursor-pointer tap-pop transition-colors">All</button>
-          </div>
-        </div>
-      </div>
-      <div id="tmgrBody" class="space-y-4"></div>
-    </section>
-
   </main>
 
   <!-- FLOATING MOBILE BOTTOM GLASS DOCK (5 Clean Tabs) -->
-  <nav id="mobileNavTrack" class="md:hidden fixed bottom-3 left-3 right-3 z-40 glass-dock rounded-full p-1.5 grid grid-cols-5 items-center" aria-label="Mobile navigation">
+  <nav id="mobileNavTrack" class="md:hidden fixed bottom-3 left-3 right-3 z-40 glass-dock rounded-full p-1.5 grid grid-cols-4 items-center" aria-label="Mobile navigation">
     <div id="mobileNavSlider" class="nav-pill-slider absolute top-1.5 bottom-1.5 left-0 rounded-full bg-[#B8431B] shadow-md  pointer-events-none" style="width:0;opacity:0;"></div>
     <button type="button" data-view="hub" class="mob-nav-btn relative z-10 flex flex-col items-center justify-center min-h-[44px] py-1.5 rounded-full text-[10px] font-bold cursor-pointer tap-pop transition-colors">
       <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
       <span>Hub</span>
-    </button>
-    <button type="button" data-view="tasks" class="mob-nav-btn relative z-10 flex flex-col items-center justify-center min-h-[44px] py-1.5 rounded-full text-[10px] font-bold cursor-pointer tap-pop transition-colors">
-      <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-      <span>Tasks</span>
     </button>
     <button type="button" data-view="websites" class="mob-nav-btn relative z-10 flex flex-col items-center justify-center min-h-[44px] py-1.5 rounded-full text-[10px] font-bold cursor-pointer tap-pop transition-colors">
       <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/></svg>
@@ -3385,7 +3349,6 @@
       if (activeView === 'websites') renderWebsites();
       if (activeView === 'cctv') renderCctv();
       if (activeView === 'settings') renderSettings();
-      if (activeView === 'tasks' && typeof window.renderTasksView === 'function') window.renderTasksView();
     }
 
     // Listeners
@@ -4623,6 +4586,5 @@
       else window.addEventListener('load', boot);
     })();
   </script>
-  <script src="tasks.js?v=1"></script>
 </body>
 </html>

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F6EFE4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#190E09" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="FiqStudio Tasks">
+<title>FiqStudio Tasks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css?v=1">
+</head>
+<body>
+<a class="skip" href="#main">Skip to tasks</a>
+<div class="shell">
+  <header class="top">
+    <div class="brand">
+      <span class="mark" aria-hidden="true">F</span>
+      <div><b>FiqStudio Tasks</b><span id="today"></span></div>
+    </div>
+    <nav class="tabs" id="tabs" aria-label="Sections">
+      <a href="#focus" data-view="focus"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg><span>Focus</span></a>
+      <a href="#board" data-view="board"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h5v16H4zM10 4h5v10h-5zM16 4h4v7h-4z"/></svg><span>Board</span></a>
+      <a href="#projects" data-view="projects"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h18v13H3zM8 7V4h8v3"/></svg><span>Projects</span></a>
+      <a href="#clients" data-view="clients"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8a4 4 0 1 0-8 0 4 4 0 0 0 8 0zM4 21c0-4 4-6 8-6s8 2 8 6"/></svg><span>Clients</span></a>
+    </nav>
+    <button class="btn pri" id="newBtn" type="button">+ New task</button>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <section class="stats" id="stats" aria-label="Summary"></section>
+    <div class="toolbar" id="toolbar">
+      <form class="quick" id="quickAdd" autocomplete="off">
+        <label class="sr" for="quickTitle">Add a task</label>
+        <input id="quickTitle" type="text" maxlength="250" placeholder="Add a task and press Enter">
+        <button class="btn" type="submit">Add</button>
+      </form>
+      <label class="filter"><span class="sr">Filter by project</span>
+        <select id="projectFilter"></select>
+      </label>
+    </div>
+    <div id="view" aria-live="polite"></div>
+  </main>
+</div>
+
+<div id="sheet" class="sheet-wrap" hidden>
+  <div class="scrim" data-close></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-head">
+      <h2 id="sheetTitle"></h2>
+      <button class="icon-btn" type="button" data-close aria-label="Close">&times;</button>
+    </div>
+    <form id="sheetForm" novalidate>
+      <div id="sheetFields" class="fields"></div>
+      <p id="sheetError" class="form-error" hidden></p>
+      <div class="sheet-acts">
+        <button type="button" class="btn danger" id="sheetDelete" hidden>Delete</button>
+        <span class="grow"></span>
+        <button type="button" class="btn" data-close>Cancel</button>
+        <button type="submit" class="btn pri" id="sheetSave">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="app.js?v=1"></script>
+</body>
+</html>

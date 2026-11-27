@@ -1,0 +1,31 @@
+{
+  // FIQSTUDIO Tasks: standalone task manager. Deploy from this folder (Build root directory: /tasks).
+  // Turn Cloudflare Access ON for this Worker, then set ACCESS_AUD in the dashboard.
+  "name": "fiqstudio-tasks",
+  "main": "worker.js",
+  "compatibility_date": "2025-11-01",
+  "compatibility_flags": ["global_fetch_strictly_public"],
+  "keep_vars": true,
+  "vars": {
+    "ACCESS_TEAM_DOMAIN": "fiqstudio.cloudflareaccess.com"
+  },
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "fiqstudio-pm-db",
+      "database_id": "36842472-9cec-43f9-a342-07741cbcd0d8"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "FILES",
+      "bucket_name": "fiqstudio-files"
+    }
+  ],
+  "observability": { "enabled": true }
+}
