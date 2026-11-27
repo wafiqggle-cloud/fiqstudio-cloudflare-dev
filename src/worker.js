@@ -454,6 +454,80 @@ async function route(request, env, user) {
     return json({ data: updated });
   }
 
+  if (taskMatch && method === "DELETE") {
+    const id = taskMatch[1];
+    const task = await env.DB.prepare("SELECT id FROM studio_tasks WHERE id = ?").bind(id).first();
+    if (!task) return json({ error: "Task not found" }, 404);
+    const { results: files } = await env.DB.prepare("SELECT object_key FROM task_attachments WHERE task_id = ?").bind(id).all();
+    for (const f of files || []) await env.FILES.delete(f.object_key);
+    await env.DB.batch([
+      env.DB.prepare("DELETE FROM task_attachments WHERE task_id = ?").bind(id),
+      env.DB.prepare("DELETE FROM task_comments WHERE task_id = ?").bind(id),
+      env.DB.prepare("DELETE FROM task_activity_logs WHERE task_id = ?").bind(id),
+      env.DB.prepare("DELETE FROM studio_tasks WHERE id = ?").bind(id)
+    ]);
+    return json({ deleted: true });
+  }
+
+  // Edit and delete clients / projects. Deleting unlinks children instead of deleting them.
+  const clientMatch = path.match(/^\/api\/clients\/([^/]+)$/);
+  const projectMatch = path.match(/^\/api\/projects\/([^/]+)$/);
+  if ((clientMatch || projectMatch) && method === "PATCH") {
+    const isClient = !!clientMatch;
+    const id = (clientMatch || projectMatch)[1];
+    const table = isClient ? "studio_clients" : "studio_projects";
+    const b = await bodyJson(request);
+    if (!b) return json({ error: "Invalid JSON body" }, 400);
+    const existing = await env.DB.prepare(`SELECT id FROM ${table} WHERE id = ?`).bind(id).first();
+    if (!existing) return json({ error: isClient ? "Client not found" : "Project not found" }, 404);
+    const allowed = isClient ? {
+      client_name: v => cleanString(v, 200) || undefined,
+      business_name: v => cleanString(v, 200),
+      client_type: v => ["individual", "business"].includes(v) ? v : undefined,
+      email: v => cleanString(v, 254),
+      phone: v => cleanString(v, 50),
+      status: v => ["active", "inactive", "archived"].includes(v) ? v : undefined,
+      notes: v => cleanString(v, 5000)
+    } : {
+      project_name: v => cleanString(v, 200) || undefined,
+      description: v => cleanString(v, 5000),
+      client_id: v => cleanString(v, 100),
+      status: v => ["planning", "active", "on_hold", "completed", "cancelled"].includes(v) ? v : undefined,
+      priority: v => ["low", "medium", "high", "urgent"].includes(v) ? v : undefined,
+      start_date: v => cleanString(v, 30),
+      due_date: v => cleanString(v, 30)
+    };
+    const fields = [], values = [];
+    for (const [key, validator] of Object.entries(allowed)) {
+      if (Object.prototype.hasOwnProperty.call(b, key)) {
+        const value = validator(b[key]);
+        if (value !== undefined) { fields.push(`${key} = ?`); values.push(value); }
+      }
+    }
+    if (!fields.length) return json({ error: "No valid fields to update" }, 400);
+    fields.push("updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')");
+    values.push(id);
+    await env.DB.prepare(`UPDATE ${table} SET ${fields.join(", ")} WHERE id = ?`).bind(...values).run();
+    return json({ data: await env.DB.prepare(`SELECT * FROM ${table} WHERE id = ?`).bind(id).first() });
+  }
+  if (clientMatch && method === "DELETE") {
+    const id = clientMatch[1];
+    await env.DB.batch([
+      env.DB.prepare("UPDATE studio_projects SET client_id = NULL WHERE client_id = ?").bind(id),
+      env.DB.prepare("UPDATE studio_tasks SET client_id = NULL WHERE client_id = ?").bind(id),
+      env.DB.prepare("DELETE FROM studio_clients WHERE id = ?").bind(id)
+    ]);
+    return json({ deleted: true });
+  }
+  if (projectMatch && method === "DELETE") {
+    const id = projectMatch[1];
+    await env.DB.batch([
+      env.DB.prepare("UPDATE studio_tasks SET project_id = NULL WHERE project_id = ?").bind(id),
+      env.DB.prepare("DELETE FROM studio_projects WHERE id = ?").bind(id)
+    ]);
+    return json({ deleted: true });
+  }
+
   const commentsMatch = path.match(/^\/api\/tasks\/([^/]+)\/comments$/);
   if (commentsMatch && method === "POST") {
     const taskId = commentsMatch[1];
