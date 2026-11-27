@@ -17,7 +17,6 @@
   <link rel="icon" type="image/png" href="apple-touch-icon.png?v=2">
   <title>FiqStudio | Personal Command Hub</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js" defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -221,23 +220,6 @@
       .ai-dot { animation: aiDotBounce 1.2s ease-in-out infinite; }
       .ai-dot:nth-child(2) { animation-delay: 0.18s; }
       .ai-dot:nth-child(3) { animation-delay: 0.36s; }
-      @keyframes vinylSpin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-      }
-      .vinyl-disc {
-        background:
-          repeating-radial-gradient(circle at center, rgba(255, 255, 255, 0.065) 0px, rgba(255, 255, 255, 0.065) 1px, transparent 1.5px, transparent 4px),
-          conic-gradient(from 15deg, rgba(255, 255, 255, 0.14) 0deg, transparent 42deg, rgba(217, 119, 87, 0.10) 90deg, transparent 138deg, rgba(255, 255, 255, 0.14) 180deg, transparent 225deg, rgba(217, 119, 87, 0.10) 270deg, transparent 318deg, rgba(255, 255, 255, 0.14) 360deg),
-          radial-gradient(circle at center, #1f1714 0%, #0c0908 60%, #1d1512 100%);
-        box-shadow: 0 14px 32px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.16);
-        animation: vinylSpin 9s linear infinite;
-        animation-play-state: paused;
-        will-change: transform;
-      }
-      .vinyl-disc.is-spinning {
-        animation-play-state: running;
-      }
       @keyframes tmShimmer {
         0% { transform: translateX(-100%); }
         100% { transform: translateX(220%); }
@@ -495,8 +477,6 @@
     }
     .hub-bento-asym #hubCard-cctv     { order: 1; min-height: 15rem; }
     .hub-bento-asym #hubCard-websites { order: 2; }
-    .hub-bento-asym #hubCard-music    { order: 3; }
-    .hub-bento-asym #hubCard-playlist { order: 4; min-height: 16rem; max-height: 26rem; }
 
     /* Tablet (768px - 1023px): balanced 2-column grid, auto-height rows */
     @media (min-width: 768px) and (max-width: 1023px) {
@@ -505,9 +485,7 @@
         gap: 1rem;
       }
       .hub-bento-asym #hubCard-cctv     { order: 1; min-height: 18rem; }
-      .hub-bento-asym #hubCard-music    { order: 2; min-height: 18rem; }
       .hub-bento-asym #hubCard-websites { order: 3; max-height: none; }
-      .hub-bento-asym #hubCard-playlist { order: 4; min-height: 18rem; max-height: 24rem; }
     }
 
     /* Desktop (>=1024px): asymmetric 42/58 workbench layout */
@@ -530,8 +508,6 @@
       }
       .hub-bento-asym #hubCard-cctv     { grid-column: 1; grid-row: 1 / span 14; min-height: 0; max-height: none; overflow: hidden; }
       .hub-bento-asym #hubCard-websites { grid-column: 1; grid-row: 15 / span 6; min-height: 0; max-height: none; overflow: hidden; }
-      .hub-bento-asym #hubCard-music    { grid-column: 2; grid-row: 1 / span 9;  min-height: 0; max-height: none; overflow: hidden; }
-      .hub-bento-asym #hubCard-playlist { grid-column: 2; grid-row: 10 / span 11; min-height: 0; max-height: none; overflow: hidden; }
       .hub-bento-asym #hubCard-cctv > #hubBigCamViewport { min-height: 0; }
     }
 
@@ -937,14 +913,6 @@
         <div id="hubBigCamViewport" class="relative flex-1 min-h-[14rem] rounded-2xl overflow-hidden cam-viewport flex items-center justify-center"></div>
       </div>
 
-      <!-- 2. SLEEK VINYL PLAYER (Top-Right Card: Circle Vinyl + Title/Artist + Seekbar + 3 Transport Buttons) -->
-      <div id="hubCard-music" class="glass-surface rounded-2xl p-4 sm:p-5 flex flex-col justify-center relative">
-        <div class="hidden" aria-hidden="true">
-          <span id="musicProviderBadge"></span>
-          <span id="musicStatusPill">Standby</span>
-        </div>
-        <div id="musicPlayerContainer" class="flex-1 min-h-0 flex flex-col justify-center"></div>
-      </div>
 
       <!-- 3. WEB STATUS (Compact Bottom-Left Card) -->
       <div id="hubCard-websites" class="glass-surface rounded-2xl p-3.5 sm:p-4 flex flex-col gap-2">
@@ -960,26 +928,6 @@
         <div id="hubActiveWebsitesList" class="space-y-1.5 flex-1 min-h-0 overflow-y-auto pr-0.5"></div>
       </div>
 
-      <!-- 4. PLAYLIST LAGU (Dedicated Bento Card - Tap to Play + Favourites) -->
-      <div id="hubCard-playlist" class="glass-surface rounded-2xl p-4 sm:p-5 space-y-3 flex flex-col">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <div class="flex items-center gap-2 min-w-0">
-            <span class="w-7 h-7 rounded-full bg-[#B8431B] hover:bg-[#9A3412] text-white flex items-center justify-center shrink-0 shadow-xs">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h10M4 18h7m9-4v6m0 0l-2-2m2 2l2-2"/></svg>
-            </span>
-            <h3 class="font-display text-sm font-bold text-[#1C1917] dark:text-[#F5EFE6] truncate">Playlist</h3>
-            <span id="playlistCountBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-500/15 text-[#9A3412] dark:text-[#FDBA74] shrink-0">0</span>
-          </div>
-          <div class="inline-flex p-0.5 rounded-full bg-white/50 dark:bg-zinc-900/65 border border-white/75 dark:border-zinc-700 text-[10px] font-bold shrink-0">
-            <button type="button" data-pl-filter="all" id="plFilterAllBtn" class="px-2.5 py-1 rounded-full cursor-pointer tap-pop transition-colors">All</button>
-            <button type="button" data-pl-filter="fav" id="plFilterFavBtn" class="px-2.5 py-1 rounded-full cursor-pointer tap-pop transition-colors flex items-center gap-1">
-              <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-              <span>Favourites</span>
-            </button>
-          </div>
-        </div>
-        <div id="hubPlaylistContainer" class="flex-1 min-h-0 overflow-y-auto space-y-1.5 pr-0.5"></div>
-      </div>
       </div>
       <div id="hubEmptyNotice" class="hidden glass-surface rounded-2xl p-8 text-center space-y-3">
         <p class="font-display text-sm font-bold text-[#1C1917] dark:text-[#F5EFE6]">All Hub cards are currently hidden</p>
@@ -1064,7 +1012,6 @@
         <!-- Clean Sub-Tab Navigation -->
         <div id="settingsSubNav" class="flex flex-wrap gap-1.5 p-1 rounded-2xl bg-white/45 dark:bg-zinc-900/60 border border-white/70 dark:border-zinc-800" role="tablist" aria-label="Settings Categories">
           <button type="button" data-settings-tab="general" role="tab" aria-selected="true" class="settings-subtab flex-1 min-w-[78px] px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all bg-[#B8431B] hover:bg-[#9A3412] text-white shadow-xs">General</button>
-          <button type="button" data-settings-tab="music" role="tab" aria-selected="false" class="settings-subtab flex-1 min-w-[78px] px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all text-[#57534E] dark:text-[#D6C9BE] hover:bg-white/50 dark:hover:bg-zinc-800/70">Music</button>
           <button type="button" data-settings-tab="devices" role="tab" aria-selected="false" class="settings-subtab flex-1 min-w-[78px] px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all text-[#57534E] dark:text-[#D6C9BE] hover:bg-white/50 dark:hover:bg-zinc-800/70">Devices</button>
           <button type="button" data-settings-tab="websites" role="tab" aria-selected="false" class="settings-subtab flex-1 min-w-[78px] px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all text-[#57534E] dark:text-[#D6C9BE] hover:bg-white/50 dark:hover:bg-zinc-800/70">Websites</button>
           <button type="button" data-settings-tab="backup" role="tab" aria-selected="false" class="settings-subtab flex-1 min-w-[78px] px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all text-[#57534E] dark:text-[#D6C9BE] hover:bg-white/50 dark:hover:bg-zinc-800/70">Backup</button>
@@ -1128,13 +1075,6 @@
             </div>
           </div>
 
-          <div class="space-y-1.5">
-            <label class="block text-[11px] font-semibold text-slate-700 dark:text-zinc-300">Default Music Mode</label>
-            <div class="grid grid-cols-2 p-1 rounded-full bg-white/50 dark:bg-zinc-900/65 border border-white/75 dark:border-zinc-700 text-xs font-semibold">
-              <button type="button" data-set-musicmode="flac" class="set-musicmode-btn py-1.5 rounded-full cursor-pointer tap-pop transition-colors">Local FLAC</button>
-              <button type="button" data-set-musicmode="embed" class="set-musicmode-btn py-1.5 rounded-full cursor-pointer tap-pop transition-colors">Stream Link</button>
-            </div>
-          </div>
 
           <details class="rounded-2xl border border-white/70 dark:border-zinc-800 bg-white/35 dark:bg-zinc-900/40 p-3">
             <summary class="text-xs font-semibold text-slate-800 dark:text-zinc-200 cursor-pointer select-none">Visible Cards &amp; Order</summary>
@@ -1143,71 +1083,6 @@
         </div>
       </div>
 
-      <!-- TAB 2: MUSIC & VINYL -->
-      <div data-settings-panel="music" class="hidden glass-surface rounded-2xl p-4 sm:p-5 space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <h3 class="font-display text-sm font-bold text-[#1C1917] dark:text-[#F5EFE6]">Music &amp; Vinyl Library</h3>
-          <div class="inline-flex p-0.5 rounded-full bg-white/50 dark:bg-zinc-900/65 border border-white/75 dark:border-zinc-700 text-[11px] font-semibold shrink-0">
-            <button type="button" data-music-mode="flac" id="settingsMusicModeFlacBtn" class="px-3 py-1 rounded-full cursor-pointer tap-pop transition-colors">Local FLAC</button>
-            <button type="button" data-music-mode="embed" id="settingsMusicModeEmbedBtn" class="px-3 py-1 rounded-full cursor-pointer tap-pop transition-colors">Stream Link</button>
-          </div>
-        </div>
-
-        <input type="file" id="flacFileInput" accept=".flac,audio/flac,audio/mpeg,audio/mp4,audio/wav,audio/*" multiple class="hidden">
-        <input type="file" id="customCoverInput" accept="image/*" class="hidden">
-
-        <div id="settingsFlacPanel" class="space-y-3.5">
-          <div class="p-3.5 rounded-2xl border border-white/70 dark:border-zinc-800 bg-white/40 dark:bg-zinc-800/40 space-y-3">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-amber-500" id="gdriveStatusDot"></span>
-                <p class="text-xs font-bold text-[#1C1917] dark:text-[#F5EFE6]">Google Drive Folder</p>
-                <span id="gdriveStatusBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/70 dark:bg-zinc-800 text-[#57534E] dark:text-[#D6C9BE]">Not Connected</span>
-              </div>
-              <div class="flex flex-wrap items-center gap-1.5">
-                <button type="button" id="gdriveConnectBtn" class="px-3.5 py-1.5 rounded-full bg-[#B8431B] hover:bg-[#9A3412] text-white text-[11px] font-semibold cursor-pointer tap-pop shadow-xs">Connect Drive</button>
-                <button type="button" id="gdriveSyncBtn" class="hidden px-3 py-1.5 rounded-full bg-white/70 dark:bg-zinc-800 border border-white/80 dark:border-zinc-700 hover:border-orange-400 text-[11px] font-semibold cursor-pointer tap-pop">Sync Folder</button>
-                <button type="button" id="gdriveDisconnectBtn" class="hidden px-2.5 py-1.5 rounded-full text-[11px] font-semibold text-red-600 dark:text-red-400 hover:bg-red-500/10 cursor-pointer">Disconnect</button>
-              </div>
-            </div>
-
-            <details class="rounded-xl border border-white/60 dark:border-zinc-700/70 bg-white/30 dark:bg-zinc-900/35 p-2.5">
-              <summary class="text-[11px] font-semibold text-slate-700 dark:text-zinc-300 cursor-pointer select-none">Drive API Key &amp; Folder ID</summary>
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mt-2.5">
-                <div>
-                  <label for="setGdriveApiKey" class="block text-[10px] font-semibold text-[#57534E] dark:text-[#C7B8AC] mb-1">API Key</label>
-                  <input type="password" id="setGdriveApiKey" autocomplete="off" placeholder="AIza..." class="w-full px-3 py-1.5 text-[11px] font-mono rounded-xl border border-white/75 dark:border-zinc-700 bg-white/65 dark:bg-zinc-900/70 focus:border-orange-500">
-                </div>
-                <div>
-                  <label for="setGdriveFolderId" class="block text-[10px] font-semibold text-[#57534E] dark:text-[#C7B8AC] mb-1">Folder ID or URL</label>
-                  <input type="text" id="setGdriveFolderId" placeholder="Folder ID or URL" class="w-full px-3 py-1.5 text-[11px] font-mono rounded-xl border border-white/75 dark:border-zinc-700 bg-white/65 dark:bg-zinc-900/70 focus:border-orange-500">
-                </div>
-                <div>
-                  <label for="setGdriveClientId" class="block text-[10px] font-semibold text-[#57534E] dark:text-[#C7B8AC] mb-1">OAuth Client ID (Optional)</label>
-                  <input type="text" id="setGdriveClientId" placeholder="xxxx.apps.googleusercontent.com" class="w-full px-3 py-1.5 text-[11px] font-mono rounded-xl border border-white/75 dark:border-zinc-700 bg-white/65 dark:bg-zinc-900/70 focus:border-orange-500">
-                </div>
-              </div>
-            </details>
-          </div>
-
-          <div class="flex flex-wrap items-center gap-2">
-            <button type="button" id="settingsLoadFlacBtn" class="px-4 py-2 rounded-full bg-white/70 dark:bg-zinc-800/85 border border-white/80 dark:border-zinc-700 hover:border-orange-400 text-[#1C1917] dark:text-[#F5EFE6] text-xs font-semibold cursor-pointer tap-pop">+ Load Local Songs</button>
-            <button type="button" id="settingsCoverBtn" class="px-3.5 py-2 rounded-full bg-white/65 dark:bg-zinc-800/80 border border-white/80 dark:border-zinc-700 hover:border-orange-400 text-xs font-semibold cursor-pointer tap-pop">Set Album Cover</button>
-            <button type="button" id="settingsClearFlacBtn" class="hidden px-3.5 py-2 rounded-full bg-red-500/15 hover:bg-red-500/25 text-red-600 dark:text-red-400 text-xs font-bold cursor-pointer tap-pop">Clear Queue</button>
-          </div>
-          <div id="settingsMusicQueueList" class="space-y-1.5"></div>
-        </div>
-
-        <div id="settingsEmbedPanel" class="hidden space-y-2.5">
-          <form id="settingsEmbedForm" class="flex flex-col sm:flex-row gap-2">
-            <input type="url" id="settingsMusicUrlInput" placeholder="https://music.apple.com/... or https://open.spotify.com/..." class="flex-1 px-3.5 py-2 text-xs rounded-xl border border-white/75 dark:border-zinc-700 bg-white/65 dark:bg-zinc-800/80 focus:border-orange-500">
-            <div class="flex items-center gap-2 shrink-0">
-              <button type="submit" class="px-4 py-2 rounded-full bg-[#B8431B] hover:bg-[#9A3412] text-white text-xs font-semibold cursor-pointer tap-pop">Save Link</button>
-              <button type="button" id="settingsClearEmbedBtn" class="px-3.5 py-2 rounded-full bg-white/65 dark:bg-zinc-800/80 border border-white/80 dark:border-zinc-700 text-xs font-semibold text-red-600 dark:text-red-400 cursor-pointer tap-pop">Clear</button>
-            </div>
-          </form>
-        </div>
-      </div>
 
       <!-- TAB 3: AI TOKEN MONITOR SYNC -->
 
@@ -1450,30 +1325,7 @@
     </div>
   </div>
 
-  <!-- MODAL: PASTE APPLE MUSIC / SPOTIFY LINK -->
-  <div id="musicModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-    <div id="musicModalBackdrop" class="absolute inset-0 bg-black/55 backdrop-blur-xs"></div>
-    <div class="relative glass-surface rounded-2xl w-full max-w-md overflow-hidden">
-      <div class="px-5 py-4 border-b border-white/60 dark:border-zinc-800 flex items-center justify-between">
-        <h3 class="text-sm font-bold text-[#1C1917] dark:text-[#F5EFE6]">Connect Apple Music or Spotify</h3>
-        <button type="button" id="closeMusicModalBtn" class="w-7 h-7 rounded-full bg-white/60 dark:bg-zinc-800 flex items-center justify-center cursor-pointer">&times;</button>
-      </div>
-      <form id="musicForm" class="p-5 space-y-3.5">
-        <div>
-          <label class="block text-xs font-semibold mb-1">Playlist, Album, or Track Share Link *</label>
-          <input type="url" id="musicUrlInput" required placeholder="https://music.apple.com/... or https://open.spotify.com/..." class="w-full px-3.5 py-2 text-sm rounded-xl border border-white/75 dark:border-zinc-700 bg-white/65 dark:bg-zinc-800/80 focus:border-orange-500">
-          <p class="text-[11px] text-[#57534E] dark:text-[#C7B8AC] mt-1.5">Paste any regular share URL from Apple Music or Spotify - FiqStudio converts it to an embedded player automatically.</p>
-        </div>
-        <div class="flex justify-end gap-2 pt-1">
-          <button type="button" id="cancelMusicModalBtn" class="px-4 py-2 rounded-full border border-white/75 dark:border-zinc-700 text-xs font-semibold cursor-pointer">Cancel</button>
-          <button type="submit" class="px-5 py-2 rounded-full bg-[#B8431B] hover:bg-[#9A3412] text-white text-xs font-semibold cursor-pointer">Load Player</button>
-        </div>
-      </form>
-    </div>
-  </div>
 
-  <!-- PERSISTENT AUDIO ENGINE (Continues playing across tabs) -->
-  <audio id="flacAudioEl" preload="metadata"></audio>
 
   <!-- TOAST -->
   <div id="toast" class="fixed bottom-24 md:bottom-6 right-4 sm:right-6 z-50 hidden px-4 py-3 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-semibold shadow-lg"></div>
@@ -1487,10 +1339,9 @@
       showClock: true,
       ribbedGlass: true,
       hubLayout: 'bento',
-      hubCards: { cctv: true, music: true, websites: true, playlist: true },
-      hubCardOrder: ['cctv', 'music', 'websites', 'playlist'],
+      hubCards: { cctv: true, websites: true },
+      hubCardOrder: ['cctv', 'websites'],
       hubCctvHeight: 'normal',
-      defaultMusicMode: 'flac',
       webSync: {
         ordersEndpoint: 'orders_log.json',
         reportsEndpoint: 'reports_log.json',
@@ -1499,11 +1350,6 @@
         showOnlyActiveOnHub: true,
         showReportsOnWebTab: true,
         showOrdersOnWebTab: true
-      },
-      googleDrive: {
-        apiKey: '',
-        clientId: '598598339873-iq0qpl8jdg8f6uujg7otd90d7ncqpcmp.apps.googleusercontent.com',
-        folderId: '17tAAiNW6MNRyNZUp7JvwgULsKgCGezME'
       },
       tokenMonitor: {
         mode: 'proxy',
@@ -1527,9 +1373,6 @@
     const DEFAULT_STATE = {
       darkMode: true,
       selectedHubCam: 'cam_1',
-      musicMode: 'flac',
-      musicUrl: '',
-      favoriteTracks: [],
       aiMemories: [],
       websites: [
         { id: 'site_dms', name: 'Design Mania Studio', status: 'Active', url: 'https://designmaniastudio.page.gd/' }
@@ -1550,7 +1393,6 @@
         ...rawSettings,
         hubCards: { ...base.hubCards, ...(rawSettings.hubCards || {}) },
         webSync: { ...base.webSync, ...(rawSettings.webSync || {}) },
-        googleDrive: { ...base.googleDrive, ...(rawSettings.googleDrive || {}) },
         tokenMonitor: { ...base.tokenMonitor, ...(rawSettings.tokenMonitor || {}) },
         smartDevices: {
           ...base.smartDevices,
@@ -1560,7 +1402,7 @@
             : base.smartDevices.items
         }
       };
-      const validKeys = ['cctv', 'music', 'websites', 'playlist'];
+      const validKeys = ['cctv', 'websites'];
       const order = Array.isArray(rawSettings.hubCardOrder)
         ? rawSettings.hubCardOrder.filter(k => validKeys.includes(k))
         : [];
@@ -1584,9 +1426,7 @@
           const p = JSON.parse(raw);
           if (p && Array.isArray(p.websites) && Array.isArray(p.cameras)) {
             p.settings = mergeSettings(p.settings);
-            if (!Array.isArray(p.favoriteTracks)) p.favoriteTracks = [];
             if (!Array.isArray(p.aiMemories)) p.aiMemories = [];
-            if (!p.musicMode) p.musicMode = p.settings.defaultMusicMode || 'flac';
             delete p.chat;
             return p;
           }
@@ -1653,13 +1493,11 @@
           updateServerSyncBadge(d.exists ? 'Server Synced' : 'Server Ready', true);
           if (d.exists && d.data && Array.isArray(d.data.websites) && Array.isArray(d.data.cameras)) {
             const localSecrets = {
-              gdKey: state.settings?.googleDrive?.apiKey || '',
               tmUrl: state.settings?.tokenMonitor?.publicUrl || '',
               dkSec: state.settings?.smartDevices?.workerSecret || '',
               haTok: state.settings?.smartDevices?.haToken || '',
             };
             d.data.settings = mergeSettings(d.data.settings);
-            if (!d.data.settings.googleDrive.apiKey && localSecrets.gdKey) d.data.settings.googleDrive.apiKey = localSecrets.gdKey;
             if (!d.data.settings.tokenMonitor.publicUrl && localSecrets.tmUrl) d.data.settings.tokenMonitor.publicUrl = localSecrets.tmUrl;
             if (!d.data.settings.smartDevices.workerSecret && localSecrets.dkSec) d.data.settings.smartDevices.workerSecret = localSecrets.dkSec;
             if (!d.data.settings.smartDevices.haToken && localSecrets.haTok) d.data.settings.smartDevices.haToken = localSecrets.haTok;
@@ -1679,10 +1517,6 @@
             state = d.data;
             try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
             renderAll();
-            // If permanent API key is saved on server, auto-sync Drive music right away!
-            if (getDriveApiKey() && extractDriveFolderId(state.settings.googleDrive.folderId)) {
-              syncGoogleDriveFolder(true);
-            }
           } else {
             // Seed server file on first run
             pushConfigToServer(true);
@@ -1879,1026 +1713,7 @@
       `;
     }
 
-    function parseMusicEmbed(rawUrl) {
-      const urlStr = String(rawUrl || '').trim();
-      if (!urlStr) return null;
-      try {
-        const u = new URL(urlStr);
-        const host = u.hostname.toLowerCase();
-        if (host.includes('music.apple.com')) {
-          const embedPath = u.pathname + (u.search || '');
-          const isSong = u.searchParams.has('i') || embedPath.includes('/song/');
-          return {
-            provider: 'Apple Music',
-            embedUrl: 'https://embed.music.apple.com' + embedPath,
-            height: isSong ? 175 : 352
-          };
-        }
-        if (host.includes('open.spotify.com')) {
-          const cleanPath = u.pathname.replace(/^\/embed/, '').replace(/^\/intl-[a-z-]+/, '');
-          const isTrack = cleanPath.startsWith('/track/');
-          return {
-            provider: 'Spotify',
-            embedUrl: 'https://open.spotify.com/embed' + cleanPath + '?utm_source=generator&theme=0',
-            height: isTrack ? 152 : 352
-          };
-        }
-      } catch (e) {}
-      return null;
-    }
-
-    // In-memory local FLAC playlist (object URLs cannot persist across browser reloads)
-    let flacQueue = [];
-    let flacIndex = 0;
-    let flacShuffle = false;
-    let flacRepeat = false;
-    let customAlbumCoverUrl = '';
-    let playlistFilter = 'all'; // 'all' | 'fav'
-
-    function getTrackFavKey(track) {
-      if (!track) return '';
-      return track.driveId ? ('gd:' + track.driveId) : ('loc:' + String(track.title || '').toLowerCase());
-    }
-
-    function isTrackFavorite(track) {
-      const key = getTrackFavKey(track);
-      return !!key && Array.isArray(state.favoriteTracks) && state.favoriteTracks.includes(key);
-    }
-
-    function toggleTrackFavorite(track) {
-      const key = getTrackFavKey(track);
-      if (!key) return;
-      if (!Array.isArray(state.favoriteTracks)) state.favoriteTracks = [];
-      const idx = state.favoriteTracks.indexOf(key);
-      if (idx === -1) {
-        state.favoriteTracks.push(key);
-        showToast('Added to Favourites');
-      } else {
-        state.favoriteTracks.splice(idx, 1);
-        showToast('Removed from Favourites');
-      }
-      saveState();
-      renderMusicPlayer();
-      renderHubPlaylist();
-    }
-    const GDRIVE_TOKEN_KEY = 'fiqstudio_gdrive_token_v1';
-    const GDRIVE_CACHE_KEY = 'fiqstudio_gdrive_tracks_v1';
-    let gdriveAccessToken = '';
-    let gdriveTokenExpiry = 0;
-    let gdriveTokenClient = null;
-    let gdriveLoadingTrack = false;
-    const gdriveCoverCache = {};
-
-    function saveGdriveToken(token, expiresInSec) {
-      gdriveAccessToken = token || '';
-      gdriveTokenExpiry = token ? (Date.now() + Math.max(60, (Number(expiresInSec) || 3500) - 60) * 1000) : 0;
-      try {
-        if (token) localStorage.setItem(GDRIVE_TOKEN_KEY, JSON.stringify({ token: gdriveAccessToken, expiresAt: gdriveTokenExpiry }));
-        else localStorage.removeItem(GDRIVE_TOKEN_KEY);
-      } catch (e) {}
-    }
-
-    function restoreGdriveSession() {
-      try {
-        const raw = localStorage.getItem(GDRIVE_TOKEN_KEY);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (parsed && parsed.token && parsed.expiresAt && Date.now() < parsed.expiresAt) {
-            gdriveAccessToken = parsed.token;
-            gdriveTokenExpiry = parsed.expiresAt;
-          } else {
-            localStorage.removeItem(GDRIVE_TOKEN_KEY);
-          }
-        }
-        const cachedRaw = localStorage.getItem(GDRIVE_CACHE_KEY);
-        if (cachedRaw) {
-          const cached = JSON.parse(cachedRaw);
-          if (Array.isArray(cached) && cached.length > 0 && flacQueue.length === 0) {
-            flacQueue = cached.map(t => ({ ...t, url: '', coverUrl: '' }));
-            flacIndex = 0;
-            // Prefetch cover art for current track if token is still valid
-            if (gdriveAccessToken) prefetchTrackArtwork(0);
-          }
-        }
-      } catch (e) {}
-    }
-
-    function saveGdriveTrackCache() {
-      try {
-        const toSave = flacQueue
-          .filter(t => t.source === 'gdrive')
-          .map(t => ({
-            source: 'gdrive',
-            driveId: t.driveId,
-            folderCoverId: t.folderCoverId || '',
-            title: t.title,
-            artist: t.artist || '',
-            album: t.album || '',
-            ext: t.ext,
-            sizeMb: t.sizeMb
-          }));
-        localStorage.setItem(GDRIVE_CACHE_KEY, JSON.stringify(toSave));
-      } catch (e) {}
-    }
-
-    function extractDriveFolderId(raw) {
-      const s = String(raw || '').trim();
-      if (!s) return '';
-      const m = s.match(/\/folders\/([a-zA-Z0-9_-]+)/);
-      if (m) return m[1];
-      const q = s.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-      if (q) return q[1];
-      return s;
-    }
-
-    function getDriveApiKey() {
-      const gd = (state.settings && state.settings.googleDrive) || DEFAULT_SETTINGS.googleDrive;
-      return String(gd.apiKey || '').trim();
-    }
-
-    function hasDriveAuth() {
-      return !!getDriveApiKey() || (!!gdriveAccessToken && Date.now() < gdriveTokenExpiry);
-    }
-
-    function driveFetch(url, extraHeaders = {}) {
-      const apiKey = getDriveApiKey();
-      if (apiKey) {
-        const sep = url.includes('?') ? '&' : '?';
-        return fetch(url + sep + 'key=' + encodeURIComponent(apiKey), { headers: { ...extraHeaders } });
-      }
-      return fetch(url, { headers: { Authorization: 'Bearer ' + gdriveAccessToken, ...extraHeaders } });
-    }
-
-    function buildDriveStreamCandidates(fileId) {
-      const id = encodeURIComponent(fileId);
-      const apiKey = getDriveApiKey();
-      const urls = [];
-      if (apiKey) {
-        urls.push(`https://www.googleapis.com/drive/v3/files/${id}?alt=media&key=${encodeURIComponent(apiKey)}`);
-      }
-      urls.push(`https://drive.usercontent.google.com/download?id=${id}&export=download&confirm=t`);
-      urls.push(`https://drive.google.com/uc?export=open&id=${id}`);
-      return urls;
-    }
-
-    async function fetchDriveCoverById(fileId) {
-      if (!fileId || !hasDriveAuth()) return '';
-      if (gdriveCoverCache[fileId]) return gdriveCoverCache[fileId];
-      try {
-        const res = await driveFetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media`);
-        if (res.ok) {
-          const blob = await res.blob();
-          const url = URL.createObjectURL(blob);
-          gdriveCoverCache[fileId] = url;
-          return url;
-        }
-      } catch (e) {}
-      return '';
-    }
-
-    // Fast 1 MB range-fetch to extract embedded FLAC/MP3/M4A album cover & tags without downloading the whole 40 MB song
-    async function prefetchTrackArtwork(idx) {
-      const track = flacQueue[idx];
-      if (!track || track.source !== 'gdrive' || !hasDriveAuth()) return;
-      if (track.coverUrl && track.album) return;
-      try {
-        if (!track.coverUrl && track.folderCoverId) {
-          const folderArt = await fetchDriveCoverById(track.folderCoverId);
-          if (folderArt) {
-            track.coverUrl = folderArt;
-            renderMusicPlayer();
-            if (activeView === 'settings') renderSettingsMusic();
-          }
-        }
-        const res = await driveFetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(track.driveId)}?alt=media`, { Range: 'bytes=0-1048575' });
-        if (res.status === 401 && !getDriveApiKey()) {
-          saveGdriveToken('', 0);
-          renderSettingsMusic();
-          return;
-        }
-        if (res.ok || res.status === 206) {
-          const blob = await res.blob();
-          const meta = await extractAudioMetadata(blob);
-          let changed = false;
-          if (meta.title && track.title !== meta.title) { track.title = meta.title; changed = true; }
-          if (meta.artist && track.artist !== meta.artist) { track.artist = meta.artist; changed = true; }
-          if (meta.album && track.album !== meta.album) { track.album = meta.album; changed = true; }
-          if (meta.coverUrl) { track.coverUrl = meta.coverUrl; changed = true; }
-          if (changed) {
-            saveGdriveTrackCache();
-            renderMusicPlayer();
-            if (activeView === 'settings') renderSettingsMusic();
-          }
-        }
-      } catch (e) {}
-    }
-
-    function connectGoogleDrive(silent = false) {
-      const gd = (state.settings && state.settings.googleDrive) || DEFAULT_SETTINGS.googleDrive;
-      const clientId = (gd.clientId || '').trim();
-      if (!clientId) {
-        if (!silent) showToast('Enter your Google OAuth Client ID first');
-        return;
-      }
-      if (!window.google || !window.google.accounts || !window.google.accounts.oauth2) {
-        if (!silent) showToast('Google Sign-In library is still loading - check internet connection');
-        return;
-      }
-      try {
-        gdriveTokenClient = window.google.accounts.oauth2.initTokenClient({
-          client_id: clientId,
-          scope: 'https://www.googleapis.com/auth/drive.readonly',
-          callback: async (resp) => {
-            if (resp && resp.error) {
-              if (!silent) showToast('Google Drive sign-in cancelled');
-              return;
-            }
-            if (resp && resp.access_token) {
-              saveGdriveToken(resp.access_token, resp.expires_in);
-              showToast('Google Drive connected - syncing folder...');
-              renderSettingsMusic();
-              await syncGoogleDriveFolder();
-            }
-          }
-        });
-        gdriveTokenClient.requestAccessToken({ prompt: silent ? '' : (gdriveAccessToken ? '' : 'select_account') });
-      } catch (err) {
-        if (!silent) showToast('Google Drive auth error: ' + (err.message || 'Check Client ID & origin'));
-      }
-    }
-
-    async function listDriveFolderItems(folderId) {
-      const q = encodeURIComponent(`'${folderId}' in parents and trashed = false`);
-      const fields = encodeURIComponent('files(id,name,mimeType,size)');
-      const apiUrl = `https://www.googleapis.com/drive/v3/files?q=${q}&fields=${fields}&orderBy=name&pageSize=100`;
-      const res = await driveFetch(apiUrl);
-      if (res.status === 401) throw { code: 401 };
-      if (!res.ok) throw { code: res.status };
-      const data = await res.json();
-      return Array.isArray(data.files) ? data.files : [];
-    }
-
-    async function syncGoogleDriveFolder(silent = false) {
-      if (!hasDriveAuth()) {
-        if (!silent) connectGoogleDrive(false);
-        return;
-      }
-      const gd = (state.settings && state.settings.googleDrive) || DEFAULT_SETTINGS.googleDrive;
-      const rootFolderId = extractDriveFolderId(gd.folderId);
-      if (!rootFolderId) {
-        showToast('Enter a Google Drive Folder ID or URL');
-        return;
-      }
-      const syncBtn = document.getElementById('gdriveSyncBtn');
-      if (syncBtn) syncBtn.textContent = 'Syncing...';
-      try {
-        const rootItems = await listDriveFolderItems(rootFolderId);
-        const isImg = (f) => /^image\//i.test(f.mimeType || '') || /\.(jpg|jpeg|png|webp)$/i.test(f.name || '');
-        const isAudio = (f) => /^audio\//i.test(f.mimeType || '') || /\.(flac|mp3|m4a|wav|ogg|aac)$/i.test(f.name || '');
-        const isFolder = (f) => f.mimeType === 'application/vnd.google-apps.folder';
-
-        const rootCover = rootItems.find(isImg);
-        if (rootCover && !customAlbumCoverUrl) {
-          customAlbumCoverUrl = await fetchDriveCoverById(rootCover.id);
-        }
-
-        const driveTracks = [];
-        // 1. Audio files directly in the root folder
-        rootItems.filter(isAudio).forEach(f => {
-          driveTracks.push({
-            source: 'gdrive',
-            driveId: f.id,
-            folderCoverId: rootCover ? rootCover.id : '',
-            title: cleanTrackName(f.name),
-            artist: '',
-            album: '',
-            coverUrl: '',
-            ext: getTrackExt(f.name),
-            sizeMb: f.size ? (Number(f.size) / (1024 * 1024)).toFixed(1) : ' - ',
-            url: ''
-          });
-        });
-
-        // 2. Scan album subfolders (1 level deep) so album folders & their cover images load automatically
-        const subFolders = rootItems.filter(isFolder).slice(0, 25);
-        for (const sf of subFolders) {
-          try {
-            const subItems = await listDriveFolderItems(sf.id);
-            const subCover = subItems.find(isImg) || rootCover;
-            subItems.filter(isAudio).forEach(f => {
-              driveTracks.push({
-                source: 'gdrive',
-                driveId: f.id,
-                folderCoverId: subCover ? subCover.id : '',
-                title: cleanTrackName(f.name),
-                artist: '',
-                album: sf.name,
-                coverUrl: '',
-                ext: getTrackExt(f.name),
-                sizeMb: f.size ? (Number(f.size) / (1024 * 1024)).toFixed(1) : ' - ',
-                url: ''
-              });
-            });
-          } catch (e) {}
-        }
-
-        if (driveTracks.length === 0) {
-          showToast('No audio files found in that Drive folder or its subfolders');
-          return;
-        }
-
-        // Replace previous Drive tracks cleanly while keeping any local files
-        const audio = document.getElementById('flacAudioEl');
-        const keptLocal = [];
-        flacQueue.forEach(t => {
-          if (t.source === 'gdrive') {
-            if (t.url && t.url.startsWith('blob:')) { if (t.url && t.url.startsWith('blob:')) { try { URL.revokeObjectURL(t.url); } catch (e) {} } }
-            if (t.coverUrl && !Object.values(gdriveCoverCache).includes(t.coverUrl)) { try { URL.revokeObjectURL(t.coverUrl); } catch (e) {} }
-          } else {
-            keptLocal.push(t);
-          }
-        });
-
-        const wasEmpty = keptLocal.length === 0;
-        flacQueue = [...driveTracks, ...keptLocal];
-        if (wasEmpty) {
-          flacIndex = 0;
-          if (audio) { audio.pause(); audio.removeAttribute('src'); audio.load(); }
-        }
-        state.musicMode = 'flac';
-        saveState();
-        saveGdriveTrackCache();
-        renderMusicPlayer();
-        renderSettingsMusic();
-        showToast(`Synced ${driveTracks.length} track${driveTracks.length > 1 ? 's' : ''} from Google Drive`);
-
-        // Immediately load album cover & tags for the first track so Hub Vinyl Player shows real artwork right away
-        await prefetchTrackArtwork(flacIndex);
-      } catch (err) {
-        if (err && err.code === 401) {
-          saveGdriveToken('', 0);
-          renderSettingsMusic();
-          showToast('Drive session expired - click Connect Google Drive again');
-        } else {
-          showToast('Drive sync failed' + (err && err.code ? ` (HTTP ${err.code})` : ''));
-        }
-      } finally {
-        if (syncBtn) syncBtn.textContent = 'Sync Folder';
-      }
-    }
-
-    function disconnectGoogleDrive() {
-      const tok = gdriveAccessToken;
-      saveGdriveToken('', 0);
-      try { localStorage.removeItem(GDRIVE_CACHE_KEY); } catch (e) {}
-      if (tok && window.google && window.google.accounts && window.google.accounts.oauth2) {
-        try { window.google.accounts.oauth2.revoke(tok, () => {}); } catch (e) {}
-      }
-      renderSettingsMusic();
-      showToast('Google Drive disconnected');
-    }
-
-    function fmtAudioTime(sec) {
-      if (!isFinite(sec) || sec < 0) return '0:00';
-      const m = Math.floor(sec / 60);
-      const s = Math.floor(sec % 60);
-      return `${m}:${String(s).padStart(2, '0')}`;
-    }
-
-    function cleanTrackName(filename) {
-      return String(filename || 'Untitled Track')
-        .replace(/\.(flac|mp3|m4a|wav|ogg|aac)$/i, '')
-        .replace(/^\d{1,3}[\s._-]+/, '')
-        .replace(/_/g, ' ')
-        .trim() || filename;
-    }
-
-    function getTrackExt(filename) {
-      const m = String(filename || '').match(/\.([a-z0-9]+)$/i);
-      return m ? m[1].toUpperCase() : 'AUDIO';
-    }
-
-    // Extract embedded album cover + title/artist/album from FLAC (VORBIS_COMMENT + PICTURE) or MP3 (ID3v2)
-    async function extractAudioMetadata(file) {
-      const meta = { title: '', artist: '', album: '', coverUrl: '' };
-      try {
-        const sliceSize = Math.min(file.size, 6 * 1024 * 1024);
-        const buf = await file.slice(0, sliceSize).arrayBuffer();
-        const bytes = new Uint8Array(buf);
-        const dv = new DataView(buf);
-        const dec = new TextDecoder('utf-8');
-
-        // FLAC format: starts with "fLaC"
-        if (bytes.length > 8 && bytes[0] === 0x66 && bytes[1] === 0x4C && bytes[2] === 0x61 && bytes[3] === 0x43) {
-          let offset = 4;
-          while (offset + 4 <= bytes.length) {
-            const header = bytes[offset];
-            const isLast = (header & 0x80) !== 0;
-            const blockType = header & 0x7F;
-            const blockLen = (bytes[offset + 1] << 16) | (bytes[offset + 2] << 8) | bytes[offset + 3];
-            offset += 4;
-            if (offset + blockLen > bytes.length) break;
-
-            if (blockType === 4) {
-              // VORBIS_COMMENT
-              let p = offset;
-              if (p + 4 <= offset + blockLen) {
-                const vendorLen = dv.getUint32(p, true);
-                p += 4 + vendorLen;
-                if (p + 4 <= offset + blockLen) {
-                  const count = dv.getUint32(p, true);
-                  p += 4;
-                  for (let i = 0; i < count && p + 4 <= offset + blockLen; i++) {
-                    const len = dv.getUint32(p, true);
-                    p += 4;
-                    if (p + len > offset + blockLen) break;
-                    const entry = dec.decode(bytes.subarray(p, p + len));
-                    p += len;
-                    const eq = entry.indexOf('=');
-                    if (eq > 0) {
-                      const k = entry.slice(0, eq).toUpperCase();
-                      const v = entry.slice(eq + 1).trim();
-                      if (k === 'TITLE' && v) meta.title = v;
-                      if (k === 'ARTIST' && v) meta.artist = v;
-                      if (k === 'ALBUM' && v) meta.album = v;
-                    }
-                  }
-                }
-              }
-            } else if (blockType === 6 && !meta.coverUrl) {
-              // FLAC PICTURE block
-              let p = offset + 4; // skip picture type
-              if (p + 4 <= offset + blockLen) {
-                const mimeLen = dv.getUint32(p, false);
-                p += 4;
-                const mime = dec.decode(bytes.subarray(p, p + mimeLen)) || 'image/jpeg';
-                p += mimeLen;
-                if (p + 4 <= offset + blockLen) {
-                  const descLen = dv.getUint32(p, false);
-                  p += 4 + descLen + 16; // skip width, height, depth, colors
-                  if (p + 4 <= offset + blockLen) {
-                    const picLen = dv.getUint32(p, false);
-                    p += 4;
-                    if (picLen > 0 && p + picLen <= offset + blockLen) {
-                      const picBytes = bytes.slice(p, p + picLen);
-                      meta.coverUrl = URL.createObjectURL(new Blob([picBytes], { type: mime }));
-                    }
-                  }
-                }
-              }
-            }
-            offset += blockLen;
-            if (isLast) break;
-          }
-        } else if (bytes.length > 10 && bytes[0] === 0x49 && bytes[1] === 0x44 && bytes[2] === 0x33) {
-          // Basic ID3v2.3 / v2.4 parser for MP3
-          const ver = bytes[3];
-          const tagSize = ((bytes[6] & 0x7F) << 21) | ((bytes[7] & 0x7F) << 14) | ((bytes[8] & 0x7F) << 7) | (bytes[9] & 0x7F);
-          let p = 10;
-          const end = Math.min(bytes.length, 10 + tagSize);
-          while (p + 10 < end) {
-            const frameId = dec.decode(bytes.subarray(p, p + 4));
-            if (!/^[A-Z0-9]{4}$/.test(frameId)) break;
-            const frameSize = ver === 4
-              ? (((bytes[p + 4] & 0x7F) << 21) | ((bytes[p + 5] & 0x7F) << 14) | ((bytes[p + 6] & 0x7F) << 7) | (bytes[p + 7] & 0x7F))
-              : dv.getUint32(p + 4, false);
-            p += 10;
-            if (frameSize <= 0 || p + frameSize > end) break;
-            if (frameId === 'APIC' && !meta.coverUrl) {
-              const enc = bytes[p];
-              let q = p + 1;
-              let mimeEnd = q;
-              while (mimeEnd < p + frameSize && bytes[mimeEnd] !== 0) mimeEnd++;
-              const mime = dec.decode(bytes.subarray(q, mimeEnd)) || 'image/jpeg';
-              q = mimeEnd + 2; // null + picture type
-              if (enc === 1 || enc === 2) {
-                while (q + 1 < p + frameSize && !(bytes[q] === 0 && bytes[q + 1] === 0)) q += 2;
-                q += 2;
-              } else {
-                while (q < p + frameSize && bytes[q] !== 0) q++;
-                q += 1;
-              }
-              if (q < p + frameSize) {
-                const picBytes = bytes.slice(q, p + frameSize);
-                meta.coverUrl = URL.createObjectURL(new Blob([picBytes], { type: mime }));
-              }
-            } else if (frameId === 'TIT2' || frameId === 'TPE1' || frameId === 'TALB') {
-              const enc = bytes[p];
-              const rawBytes = bytes.subarray(p + 1, p + frameSize);
-              let text = '';
-              try {
-                text = new TextDecoder(enc === 1 ? 'utf-16' : (enc === 2 ? 'utf-16be' : 'utf-8')).decode(rawBytes).replace(/\0/g, '').trim();
-              } catch (e) {}
-              if (frameId === 'TIT2' && text) meta.title = text;
-              if (frameId === 'TPE1' && text) meta.artist = text;
-              if (frameId === 'TALB' && text) meta.album = text;
-            }
-            p += frameSize;
-          }
-        } else if (bytes.length > 16 && bytes[4] === 0x66 && bytes[5] === 0x74 && bytes[6] === 0x79 && bytes[7] === 0x70) {
-          // MP4 / M4A / ALAC basic covr atom scanner
-          const str = new TextDecoder('latin1').decode(bytes.subarray(0, Math.min(bytes.length, 512 * 1024)));
-          const covrIdx = str.indexOf('covr');
-          if (covrIdx !== -1) {
-            const dataIdx = str.indexOf('data', covrIdx);
-            if (dataIdx !== -1 && dataIdx + 12 < bytes.length) {
-              const atomSize = dv.getUint32(dataIdx - 4, false);
-              const imgStart = dataIdx + 12;
-              const imgEnd = Math.min(bytes.length, dataIdx - 4 + atomSize);
-              if (imgEnd > imgStart) {
-                const isPng = bytes[imgStart] === 0x89 && bytes[imgStart + 1] === 0x50;
-                meta.coverUrl = URL.createObjectURL(new Blob([bytes.slice(imgStart, imgEnd)], { type: isPng ? 'image/png' : 'image/jpeg' }));
-              }
-            }
-          }
-        }
-      } catch (e) {}
-      return meta;
-    }
-
-    async function loadFlacTrack(idx, autoPlay = true) {
-      const audio = document.getElementById('flacAudioEl');
-      if (!audio || flacQueue.length === 0) return;
-      flacIndex = ((idx % flacQueue.length) + flacQueue.length) % flacQueue.length;
-      const track = flacQueue[flacIndex];
-
-      if (track.source === 'gdrive') {
-        const apiKey = getDriveApiKey();
-        if (apiKey || !gdriveAccessToken) {
-          // Direct progressive streaming (no CORS blob issues, instant start, works on iOS Safari)
-          const candidates = buildDriveStreamCandidates(track.driveId);
-          track._streamCandidates = candidates;
-          track._streamAttempt = 0;
-          const streamUrl = candidates[0];
-          track.url = streamUrl;
-          gdriveLoadingTrack = true;
-          if (audio.src !== streamUrl) {
-            audio.src = streamUrl;
-          }
-          if (autoPlay) {
-            audio.play().catch(() => {});
-          }
-          renderMusicPlayer();
-          if (activeView === 'settings') renderSettingsMusic();
-          // Load embedded album cover & tags in background without blocking playback
-          prefetchTrackArtwork(flacIndex);
-          return;
-        }
-
-        // OAuth-only mode (private Drive files without API key)
-        if (!track.url) {
-          if (!hasDriveAuth()) {
-            showToast('Reconnect Google Drive in Settings to stream this track');
-            return;
-          }
-          gdriveLoadingTrack = true;
-          renderMusicPlayer();
-          try {
-            const res = await driveFetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(track.driveId)}?alt=media`);
-            if (res.status === 401) {
-              gdriveAccessToken = '';
-              gdriveLoadingTrack = false;
-              renderMusicPlayer();
-              if (activeView === 'settings') renderSettingsMusic();
-              showToast('Drive session expired - reconnect in Settings');
-              return;
-            }
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            const blob = await res.blob();
-            const meta = await extractAudioMetadata(blob);
-            if (meta.title) track.title = meta.title;
-            if (meta.artist) track.artist = meta.artist;
-            if (meta.album) track.album = meta.album;
-            if (meta.coverUrl) track.coverUrl = meta.coverUrl;
-            else if (!track.coverUrl && track.folderCoverId) {
-              track.coverUrl = await fetchDriveCoverById(track.folderCoverId);
-            }
-            track.url = URL.createObjectURL(blob);
-            saveGdriveTrackCache();
-          } catch (err) {
-            // Fall back to direct public Drive stream if OAuth blob fetch fails
-            const candidates = buildDriveStreamCandidates(track.driveId);
-            track._streamCandidates = candidates;
-            track._streamAttempt = 0;
-            track.url = candidates[0];
-          }
-          gdriveLoadingTrack = false;
-        }
-      }
-
-      if (track.url && audio.src !== track.url) {
-        audio.src = track.url;
-      }
-      if (autoPlay && track.url) {
-        audio.play().catch(() => {});
-      }
-      renderMusicPlayer();
-      if (activeView === 'settings') renderSettingsMusic();
-    }
-
-    function toggleFlacPlay() {
-      const audio = document.getElementById('flacAudioEl');
-      if (!audio || flacQueue.length === 0) return;
-      if (!audio.src) {
-        loadFlacTrack(flacIndex, true);
-        return;
-      }
-      if (audio.paused) audio.play().catch(() => {});
-      else audio.pause();
-      syncVinylPlayState();
-    }
-
-    function syncVinylPlayState() {
-      const audio = document.getElementById('flacAudioEl');
-      const isPlaying = audio && !audio.paused && !!audio.src && flacQueue.length > 0;
-      const disc = document.getElementById('hubVinylDisc');
-      if (disc) disc.classList.toggle('is-spinning', isPlaying);
-      const pill = document.getElementById('musicStatusPill');
-      if (pill && state.musicMode !== 'embed') {
-        pill.textContent = flacQueue.length === 0 ? 'Standby' : (isPlaying ? 'Now Spinning' : 'Paused');
-      }
-      const toggleBtn = document.querySelector('[data-flac-toggle]');
-      if (toggleBtn) {
-        toggleBtn.setAttribute('aria-label', isPlaying ? 'Pause' : 'Play');
-        toggleBtn.innerHTML = isPlaying
-          ? '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>'
-          : '<svg class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
-      }
-      renderHubPlaylist();
-    }
-
-    function nextFlacTrack() {
-      if (flacQueue.length === 0) return;
-      if (flacShuffle && flacQueue.length > 1) {
-        let next = flacIndex;
-        while (next === flacIndex) next = Math.floor(Math.random() * flacQueue.length);
-        loadFlacTrack(next, true);
-      } else {
-        loadFlacTrack(flacIndex + 1, true);
-      }
-    }
-
-    function prevFlacTrack() {
-      const audio = document.getElementById('flacAudioEl');
-      if (flacQueue.length === 0) return;
-      if (audio && audio.currentTime > 3) {
-        audio.currentTime = 0;
-        return;
-      }
-      loadFlacTrack(flacIndex - 1, true);
-    }
-
-    function removeFlacTrack(idx) {
-      if (idx < 0 || idx >= flacQueue.length) return;
-      const audio = document.getElementById('flacAudioEl');
-      const [removed] = flacQueue.splice(idx, 1);
-      if (removed) {
-        if (removed.url && removed.url.startsWith('blob:')) { try { URL.revokeObjectURL(removed.url); } catch (e) {} }
-        if (removed.coverUrl) { try { URL.revokeObjectURL(removed.coverUrl); } catch (e) {} }
-      }
-      if (flacQueue.length === 0) {
-        if (audio) { audio.pause(); audio.removeAttribute('src'); audio.load(); }
-        flacIndex = 0;
-      } else if (idx === flacIndex) {
-        flacIndex = Math.min(flacIndex, flacQueue.length - 1);
-        loadFlacTrack(flacIndex, false);
-      } else if (idx < flacIndex) {
-        flacIndex--;
-      }
-      renderMusicPlayer();
-      if (activeView === 'settings') renderSettingsMusic();
-    }
-
-    function clearFlacQueue() {
-      const audio = document.getElementById('flacAudioEl');
-      if (audio) { audio.pause(); audio.removeAttribute('src'); audio.load(); }
-      flacQueue.forEach(t => {
-        if (t.url && t.url.startsWith('blob:')) { try { URL.revokeObjectURL(t.url); } catch (e) {} }
-        if (t.coverUrl) { try { URL.revokeObjectURL(t.coverUrl); } catch (e) {} }
-      });
-      flacQueue = [];
-      flacIndex = 0;
-      try { localStorage.removeItem(GDRIVE_CACHE_KEY); } catch (e) {}
-      renderMusicPlayer();
-      if (activeView === 'settings') renderSettingsMusic();
-    }
-
-    function syncFlacProgressUi() {
-      const audio = document.getElementById('flacAudioEl');
-      const seek = document.getElementById('flacSeekBar');
-      const curEl = document.getElementById('flacTimeCur');
-      const durEl = document.getElementById('flacTimeDur');
-      if (!audio) return;
-      if (seek && isFinite(audio.duration) && audio.duration > 0) {
-        seek.max = Math.floor(audio.duration);
-        seek.value = Math.floor(audio.currentTime);
-      }
-      if (curEl) curEl.textContent = fmtAudioTime(audio.currentTime);
-      if (durEl) durEl.textContent = fmtAudioTime(audio.duration);
-    }
-
-    function renderVinylArtworkHtml(coverUrl, isPlaying) {
-      const labelInner = coverUrl
-        ? `<img src="${escapeHtml(sanitizeUrl(coverUrl, true))}" alt="Album Cover" class="w-full h-full object-cover rounded-full">`
-        : `<div class="w-full h-full rounded-full bg-gradient-to-br from-[#D97757] via-[#9a3412] to-[#3a160c] ring-1 ring-inset ring-white/20"></div>`;
-
-      return `
-        <div class="relative inline-flex items-center justify-center shrink-0 mx-auto sm:mx-0 select-none">
-          <div id="hubVinylDisc" class="vinyl-disc ${isPlaying ? 'is-spinning' : ''} w-28 h-28 sm:w-32 sm:h-32 lg:w-36 lg:h-36 rounded-full flex items-center justify-center shrink-0 relative">
-            <div class="w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-full overflow-hidden ring-2 ring-[#D97757]/65 shadow-inner relative flex items-center justify-center">
-              ${labelInner}
-              <span class="absolute w-3 h-3 rounded-full bg-[#120b08] ring-2 ring-white/40"></span>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderMusicPlayer() {
-      const box = document.getElementById('musicPlayerContainer');
-      if (!box) return;
-      const badge = document.getElementById('musicProviderBadge');
-      const statusPill = document.getElementById('musicStatusPill');
-      const mode = state.musicMode === 'embed' ? 'embed' : 'flac';
-
-      if (mode === 'embed') {
-        const parsed = parseMusicEmbed(state.musicUrl);
-        if (!parsed) {
-          if (badge) badge.classList.add('hidden');
-          if (statusPill) statusPill.textContent = 'Stream Mode';
-          box.innerHTML = `
-            <div class="p-4 text-center space-y-2.5">
-              <p class="text-xs font-bold text-slate-800 dark:text-zinc-100">No Apple Music or Spotify link configured</p>
-              <p class="text-[11px] text-[#57534E] dark:text-[#C7B8AC]">Open Settings Music &amp; Vinyl Library to paste a stream link or switch to Local FLAC.</p>
-              <button type="button" data-go-settings="1" class="px-4 py-1.5 rounded-full bg-[#B8431B] hover:bg-[#9A3412] text-white text-[11px] font-semibold cursor-pointer tap-pop shadow-xs">Open Settings</button>
-            </div>
-          `;
-          return;
-        }
-        if (badge) { badge.textContent = parsed.provider; badge.classList.remove('hidden'); }
-        if (statusPill) statusPill.textContent = 'Streaming';
-        box.innerHTML = `
-          <div class="rounded-2xl overflow-hidden border border-white/60 dark:border-zinc-800 bg-black/20">
-            <iframe
-              src="${escapeHtml(sanitizeUrl(parsed.embedUrl))}"
-              title="${escapeHtml(parsed.provider)} Player"
-              width="100%"
-              height="${parsed.height}"
-              frameborder="0"
-              allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write"
-              sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"
-              loading="lazy"
-              class="block w-full rounded-2xl"
-            ></iframe>
-          </div>
-        `;
-        return;
-      }
-
-      // LOCAL VINYL PLAYER MODE - Sketch Layout: Circle Vinyl | Title/Artist + Seek Bar + 3 Circle Controls
-      if (flacQueue.length === 0) {
-        if (badge) badge.classList.add('hidden');
-        if (statusPill) statusPill.textContent = 'Standby';
-        renderHubPlaylist();
-        box.innerHTML = `
-          <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-5 w-full">
-            ${renderVinylArtworkHtml(customAlbumCoverUrl, false)}
-            <div class="flex-1 w-full min-w-0 space-y-3 text-center sm:text-left">
-              <div class="space-y-0.5">
-                <p class="font-display text-base sm:text-lg font-bold text-[#1C1917] dark:text-[#F5EFE6] truncate">No record loaded</p>
-                <p class="text-xs text-[#57534E] dark:text-[#C7B8AC] truncate">Load local FLAC files or sync Drive in Settings</p>
-              </div>
-              <div class="space-y-1">
-                <div class="w-full h-1.5 rounded-full bg-slate-900/10 dark:bg-white/10"></div>
-                <div class="flex items-center justify-between text-[10px] font-mono text-[#57534E] dark:text-[#C7B8AC]">
-                  <span>0:00</span>
-                  <span>0:00</span>
-                </div>
-              </div>
-              <div class="flex items-center justify-center sm:justify-between gap-3">
-                <div class="flex items-center gap-2.5">
-                  <button type="button" data-go-settings="1" aria-label="Load songs" class="w-9 h-9 rounded-full bg-white/60 dark:bg-zinc-800/80 border border-white/80 dark:border-zinc-700 text-[#57534E] dark:text-[#C7B8AC] flex items-center justify-center cursor-pointer tap-pop">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
-                  </button>
-                  <button type="button" data-go-settings="1" aria-label="Load songs in Settings" class="w-11 h-11 rounded-full bg-[#B8431B] hover:bg-[#9A3412] text-white flex items-center justify-center cursor-pointer tap-pop shadow-md ">
-                    <svg class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                  </button>
-                  <button type="button" data-go-settings="1" aria-label="Load songs" class="w-9 h-9 rounded-full bg-white/60 dark:bg-zinc-800/80 border border-white/80 dark:border-zinc-700 text-[#57534E] dark:text-[#C7B8AC] flex items-center justify-center cursor-pointer tap-pop">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-                  </button>
-                </div>
-                <button type="button" data-go-settings="1" class="px-3.5 py-1.5 rounded-full bg-white/65 dark:bg-zinc-800/80 border border-white/80 dark:border-zinc-700 hover:border-orange-400 text-[11px] font-semibold cursor-pointer tap-pop shrink-0">Load Songs</button>
-              </div>
-            </div>
-          </div>
-        `;
-        return;
-      }
-
-      const audio = document.getElementById('flacAudioEl');
-      const track = flacQueue[flacIndex] || flacQueue[0];
-      const isPlaying = audio && !audio.paused && !!audio.src;
-      const dur = audio && isFinite(audio.duration) ? audio.duration : 0;
-      const cur = audio ? audio.currentTime : 0;
-      const vol = audio ? Math.round(audio.volume * 100) : 100;
-      const coverUrl = track.coverUrl || customAlbumCoverUrl || '';
-      const subLine = [track.artist, track.album].filter(Boolean).join(' - ') || (track.source === 'gdrive' ? 'Google Drive Lossless' : `${track.ext} Lossless`);
-
-      if (badge) { badge.textContent = `${track.ext} • ${flacQueue.length} track${flacQueue.length > 1 ? 's' : ''}`; badge.classList.remove('hidden'); }
-      if (statusPill) statusPill.textContent = gdriveLoadingTrack ? 'Loading Drive...' : (isPlaying ? 'Now Spinning' : 'Paused');
-
-      const favNow = isTrackFavorite(track);
-
-      box.innerHTML = `
-        <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-5 w-full">
-          ${renderVinylArtworkHtml(coverUrl, isPlaying)}
-
-          <div class="flex-1 w-full min-w-0 space-y-3">
-            <!-- Two-line Title & Artist + Favourite -->
-            <div class="flex items-start justify-between gap-2">
-              <div class="min-w-0">
-                <p class="font-display text-base sm:text-lg font-bold text-[#1C1917] dark:text-[#F5EFE6] truncate leading-snug">${escapeHtml(track.title)}</p>
-                <p class="text-xs font-medium text-[#57534E] dark:text-[#D6C9BE] truncate">${escapeHtml(subLine)}</p>
-              </div>
-              <button type="button" data-fav-idx="${flacIndex}" aria-label="${favNow ? 'Remove from favourites' : 'Add to favourites'}" title="Favourite" class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 cursor-pointer tap-pop transition-colors ${favNow ? 'bg-[#D97757]/20 text-[#9A3412] dark:text-[#FDBA74] dark:text-orange-400 border border-[#D97757]/40' : 'bg-white/60 dark:bg-zinc-800 border border-white/80 dark:border-zinc-700 text-[#57534E] dark:text-[#C7B8AC] hover:text-[#9A3412] dark:text-[#FDBA74]'}">
-                <svg class="w-4 h-4" fill="${favNow ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-              </button>
-            </div>
-
-            <!-- Horizontal Seek Bar -->
-            <div class="space-y-1">
-              <input type="range" id="flacSeekBar" min="0" max="${Math.max(1, Math.floor(dur))}" value="${Math.floor(cur)}" class="w-full h-1.5 rounded-lg cursor-pointer" style="accent-color:#D97757;">
-              <div class="flex items-center justify-between text-[10px] font-mono text-[#57534E] dark:text-[#C7B8AC]">
-                <span id="flacTimeCur">${fmtAudioTime(cur)}</span>
-                <span id="flacTimeDur">${fmtAudioTime(dur)}</span>
-              </div>
-            </div>
-
-            <!-- Three Main Circle Buttons + Subtle Aux Controls -->
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <div class="flex items-center gap-2.5">
-                <button type="button" data-flac-prev="1" aria-label="Previous track" class="w-9 h-9 rounded-full bg-white/70 dark:bg-zinc-800 border border-white/80 dark:border-zinc-700 text-slate-800 dark:text-zinc-100 flex items-center justify-center cursor-pointer tap-pop">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
-                </button>
-                <button type="button" data-flac-toggle="1" aria-label="${isPlaying ? 'Pause' : 'Play'}" class="w-11 h-11 rounded-full bg-[#B8431B] hover:bg-[#9A3412] text-white flex items-center justify-center cursor-pointer tap-pop shadow-md ">
-                  ${isPlaying
-                    ? '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>'
-                    : '<svg class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>'
-                  }
-                </button>
-                <button type="button" data-flac-next="1" aria-label="Next track" class="w-9 h-9 rounded-full bg-white/70 dark:bg-zinc-800 border border-white/80 dark:border-zinc-700 text-slate-800 dark:text-zinc-100 flex items-center justify-center cursor-pointer tap-pop">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-                </button>
-              </div>
-              <div class="flex items-center gap-1.5">
-                <button type="button" data-flac-shuffle="1" title="Shuffle" class="px-2 py-1 rounded-full text-[10px] font-bold cursor-pointer tap-pop ${flacShuffle ? 'bg-[#D97757] text-white' : 'bg-white/60 dark:bg-zinc-800 border border-white/80 dark:border-zinc-700 text-[#57534E] dark:text-[#D6C9BE]'}">SHF</button>
-                <button type="button" data-flac-repeat="1" title="Repeat Track" class="px-2 py-1 rounded-full text-[10px] font-bold cursor-pointer tap-pop ${flacRepeat ? 'bg-[#D97757] text-white' : 'bg-white/60 dark:bg-zinc-800 border border-white/80 dark:border-zinc-700 text-[#57534E] dark:text-[#D6C9BE]'}">RPT</button>
-                <div class="hidden sm:flex items-center gap-1 w-20 ml-1">
-                  <svg class="w-3.5 h-3.5 text-[#57534E] dark:text-[#C7B8AC] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zm4.54 3.46a5 5 0 010 7.07"/></svg>
-                  <input type="range" id="flacVolBar" min="0" max="100" value="${vol}" aria-label="Volume" class="w-full h-1.5 rounded-lg cursor-pointer" style="accent-color:#D97757;">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-      renderHubPlaylist();
-    }
-
-    function renderHubPlaylist() {
-      const box = document.getElementById('hubPlaylistContainer');
-      const countBadge = document.getElementById('playlistCountBadge');
-      const btnAll = document.getElementById('plFilterAllBtn');
-      const btnFav = document.getElementById('plFilterFavBtn');
-      if (!box) return;
-
-      const activePill = 'px-2.5 py-1 rounded-full bg-[#B8431B] hover:bg-[#9A3412] text-white cursor-pointer tap-pop transition-colors flex items-center gap-1';
-      const idlePill = 'px-2.5 py-1 rounded-full text-[#57534E] dark:text-[#D6C9BE] hover:text-slate-900 dark:hover:text-white cursor-pointer tap-pop transition-colors flex items-center gap-1';
-      if (btnAll) btnAll.className = playlistFilter === 'all' ? activePill : idlePill;
-      if (btnFav) btnFav.className = playlistFilter === 'fav' ? activePill : idlePill;
-
-      const indexed = flacQueue.map((t, i) => ({ t, i }));
-      const shown = playlistFilter === 'fav' ? indexed.filter(x => isTrackFavorite(x.t)) : indexed;
-      if (countBadge) countBadge.textContent = String(shown.length);
-
-      if (flacQueue.length === 0) {
-        box.innerHTML = `
-          <div class="p-5 rounded-2xl border border-dashed border-orange-300/60 dark:border-orange-500/30 bg-white/25 dark:bg-zinc-900/25 text-center space-y-2">
-            <p class="text-xs font-bold text-slate-800 dark:text-zinc-200">Your playlist is empty</p>
-            <p class="text-[11px] text-[#57534E] dark:text-[#C7B8AC]">Sync your Google Drive folder or load local songs in Settings.</p>
-            <button type="button" data-go-settings="1" class="px-3.5 py-1.5 rounded-full bg-white/70 dark:bg-zinc-800 border border-white/80 dark:border-zinc-700 hover:border-orange-400 text-[11px] font-semibold cursor-pointer tap-pop">Open Settings</button>
-          </div>
-        `;
-        return;
-      }
-
-      if (shown.length === 0) {
-        box.innerHTML = `
-          <div class="p-5 rounded-2xl border border-dashed border-orange-300/60 dark:border-orange-500/30 bg-white/25 dark:bg-zinc-900/25 text-center">
-            <p class="text-xs font-bold text-slate-800 dark:text-zinc-200">No favourite songs yet</p>
-            <p class="text-[11px] text-[#57534E] dark:text-[#C7B8AC] mt-0.5">Tap the heart button on any song to save it here.</p>
-          </div>
-        `;
-        return;
-      }
-
-      const audio = document.getElementById('flacAudioEl');
-      const isAudioPlaying = audio && !audio.paused && !!audio.src;
-
-      box.innerHTML = shown.map(({ t, i }) => {
-        const isCurrent = i === flacIndex;
-        const fav = isTrackFavorite(t);
-        const sub = [t.artist, t.album].filter(Boolean).join(' • ') || `${t.ext} • ${t.sizeMb} MB`;
-        return `
-          <div data-flac-play="${i}" role="button" tabindex="0" class="w-full px-3 py-2 rounded-2xl flex items-center justify-between gap-2.5 text-left cursor-pointer transition-all ${isCurrent ? 'bg-[#D97757]/20 border border-[#D97757]/45 shadow-xs' : 'bg-white/35 dark:bg-zinc-800/35 hover:bg-white/60 dark:hover:bg-zinc-800/65 border border-white/55 dark:border-zinc-800'}">
-            <div class="flex items-center gap-2.5 min-w-0 flex-1">
-              <span class="w-7 h-7 rounded-xl flex items-center justify-center text-[11px] font-bold shrink-0 ${isCurrent ? 'bg-[#B8431B] hover:bg-[#9A3412] text-white' : 'bg-white/70 dark:bg-zinc-900/70 text-[#57534E] dark:text-[#C7B8AC]'}">
-                ${isCurrent && isAudioPlaying
-                  ? '<svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>'
-                  : (isCurrent ? '<svg class="w-3.5 h-3.5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>' : (i + 1))
-                }
-              </span>
-              <div class="min-w-0 flex-1">
-                <p class="text-xs font-bold truncate ${isCurrent ? 'text-slate-950 dark:text-white' : 'text-slate-800 dark:text-zinc-100'}">${escapeHtml(t.title)}</p>
-                <p class="text-[10px] text-[#57534E] dark:text-[#C7B8AC] truncate">${escapeHtml(sub)}</p>
-              </div>
-            </div>
-            <button type="button" data-fav-idx="${i}" aria-label="${fav ? 'Remove from favourites' : 'Add to favourites'}" class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 cursor-pointer tap-pop transition-colors ${fav ? 'text-[#9A3412] dark:text-[#FDBA74] dark:text-orange-400 bg-[#D97757]/15' : 'text-[#57534E] dark:text-[#C7B8AC] hover:text-[#9A3412] dark:text-[#FDBA74]'}">
-              <svg class="w-4 h-4" fill="${fav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-            </button>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function renderSettingsMusic() {
-      const mode = state.musicMode === 'embed' ? 'embed' : 'flac';
-      const gd = (state.settings && state.settings.googleDrive) || DEFAULT_SETTINGS.googleDrive;
-      const apiInp = document.getElementById('setGdriveApiKey');
-      const cidInp = document.getElementById('setGdriveClientId');
-      const fidInp = document.getElementById('setGdriveFolderId');
-      if (apiInp && document.activeElement !== apiInp) apiInp.value = gd.apiKey || '';
-      if (cidInp && document.activeElement !== cidInp) cidInp.value = gd.clientId || '';
-      if (fidInp && document.activeElement !== fidInp) fidInp.value = gd.folderId || '';
-
-      const usingApiKey = !!getDriveApiKey();
-      const connected = hasDriveAuth();
-      const dot = document.getElementById('gdriveStatusDot');
-      const gdBadge = document.getElementById('gdriveStatusBadge');
-      const connBtn = document.getElementById('gdriveConnectBtn');
-      const syncBtn = document.getElementById('gdriveSyncBtn');
-      const discBtn = document.getElementById('gdriveDisconnectBtn');
-      if (dot) dot.className = `w-2 h-2 rounded-full ${connected ? 'bg-emerald-500' : 'bg-amber-500'}`;
-      if (gdBadge) {
-        gdBadge.textContent = usingApiKey ? 'Permanent (API Key)' : (connected ? 'Connected' : 'Not Connected');
-        gdBadge.className = `text-[10px] font-bold px-2 py-0.5 rounded-full ${connected ? 'bg-emerald-500/15 text-[#166534] dark:text-[#6EE7B7]' : 'bg-white/70 dark:bg-zinc-800 text-[#57534E] dark:text-[#D6C9BE]'}`;
-      }
-      if (connBtn) connBtn.classList.toggle('hidden', connected);
-      if (syncBtn) syncBtn.classList.toggle('hidden', !connected);
-      if (discBtn) discBtn.classList.toggle('hidden', !connected || usingApiKey);
-      const activeCls = 'px-3 py-1 rounded-full bg-[#B8431B] hover:bg-[#9A3412] text-white cursor-pointer tap-pop transition-colors';
-      const idleCls = 'px-3 py-1 rounded-full text-[#57534E] dark:text-[#D6C9BE] hover:text-slate-900 dark:hover:text-white cursor-pointer tap-pop transition-colors';
-      const bf = document.getElementById('settingsMusicModeFlacBtn');
-      const be = document.getElementById('settingsMusicModeEmbedBtn');
-      if (bf) bf.className = mode === 'flac' ? activeCls : idleCls;
-      if (be) be.className = mode === 'embed' ? activeCls : idleCls;
-
-      const fp = document.getElementById('settingsFlacPanel');
-      const ep = document.getElementById('settingsEmbedPanel');
-      if (fp) fp.classList.toggle('hidden', mode !== 'flac');
-      if (ep) ep.classList.toggle('hidden', mode !== 'embed');
-
-      const clearBtn = document.getElementById('settingsClearFlacBtn');
-      if (clearBtn) clearBtn.classList.toggle('hidden', flacQueue.length === 0);
-
-      const urlInp = document.getElementById('settingsMusicUrlInput');
-      if (urlInp && document.activeElement !== urlInp) urlInp.value = state.musicUrl || '';
-
-      const qBox = document.getElementById('settingsMusicQueueList');
-      if (qBox) {
-        qBox.innerHTML = flacQueue.length === 0
-          ? `<p class="text-xs text-[#57534E] dark:text-[#C7B8AC] p-3.5 rounded-2xl border border-dashed border-orange-300/60 dark:border-orange-500/30 bg-white/25 dark:bg-zinc-900/25 text-center">No songs loaded yet. Click "+ Load Songs" above to add .flac or audio files to the Hub Vinyl Player.</p>`
-          : flacQueue.map((t, i) => `
-              <div class="p-2.5 rounded-2xl border border-white/70 dark:border-zinc-800 bg-white/40 dark:bg-zinc-800/40 flex items-center justify-between gap-2.5">
-                <div class="flex items-center gap-2.5 min-w-0">
-                  <div class="w-9 h-9 rounded-xl overflow-hidden bg-[#B8431B] hover:bg-[#9A3412] shrink-0 flex items-center justify-center text-white text-[10px] font-bold">
-                    ${(t.coverUrl || customAlbumCoverUrl) ? `<img src="${escapeHtml(sanitizeUrl(t.coverUrl || customAlbumCoverUrl, true))}" alt="" class="w-full h-full object-cover">` : escapeHtml(t.ext)}
-                  </div>
-                  <div class="min-w-0">
-                    <p class="text-xs font-bold text-[#1C1917] dark:text-[#F5EFE6] truncate">${i + 1}. ${escapeHtml(t.title)}</p>
-                    <p class="text-[11px] text-[#57534E] dark:text-[#C7B8AC] truncate">${escapeHtml(t.artist || t.ext + ' Lossless')} &bull; ${t.sizeMb} MB</p>
-                  </div>
-                </div>
-                <div class="flex items-center gap-1.5 shrink-0">
-                  <button type="button" data-flac-play="${i}" class="px-2.5 py-1 rounded-full bg-white/70 dark:bg-zinc-800 border border-white/80 dark:border-zinc-700 text-[10px] font-bold cursor-pointer tap-pop">${i === flacIndex ? 'Playing' : 'Play'}</button>
-                  <button type="button" data-del-flac="${i}" class="px-2 py-1 rounded-full text-[10px] font-bold text-red-600 hover:bg-red-500/10 cursor-pointer">&times;</button>
-                </div>
-              </div>
-            `).join('');
-      }
-    }
-
-    // TAB 1: CUSTOMIZABLE 2x2 BENTO HUB (CCTV, Vinyl Player, Websites & Playlist)
+    // TAB 1: HUB (CCTV & Websites)
     function renderHub() {
       const s = state.settings || DEFAULT_SETTINGS;
       const container = document.getElementById('hubCardsContainer');
@@ -2906,13 +1721,11 @@
 
       const cardMap = {
         cctv: document.getElementById('hubCard-cctv'),
-        music: document.getElementById('hubCard-music'),
-        websites: document.getElementById('hubCard-websites'),
-        playlist: document.getElementById('hubCard-playlist')
+        websites: document.getElementById('hubCard-websites')
       };
 
       let visibleCount = 0;
-      (s.hubCardOrder || ['cctv', 'music', 'websites', 'playlist']).forEach(key => {
+      (s.hubCardOrder || ['cctv', 'websites']).forEach(key => {
         const el = cardMap[key];
         if (!el) return;
         const visible = s.hubCards ? s.hubCards[key] !== false : true;
@@ -2945,7 +1758,6 @@
         vp.innerHTML = renderCamScreenHtml(activeCam);
       }
 
-      renderMusicPlayer();
       renderHubTokenBar();
       renderHubDevices();
 
@@ -3089,12 +1901,10 @@
 
       const cardMeta = {
         cctv: { label: 'Tapo C225 CCTV Display', desc: 'Live camera viewport & stream selector' },
-        music: { label: 'Vinyl Player', desc: 'Album cover, rotating vinyl & controls' },
-        websites: { label: 'Active Websites', desc: 'Site health & open footer reports' },
-        playlist: { label: 'Playlist Lagu', desc: 'Tap-to-play song list & favourites' }
+        websites: { label: 'Active Websites', desc: 'Site health & open footer reports' }
       };
 
-      const order = s.hubCardOrder || ['cctv', 'music', 'websites', 'playlist'];
+      const order = s.hubCardOrder || ['cctv', 'websites'];
       document.getElementById('settingsHubCardsList').innerHTML = order.map((key, idx) => {
         const meta = cardMeta[key];
         const on = s.hubCards ? s.hubCards[key] !== false : true;
@@ -3121,10 +1931,6 @@
         const active = btn.dataset.setCamh === (s.hubCctvHeight || 'normal');
         btn.className = `set-camh-btn py-1.5 rounded-full cursor-pointer tap-pop transition-colors ${active ? 'bg-[#B8431B] hover:bg-[#9A3412] text-white shadow-xs' : 'text-slate-700 dark:text-zinc-300'}`;
       });
-      document.querySelectorAll('.set-musicmode-btn').forEach(btn => {
-        const active = btn.dataset.setMusicmode === (s.defaultMusicMode || 'flac');
-        btn.className = `set-musicmode-btn py-1.5 rounded-full cursor-pointer tap-pop transition-colors ${active ? 'bg-[#B8431B] hover:bg-[#9A3412] text-white shadow-xs' : 'text-slate-700 dark:text-zinc-300'}`;
-      });
       document.querySelectorAll('.set-theme-btn').forEach(btn => {
         const active = (btn.dataset.setTheme === 'dark') === !!state.darkMode;
         btn.className = `set-theme-btn py-1.5 rounded-full cursor-pointer tap-pop transition-colors ${active ? 'bg-[#B8431B] hover:bg-[#9A3412] text-white shadow-xs' : 'text-slate-700 dark:text-zinc-300'}`;
@@ -3150,7 +1956,6 @@
       if (we && document.activeElement !== we) we.value = wsCfg.webhookEndpoint || 'order_webhook.php';
       if (as) as.value = String(wsCfg.autoSyncSeconds || 0);
 
-      renderSettingsMusic();
       renderSettingsTokenMonitor();
       renderSettingsDevices();
 
@@ -4649,7 +3454,6 @@
     // Modals
     const closeWs = () => document.getElementById('websiteModal').classList.add('hidden');
     const closeCam = () => document.getElementById('cameraModal').classList.add('hidden');
-    const closeMusic = () => document.getElementById('musicModal').classList.add('hidden');
 
     document.getElementById('addWebsiteBtn').addEventListener('click', () => openWebsiteEditor(null));
     document.getElementById('closeWebsiteModalBtn').addEventListener('click', closeWs);
@@ -4687,156 +3491,7 @@
       saveState(); closeCam(); renderAll();
     });
 
-    function openMusicModal() {
-      document.getElementById('musicUrlInput').value = state.musicUrl || '';
-      document.getElementById('musicModal').classList.remove('hidden');
-    }
     document.getElementById('saveToServerBtn').addEventListener('click', () => pushConfigToServer(false));
-    document.getElementById('gdriveConnectBtn').addEventListener('click', () => connectGoogleDrive(false));
-    document.getElementById('gdriveSyncBtn').addEventListener('click', () => syncGoogleDriveFolder(false));
-    document.getElementById('gdriveDisconnectBtn').addEventListener('click', disconnectGoogleDrive);
-    document.getElementById('setGdriveApiKey').addEventListener('input', (e) => {
-      state.settings.googleDrive.apiKey = e.target.value.trim();
-      saveState(); renderSettingsMusic();
-    });
-    document.getElementById('setGdriveClientId').addEventListener('input', (e) => {
-      state.settings.googleDrive.clientId = e.target.value.trim();
-      saveState();
-    });
-    document.getElementById('setGdriveFolderId').addEventListener('input', (e) => {
-      state.settings.googleDrive.folderId = e.target.value.trim();
-      saveState();
-    });
-    document.getElementById('settingsLoadFlacBtn').addEventListener('click', () => document.getElementById('flacFileInput').click());
-    document.getElementById('settingsCoverBtn').addEventListener('click', () => document.getElementById('customCoverInput').click());
-    document.getElementById('customCoverInput').addEventListener('change', (e) => {
-      const f = e.target.files && e.target.files[0];
-      if (!f) return;
-      const allowedImg = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-      if (!allowedImg.includes(f.type) || f.size > 5 * 1024 * 1024) {
-        showToast('Cover must be JPG/PNG/WebP/GIF under 5 MB');
-        e.target.value = '';
-        return;
-      }
-      if (customAlbumCoverUrl) { try { URL.revokeObjectURL(customAlbumCoverUrl); } catch (err) {} }
-      customAlbumCoverUrl = URL.createObjectURL(f);
-      if (flacQueue[flacIndex]) flacQueue[flacIndex].coverUrl = customAlbumCoverUrl;
-      e.target.value = '';
-      renderMusicPlayer();
-      renderSettingsMusic();
-      showToast('Album cover updated');
-    });
-    document.getElementById('flacFileInput').addEventListener('change', async (e) => {
-      const files = Array.from(e.target.files || []);
-      if (!files.length) return;
-      const wasEmpty = flacQueue.length === 0;
-      for (const f of files) {
-        const meta = await extractAudioMetadata(f);
-        flacQueue.push({
-          title: meta.title || cleanTrackName(f.name),
-          artist: meta.artist || '',
-          album: meta.album || '',
-          coverUrl: meta.coverUrl || '',
-          ext: getTrackExt(f.name),
-          sizeMb: (f.size / (1024 * 1024)).toFixed(1),
-          url: URL.createObjectURL(f)
-        });
-      }
-      e.target.value = '';
-      state.musicMode = 'flac';
-      saveState();
-      if (wasEmpty) loadFlacTrack(0, true);
-      else { renderMusicPlayer(); renderSettingsMusic(); }
-      showToast(`Loaded ${files.length} track${files.length > 1 ? 's' : ''} to Vinyl Player`);
-    });
-    document.getElementById('settingsClearFlacBtn').addEventListener('click', () => {
-      clearFlacQueue();
-      showToast('Music queue cleared');
-    });
-    document.getElementById('settingsEmbedForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const raw = document.getElementById('settingsMusicUrlInput').value.trim();
-      const parsed = parseMusicEmbed(raw);
-      if (!parsed) {
-        showToast('Please paste a valid Apple Music or Spotify link');
-        return;
-      }
-      state.musicUrl = raw;
-      state.musicMode = 'embed';
-      saveState(); renderMusicPlayer(); renderSettingsMusic(); showToast(parsed.provider + ' link saved');
-    });
-    document.getElementById('settingsClearEmbedBtn').addEventListener('click', () => {
-      state.musicUrl = '';
-      saveState(); renderMusicPlayer(); renderSettingsMusic(); showToast('Stream link cleared');
-    });
-
-    const flacAudioEl = document.getElementById('flacAudioEl');
-    flacAudioEl.addEventListener('timeupdate', syncFlacProgressUi);
-    flacAudioEl.addEventListener('loadedmetadata', () => {
-      gdriveLoadingTrack = false;
-      syncFlacProgressUi();
-      syncVinylPlayState();
-    });
-    flacAudioEl.addEventListener('canplay', () => {
-      if (gdriveLoadingTrack) {
-        gdriveLoadingTrack = false;
-        syncVinylPlayState();
-      }
-    });
-    flacAudioEl.addEventListener('play', () => {
-      gdriveLoadingTrack = false;
-      syncVinylPlayState();
-    });
-    flacAudioEl.addEventListener('pause', syncVinylPlayState);
-    flacAudioEl.addEventListener('error', () => {
-      const track = flacQueue[flacIndex];
-      if (track && track.source === 'gdrive') {
-        const candidates = Array.isArray(track._streamCandidates) && track._streamCandidates.length
-          ? track._streamCandidates
-          : buildDriveStreamCandidates(track.driveId);
-        const nextAttempt = (typeof track._streamAttempt === 'number' ? track._streamAttempt : 0) + 1;
-        if (nextAttempt < candidates.length) {
-          track._streamCandidates = candidates;
-          track._streamAttempt = nextAttempt;
-          const nextUrl = candidates[nextAttempt];
-          track.url = nextUrl;
-          flacAudioEl.src = nextUrl;
-          flacAudioEl.play().catch(() => {});
-          return;
-        }
-      }
-      gdriveLoadingTrack = false;
-      syncVinylPlayState();
-      showToast('Could not play this Drive track - check file sharing or try another song');
-    });
-    flacAudioEl.addEventListener('ended', () => {
-      if (flacRepeat) { flacAudioEl.currentTime = 0; flacAudioEl.play().catch(() => {}); }
-      else nextFlacTrack();
-    });
-
-    document.addEventListener('input', (e) => {
-      if (e.target && e.target.id === 'flacSeekBar') {
-        flacAudioEl.currentTime = Number(e.target.value) || 0;
-      }
-      if (e.target && e.target.id === 'flacVolBar') {
-        flacAudioEl.volume = Math.min(1, Math.max(0, (Number(e.target.value) || 0) / 100));
-      }
-    });
-    document.getElementById('closeMusicModalBtn').addEventListener('click', closeMusic);
-    document.getElementById('cancelMusicModalBtn').addEventListener('click', closeMusic);
-    document.getElementById('musicModalBackdrop').addEventListener('click', closeMusic);
-    document.getElementById('musicForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const raw = document.getElementById('musicUrlInput').value.trim();
-      const parsed = parseMusicEmbed(raw);
-      if (!parsed) {
-        showToast('Please paste a valid Apple Music or Spotify link');
-        return;
-      }
-      state.musicUrl = raw;
-      state.musicMode = 'embed';
-      saveState(); closeMusic(); renderMusicPlayer(); showToast(parsed.provider + ' player loaded');
-    });
 
     document.getElementById('testReportBtn').addEventListener('click', () => {
       state.reports.unshift({ id: 'rep_' + Date.now(), siteId: 'site_dms', siteName: 'Design Mania Studio', issueType: 'Website Bug', reporter: 'Test Client', message: 'Sample footer report from Design Mania Studio.', status: 'Open', timestamp: new Date().toISOString().slice(0, 16).replace('T', ' ') });
@@ -4849,9 +3504,6 @@
 
     // Delegated Actions
     document.addEventListener('click', (e) => {
-      const mm = e.target.closest('[data-music-mode]');
-      if (mm) { state.musicMode = mm.dataset.musicMode; saveState(); renderMusicPlayer(); if (activeView === 'settings') renderSettingsMusic(); return; }
-
       const gs = e.target.closest('[data-go-settings]');
       if (gs) { setView('settings'); return; }
 
@@ -4899,44 +3551,6 @@
         return;
       }
 
-      const df = e.target.closest('[data-del-flac]');
-      if (df) { removeFlacTrack(Number(df.dataset.delFlac)); showToast('Track removed'); return; }
-
-      const ft = e.target.closest('[data-flac-toggle]');
-      if (ft) { toggleFlacPlay(); return; }
-
-      const fn = e.target.closest('[data-flac-next]');
-      if (fn) { nextFlacTrack(); return; }
-
-      const fp = e.target.closest('[data-flac-prev]');
-      if (fp) { prevFlacTrack(); return; }
-
-      const fs = e.target.closest('[data-flac-shuffle]');
-      if (fs) { flacShuffle = !flacShuffle; renderMusicPlayer(); return; }
-
-      const fr = e.target.closest('[data-flac-repeat]');
-      if (fr) { flacRepeat = !flacRepeat; renderMusicPlayer(); return; }
-
-      const favBtn = e.target.closest('[data-fav-idx]');
-      if (favBtn) {
-        const idx = Number(favBtn.dataset.favIdx);
-        if (flacQueue[idx]) toggleTrackFavorite(flacQueue[idx]);
-        return;
-      }
-
-      const plf = e.target.closest('[data-pl-filter]');
-      if (plf) {
-        playlistFilter = plf.dataset.plFilter === 'fav' ? 'fav' : 'all';
-        renderHubPlaylist();
-        return;
-      }
-
-      const fq = e.target.closest('[data-flac-play]');
-      if (fq) { loadFlacTrack(Number(fq.dataset.flacPlay), true); return; }
-
-      const om = e.target.closest('[data-open-music]');
-      if (om) { openMusicModal(); return; }
-
       const thc = e.target.closest('[data-toggle-hub-card]');
       if (thc) {
         const key = thc.dataset.toggleHubCard;
@@ -4964,9 +3578,6 @@
 
       const sch = e.target.closest('[data-set-camh]');
       if (sch) { state.settings.hubCctvHeight = sch.dataset.setCamh; saveState(); renderSettings(); showToast('CCTV height updated'); return; }
-
-      const smm = e.target.closest('[data-set-musicmode]');
-      if (smm) { state.settings.defaultMusicMode = smm.dataset.setMusicmode; state.musicMode = smm.dataset.setMusicmode; saveState(); renderSettings(); showToast('Default music mode updated'); return; }
 
       const tmp = e.target.closest('[data-tm-period]');
       if (tmp) { tmPeriod = tmp.dataset.tmPeriod; renderTokenMonitor(); return; }
@@ -5069,14 +3680,10 @@
       ['desktopNavTrack', 'mobileNavTrack'].forEach(id => { const el = document.getElementById(id); if (el) ro.observe(el); });
     }
 
-    restoreGdriveSession();
     renderAll();
     pullLiveLogs(true);
     pullConfigFromServer();
     if (getSmartDevicesCfg().workerUrl || getSmartDevicesCfg().haUrl || SERVER_PROXY) syncSmartDevices(true);
-    if (getDriveApiKey() && extractDriveFolderId(state.settings.googleDrive.folderId) && flacQueue.length === 0) {
-      syncGoogleDriveFolder(true);
-    }
   
     // Clean Settings Category Sub-Tabs
     (function initSettingsSubTabs() {
