@@ -864,15 +864,11 @@
       </div>
 
       <!-- Center: Desktop 5-Tab Sliding Pill Navigation -->
-      <nav id="desktopNavTrack" class="hidden md:grid grid-cols-5 gap-1 items-center relative h-10 p-1 rounded-full bg-white/40 dark:bg-zinc-900/50 border border-white/60 dark:border-zinc-800 shrink-0" aria-label="Main navigation">
+      <nav id="desktopNavTrack" class="hidden md:grid grid-cols-4 gap-1 items-center relative h-10 p-1 rounded-full bg-white/40 dark:bg-zinc-900/50 border border-white/60 dark:border-zinc-800 shrink-0" aria-label="Main navigation">
         <div id="desktopNavSlider" class="nav-pill-slider absolute top-1 bottom-1 left-0 rounded-full bg-[#B8431B] shadow-md  pointer-events-none" style="width:0;opacity:0;"></div>
         <button type="button" data-view="hub" class="nav-btn relative z-10 h-8 px-4 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer tap-pop transition-colors">
           <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
           <span>Hub</span>
-        </button>
-        <button type="button" data-view="tokens" class="nav-btn relative z-10 h-8 px-4 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer tap-pop transition-colors">
-          <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-          <span>Tokens</span>
         </button>
         <button type="button" data-view="websites" class="nav-btn relative z-10 h-8 px-4 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer tap-pop transition-colors">
           <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/></svg>
@@ -906,50 +902,6 @@
     <!-- ================================================================== -->
     <section id="view-hub" class="view-section space-y-3">
       <!-- ANIMATED AI USAGE & QUOTA WIDGET (Header on top + Stacked Provider Rows) -->
-      <div id="hubTokenBar" role="button" tabindex="0" class="w-full glass-surface glass-card-hover rounded-2xl px-4 py-3.5 flex flex-col gap-3 text-left cursor-pointer tap-pop">
-        <!-- Top Header Row: Animated AI Logo + AI Usage + Totals + Details -->
-        <div class="flex items-center justify-between gap-3">
-          <div class="flex items-center gap-3 min-w-0">
-            <div class="relative w-10 h-10 rounded-full bg-[#141414]/95 border border-white/15 flex items-center justify-center shadow-md shadow-black/45 shrink-0">
-              <svg id="hubClawdSvg" class="ai-logo-motion w-7 h-7" viewBox="0 0 240 240" aria-hidden="true">
-                <defs>
-                  <filter id="hubAiTracerGlow" x="-40%" y="-40%" width="180%" height="180%">
-                    <feGaussianBlur stdDeviation="5" result="blur" />
-                    <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-                  </filter>
-                </defs>
-                <path class="ai-frame-base" d="M 120 43 L 64 43 A 30 30 0 0 0 34 73 L 34 175 A 30 30 0 0 0 64 205 L 166 205 A 30 30 0 0 0 196 175 L 196 118" fill="none" stroke="#ffffff" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
-                <path class="ai-frame-tracer" d="M 120 43 L 64 43 A 30 30 0 0 0 34 73 L 34 175 A 30 30 0 0 0 64 205 L 166 205 A 30 30 0 0 0 196 175 L 196 118" fill="none" stroke="#ffffff" stroke-width="15.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#hubAiTracerGlow)" />
-                <path class="ai-letter-a" fill="#ffffff" fill-rule="evenodd" d="M 96.5 83 L 108.5 83 L 138 164 L 124.2 164 L 117.6 144.8 L 87.4 144.8 L 80.8 164 L 67 164 Z M 102.5 99.5 L 91.5 132.4 L 113.5 132.4 Z" />
-                <rect class="ai-letter-i" x="150" y="83" width="13" height="81" rx="1.2" fill="#ffffff" />
-                <path class="ai-sp-lg" fill="#ffffff" d="M 171.5 26.7 Q 173.8 44.9 192 47.2 Q 173.8 49.5 171.5 67.7 Q 169.2 49.5 151 47.2 Q 169.2 44.9 171.5 26.7 Z" />
-                <path class="ai-sp-md" fill="#ffffff" d="M 194.1 58.5 Q 195.7 70.4 207.6 72 Q 195.7 73.6 194.1 85.5 Q 192.5 73.6 180.6 72 Q 192.5 70.4 194.1 58.5 Z" />
-                <path class="ai-sp-sm" fill="#ffffff" d="M 194 21.2 Q 195 28.2 202 29.2 Q 195 30.2 194 37.2 Q 193 30.2 186 29.2 Q 193 28.2 194 21.2 Z" />
-              </svg>
-              <span id="hubTmPing" class="hidden absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 tm-live-ping"></span>
-              <span id="hubTmDot" class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-slate-400 ring-2 ring-[#190e09]"></span>
-            </div>
-            <div class="min-w-0 flex flex-wrap items-center gap-x-2.5 gap-y-0.5">
-              <div class="flex items-center gap-2">
-                <span class="font-display text-sm font-bold text-[#1C1917] dark:text-[#F5EFE6]">AI Usage</span>
-                <span id="hubTmLiveTag" class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-white/60 dark:bg-zinc-800 text-[#57534E] dark:text-[#C7B8AC]">Offline</span>
-              </div>
-              <div class="flex items-baseline gap-2">
-                <span id="hubTmTokensRoll" class="font-display text-sm sm:text-base font-extrabold text-[#1C1917] dark:text-[#F5EFE6] leading-none tabular-nums">0</span>
-                <span id="hubTmCostRoll" class="text-[11px] font-mono font-semibold text-[#C85A32] dark:text-orange-300 leading-none tabular-nums">$0.00</span>
-                <span id="hubTmSummary" class="text-[10px] text-[#57534E] dark:text-[#C7B8AC]">Today</span>
-              </div>
-            </div>
-          </div>
-
-          <span class="text-[11px] font-semibold text-[#C85A32] dark:text-orange-400 whitespace-nowrap shrink-0">Details</span>
-        </div>
-
-        <!-- Stacked Provider Pill Rows: [Logo] [Daily Bar | Weekly Bar] [Pie Chart if tokens > 0] -->
-        <div id="hubTmProvidersTrack" class="w-full flex flex-col gap-2">
-          <span class="text-[11px] text-[#57534E] dark:text-[#C7B8AC] truncate">Tap to connect Token Monitor or preview sample data</span>
-        </div>
-      </div>
 
       <!-- QUICK DEVICE CONTROL STRIP (GO DAIKIN AC & Home Assistant Devices) -->
       <div id="hubDevicesBar" class="w-full glass-surface rounded-2xl px-4 py-3 flex flex-col gap-2.5">
@@ -1039,110 +991,6 @@
     <!-- ================================================================== -->
     <!-- TAB: AI TOKEN MONITOR (Live Usage, Costs, Limits & Devices)        -->
     <!-- ================================================================== -->
-    <section id="view-tokens" class="view-section hidden space-y-4">
-      <!-- Top Control Bar -->
-      <div class="glass-surface rounded-2xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3">
-        <div class="flex items-center gap-3 min-w-0">
-          <div class="w-11 h-11 rounded-2xl bg-[#141414]/95 border border-white/15 flex items-center justify-center shadow-md shadow-black/45 shrink-0">
-            <svg id="tabClawdSvg" class="ai-logo-motion w-8 h-8" viewBox="0 0 240 240" aria-hidden="true">
-              <defs>
-                <filter id="tabAiTracerGlow" x="-40%" y="-40%" width="180%" height="180%">
-                  <feGaussianBlur stdDeviation="5" result="blur" />
-                  <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-                </filter>
-              </defs>
-              <path class="ai-frame-base" d="M 120 43 L 64 43 A 30 30 0 0 0 34 73 L 34 175 A 30 30 0 0 0 64 205 L 166 205 A 30 30 0 0 0 196 175 L 196 118" fill="none" stroke="#ffffff" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
-              <path class="ai-frame-tracer" d="M 120 43 L 64 43 A 30 30 0 0 0 34 73 L 34 175 A 30 30 0 0 0 64 205 L 166 205 A 30 30 0 0 0 196 175 L 196 118" fill="none" stroke="#ffffff" stroke-width="15.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#tabAiTracerGlow)" />
-              <path class="ai-letter-a" fill="#ffffff" fill-rule="evenodd" d="M 96.5 83 L 108.5 83 L 138 164 L 124.2 164 L 117.6 144.8 L 87.4 144.8 L 80.8 164 L 67 164 Z M 102.5 99.5 L 91.5 132.4 L 113.5 132.4 Z" />
-              <rect class="ai-letter-i" x="150" y="83" width="13" height="81" rx="1.2" fill="#ffffff" />
-              <path class="ai-sp-lg" fill="#ffffff" d="M 171.5 26.7 Q 173.8 44.9 192 47.2 Q 173.8 49.5 171.5 67.7 Q 169.2 49.5 151 47.2 Q 169.2 44.9 171.5 26.7 Z" />
-              <path class="ai-sp-md" fill="#ffffff" d="M 194.1 58.5 Q 195.7 70.4 207.6 72 Q 195.7 73.6 194.1 85.5 Q 192.5 73.6 180.6 72 Q 192.5 70.4 194.1 58.5 Z" />
-              <path class="ai-sp-sm" fill="#ffffff" d="M 194 21.2 Q 195 28.2 202 29.2 Q 195 30.2 194 37.2 Q 193 30.2 186 29.2 Q 193 28.2 194 21.2 Z" />
-            </svg>
-          </div>
-          <div class="min-w-0">
-          <div class="flex items-center gap-2 flex-wrap">
-            <h2 class="font-display text-base font-bold text-[#1C1917] dark:text-[#F5EFE6]">AI Token Monitor</h2>
-            <span id="tmStatusBadge" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-white/70 dark:bg-zinc-800 text-[#57534E] dark:text-[#D6C9BE]">Not Connected</span>
-          </div>
-          <p id="tmUpdatedText" class="text-xs text-[#57534E] dark:text-[#C7B8AC] mt-0.5">Connect your Token Monitor Hub in Settings to view live usage &amp; rate limits.</p>
-          </div>
-        </div>
-        <div class="flex flex-wrap items-center gap-2 shrink-0">
-          <div class="inline-flex p-0.5 rounded-full bg-white/50 dark:bg-zinc-900/65 border border-white/75 dark:border-zinc-700 text-[11px] font-semibold">
-            <button type="button" data-tm-period="today" class="tm-period-btn px-3 py-1 rounded-full cursor-pointer tap-pop transition-colors">Today</button>
-            <button type="button" data-tm-period="month" class="tm-period-btn px-3 py-1 rounded-full cursor-pointer tap-pop transition-colors">Month</button>
-            <button type="button" data-tm-period="allTime" class="tm-period-btn px-3 py-1 rounded-full cursor-pointer tap-pop transition-colors">All Time</button>
-          </div>
-          <button type="button" id="tmRefreshBtn" class="px-3.5 py-1.5 rounded-full bg-[#B8431B] hover:bg-[#9A3412] text-white text-xs font-semibold cursor-pointer tap-pop shadow-sm">Refresh</button>
-        </div>
-      </div>
-
-      <!-- Setup / Empty Banner (hidden once data or demo loads) -->
-      <div id="tmEmptyCard" class="glass-surface rounded-2xl p-6 sm:p-8 text-center space-y-3">
-        <div class="w-12 h-12 rounded-2xl bg-[#B8431B] hover:bg-[#9A3412] text-white flex items-center justify-center mx-auto shadow-md ">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        </div>
-        <h3 class="font-display text-sm font-bold text-[#1C1917] dark:text-[#F5EFE6]">No Token Monitor feed connected yet</h3>
-        <p class="text-xs text-[#57534E] dark:text-[#C7B8AC] max-w-md mx-auto">Configure <span class="font-mono">token_proxy.php</span> or your Cloudflare Worker public stats URL in Settings, or load sample data to preview the layout.</p>
-        <div class="flex flex-wrap items-center justify-center gap-2 pt-1">
-          <button type="button" data-go-settings="1" class="px-4 py-2 rounded-full bg-[#B8431B] hover:bg-[#9A3412] text-white text-xs font-semibold cursor-pointer tap-pop shadow-sm">Open Settings</button>
-          <button type="button" id="tmDemoBtn" class="px-4 py-2 rounded-full bg-white/65 dark:bg-zinc-800/80 border border-white/80 dark:border-zinc-700 hover:border-orange-400 text-xs font-semibold cursor-pointer tap-pop">Preview Sample Data</button>
-        </div>
-      </div>
-
-      <!-- Live Dashboard Content -->
-      <div id="tmDashboardBody" class="hidden space-y-4">
-        <!-- 3 KPI Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div class="glass-surface rounded-2xl p-4 sm:p-5 space-y-1">
-            <p class="text-[11px] font-bold uppercase tracking-wider text-[#9A3412] dark:text-[#FDBA74]" id="tmKpiPeriodLabel">Today Tokens</p>
-            <p class="font-display text-2xl sm:text-3xl font-extrabold text-[#1C1917] dark:text-[#F5EFE6] tracking-tight" id="tmKpiTokens">0</p>
-            <p class="text-[11px] text-[#57534E] dark:text-[#C7B8AC]" id="tmKpiTokensSub">Across all tracked tools</p>
-          </div>
-          <div class="glass-surface rounded-2xl p-4 sm:p-5 space-y-1">
-            <p class="text-[11px] font-bold uppercase tracking-wider text-[#9A3412] dark:text-[#FDBA74]">Estimated Cost</p>
-            <p class="font-display text-2xl sm:text-3xl font-extrabold text-[#1C1917] dark:text-[#F5EFE6] tracking-tight" id="tmKpiCost">$0.00</p>
-            <p class="text-[11px] text-[#57534E] dark:text-[#C7B8AC]" id="tmKpiCostSub">API-equivalent value</p>
-          </div>
-          <div class="glass-surface rounded-2xl p-4 sm:p-5 space-y-1">
-            <p class="text-[11px] font-bold uppercase tracking-wider text-[#9A3412] dark:text-[#FDBA74]">Top Tool &amp; Devices</p>
-            <p class="font-display text-2xl sm:text-3xl font-extrabold text-[#1C1917] dark:text-[#F5EFE6] tracking-tight truncate" id="tmKpiTopTool"> - </p>
-            <p class="text-[11px] text-[#57534E] dark:text-[#C7B8AC]" id="tmKpiDevicesSub">0 devices online</p>
-          </div>
-        </div>
-
-        <!-- AI Tool Limits / Rate Quotas -->
-        <div class="glass-surface rounded-2xl p-4 sm:p-5 space-y-3">
-          <div class="flex items-center justify-between gap-2">
-            <div>
-              <h3 class="font-display text-sm font-bold text-[#1C1917] dark:text-[#F5EFE6]">AI Tool Limits &amp; Quotas</h3>
-              <p class="text-xs text-[#57534E] dark:text-[#C7B8AC]">Live 5-hour session, weekly, daily, and credit windows</p>
-            </div>
-            <span id="tmLimitsCountBadge" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-orange-500/15 text-[#9A3412] dark:text-[#FDBA74]">0 providers</span>
-          </div>
-          <div id="tmLimitsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
-        </div>
-
-        <!-- Tool & Model Breakdowns -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div class="glass-surface rounded-2xl p-4 sm:p-5 space-y-3">
-            <h3 class="font-display text-sm font-bold text-[#1C1917] dark:text-[#F5EFE6]">Usage by Tool</h3>
-            <div id="tmClientsList" class="space-y-2.5"></div>
-          </div>
-          <div class="glass-surface rounded-2xl p-4 sm:p-5 space-y-3">
-            <h3 class="font-display text-sm font-bold text-[#1C1917] dark:text-[#F5EFE6]">Usage by Model</h3>
-            <div id="tmModelsList" class="space-y-2.5"></div>
-          </div>
-        </div>
-
-        <!-- Synced Devices (visible in Proxy / Authenticated mode) -->
-        <div id="tmDevicesCard" class="glass-surface rounded-2xl p-4 sm:p-5 space-y-3">
-          <h3 class="font-display text-sm font-bold text-[#1C1917] dark:text-[#F5EFE6]">Synced Devices</h3>
-          <div id="tmDevicesList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
-        </div>
-      </div>
-    </section>
 
     <!-- ================================================================== -->
     <!-- TAB 2: WEBSITES (Full Client Website Management + Reports + Orders) -->
@@ -1217,7 +1065,6 @@
         <div id="settingsSubNav" class="flex flex-wrap gap-1.5 p-1 rounded-2xl bg-white/45 dark:bg-zinc-900/60 border border-white/70 dark:border-zinc-800" role="tablist" aria-label="Settings Categories">
           <button type="button" data-settings-tab="general" role="tab" aria-selected="true" class="settings-subtab flex-1 min-w-[78px] px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all bg-[#B8431B] hover:bg-[#9A3412] text-white shadow-xs">General</button>
           <button type="button" data-settings-tab="music" role="tab" aria-selected="false" class="settings-subtab flex-1 min-w-[78px] px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all text-[#57534E] dark:text-[#D6C9BE] hover:bg-white/50 dark:hover:bg-zinc-800/70">Music</button>
-          <button type="button" data-settings-tab="tokens" role="tab" aria-selected="false" class="settings-subtab flex-1 min-w-[78px] px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all text-[#57534E] dark:text-[#D6C9BE] hover:bg-white/50 dark:hover:bg-zinc-800/70">AI Tokens</button>
           <button type="button" data-settings-tab="devices" role="tab" aria-selected="false" class="settings-subtab flex-1 min-w-[78px] px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all text-[#57534E] dark:text-[#D6C9BE] hover:bg-white/50 dark:hover:bg-zinc-800/70">Devices</button>
           <button type="button" data-settings-tab="websites" role="tab" aria-selected="false" class="settings-subtab flex-1 min-w-[78px] px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all text-[#57534E] dark:text-[#D6C9BE] hover:bg-white/50 dark:hover:bg-zinc-800/70">Websites</button>
           <button type="button" data-settings-tab="backup" role="tab" aria-selected="false" class="settings-subtab flex-1 min-w-[78px] px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all text-[#57534E] dark:text-[#D6C9BE] hover:bg-white/50 dark:hover:bg-zinc-800/70">Backup</button>
@@ -1363,42 +1210,6 @@
       </div>
 
       <!-- TAB 3: AI TOKEN MONITOR SYNC -->
-      <div data-settings-panel="tokens" class="hidden glass-surface rounded-2xl p-4 sm:p-5 space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <div class="flex items-center gap-2">
-            <h3 class="font-display text-sm font-bold text-[#1C1917] dark:text-[#F5EFE6]">AI Token Monitor Sync</h3>
-            <span id="settingsTmBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/70 dark:bg-zinc-800 text-[#57534E] dark:text-[#D6C9BE]">Not Connected</span>
-          </div>
-          <button type="button" id="settingsTmTestBtn" class="px-3.5 py-1.5 rounded-full bg-[#B8431B] hover:bg-[#9A3412] text-white text-xs font-semibold cursor-pointer tap-pop shadow-xs">Test &amp; Sync</button>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div>
-            <label class="block text-[11px] font-semibold text-slate-700 dark:text-zinc-300 mb-1">Connection Mode</label>
-            <div class="grid grid-cols-2 p-0.5 rounded-full bg-white/50 dark:bg-zinc-900/65 border border-white/75 dark:border-zinc-700 text-[11px] font-semibold">
-              <button type="button" data-set-tmmode="proxy" class="set-tmmode-btn py-1.5 rounded-full cursor-pointer tap-pop transition-colors">PHP Proxy</button>
-              <button type="button" data-set-tmmode="public" class="set-tmmode-btn py-1.5 rounded-full cursor-pointer tap-pop transition-colors">Public URL</button>
-            </div>
-          </div>
-          <div id="settingsTmProxyWrap">
-            <label for="setTmProxyEndpoint" class="block text-[11px] font-semibold text-slate-700 dark:text-zinc-300 mb-1">PHP Proxy File</label>
-            <input type="text" id="setTmProxyEndpoint" placeholder="token_proxy.php" class="w-full px-3 py-1.5 text-xs font-mono rounded-xl border border-white/75 dark:border-zinc-700 bg-white/65 dark:bg-zinc-800/80 focus:border-orange-500">
-          </div>
-          <div id="settingsTmPublicWrap" class="hidden">
-            <label for="setTmPublicUrl" class="block text-[11px] font-semibold text-slate-700 dark:text-zinc-300 mb-1">Worker Stats URL</label>
-            <input type="url" id="setTmPublicUrl" placeholder="https://token-monitor-hub.you.workers.dev/api/stats?secret=..." class="w-full px-3 py-1.5 text-xs font-mono rounded-xl border border-white/75 dark:border-zinc-700 bg-white/65 dark:bg-zinc-800/80 focus:border-orange-500">
-          </div>
-          <div>
-            <label for="setTmRefreshSelect" class="block text-[11px] font-semibold text-slate-700 dark:text-zinc-300 mb-1">Auto-Refresh</label>
-            <select id="setTmRefreshSelect" class="w-full px-3 py-1.5 text-xs rounded-xl border border-white/75 dark:border-zinc-700 bg-white/65 dark:bg-zinc-800/80 focus:border-orange-500 cursor-pointer">
-              <option value="0">Manual only</option>
-              <option value="30">Every 30 seconds</option>
-              <option value="60">Every 60 seconds</option>
-              <option value="300">Every 5 minutes</option>
-            </select>
-          </div>
-        </div>
-      </div>
 
       <!-- TAB: DEVICES (Turn ON/OFF GO DAIKIN AC & Smart Devices via Home Assistant) -->
       <div data-settings-panel="devices" class="hidden space-y-4">
@@ -1556,15 +1367,11 @@
   </main>
 
   <!-- FLOATING MOBILE BOTTOM GLASS DOCK (5 Clean Tabs) -->
-  <nav id="mobileNavTrack" class="md:hidden fixed bottom-3 left-3 right-3 z-40 glass-dock rounded-full p-1.5 grid grid-cols-5 items-center" aria-label="Mobile navigation">
+  <nav id="mobileNavTrack" class="md:hidden fixed bottom-3 left-3 right-3 z-40 glass-dock rounded-full p-1.5 grid grid-cols-4 items-center" aria-label="Mobile navigation">
     <div id="mobileNavSlider" class="nav-pill-slider absolute top-1.5 bottom-1.5 left-0 rounded-full bg-[#B8431B] shadow-md  pointer-events-none" style="width:0;opacity:0;"></div>
     <button type="button" data-view="hub" class="mob-nav-btn relative z-10 flex flex-col items-center justify-center min-h-[44px] py-1.5 rounded-full text-[10px] font-bold cursor-pointer tap-pop transition-colors">
       <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
       <span>Hub</span>
-    </button>
-    <button type="button" data-view="tokens" class="mob-nav-btn relative z-10 flex flex-col items-center justify-center min-h-[44px] py-1.5 rounded-full text-[10px] font-bold cursor-pointer tap-pop transition-colors">
-      <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-      <span>Tokens</span>
     </button>
     <button type="button" data-view="websites" class="mob-nav-btn relative z-10 flex flex-col items-center justify-center min-h-[44px] py-1.5 rounded-full text-[10px] font-bold cursor-pointer tap-pop transition-colors">
       <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/></svg>
@@ -1996,7 +1803,6 @@
       if (sec > 0) {
         autoSyncTimer = setInterval(() => pullLiveLogs(true), sec * 1000);
       }
-      scheduleTokenMonitorRefresh();
     }
 
     function applyTheme() {
@@ -4732,7 +4538,6 @@
     document.getElementById('hubEditCamBtn').addEventListener('click', () => openCameraEditor(state.selectedHubCam));
     document.getElementById('hubRefreshStatusBtn').addEventListener('click', () => pullLiveLogs(false));
     document.getElementById('hubEmptyOpenSettingsBtn').addEventListener('click', () => setView('settings'));
-    document.getElementById('hubTokenBar').addEventListener('click', () => setView('tokens'));
 
     // Settings Listeners
     document.getElementById('settingsSyncNowBtn').addEventListener('click', () => pullLiveLogs(false));
@@ -5248,36 +5053,6 @@
       showToast('Added ' + name);
     });
 
-    // Token Monitor Listeners
-    document.getElementById('tmRefreshBtn').addEventListener('click', () => {
-      tmDemoMode = false;
-      fetchTokenMonitorStats(false);
-    });
-    document.getElementById('tmDemoBtn').addEventListener('click', () => {
-      tmDemoMode = true;
-      tmData = TM_SAMPLE_DATA;
-      tmStatus = 'demo';
-      renderTokenMonitor();
-      showToast('Loaded sample Token Monitor preview');
-    });
-    document.getElementById('settingsTmTestBtn').addEventListener('click', () => {
-      tmDemoMode = false;
-      fetchTokenMonitorStats(false);
-    });
-    document.getElementById('setTmProxyEndpoint').addEventListener('input', (e) => {
-      state.settings.tokenMonitor.proxyEndpoint = e.target.value;
-      saveState();
-    });
-    document.getElementById('setTmPublicUrl').addEventListener('input', (e) => {
-      state.settings.tokenMonitor.publicUrl = e.target.value;
-      saveState();
-    });
-    document.getElementById('setTmRefreshSelect').addEventListener('change', (e) => {
-      state.settings.tokenMonitor.refreshSeconds = Number(e.target.value) || 0;
-      saveState(); scheduleTokenMonitorRefresh();
-      showToast(state.settings.tokenMonitor.refreshSeconds ? `Token auto-refresh every ${state.settings.tokenMonitor.refreshSeconds}s` : 'Token refresh set to manual');
-    });
-
     function tickClock() {
       const now = new Date();
       document.getElementById('liveClockPill').textContent = now.toTimeString().slice(0, 5);
@@ -5298,7 +5073,6 @@
     renderAll();
     pullLiveLogs(true);
     pullConfigFromServer();
-    fetchTokenMonitorStats(true);
     if (getSmartDevicesCfg().workerUrl || getSmartDevicesCfg().haUrl || SERVER_PROXY) syncSmartDevices(true);
     if (getDriveApiKey() && extractDriveFolderId(state.settings.googleDrive.folderId) && flacQueue.length === 0) {
       syncGoogleDriveFolder(true);
