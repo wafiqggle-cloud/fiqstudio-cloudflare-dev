@@ -4224,9 +4224,12 @@
     async function fetchTokenMonitorStats(silent = true) {
       const cfg = (state.settings && state.settings.tokenMonitor) || DEFAULT_SETTINGS.tokenMonitor;
       const mode = cfg.mode === 'public' ? 'public' : 'proxy';
-      const endpoint = mode === 'public'
-        ? String(cfg.publicUrl || '').trim()
-        : String(cfg.proxyEndpoint || 'token_proxy.php').trim();
+      // On the Cloudflare host, the Worker holds the token-monitor-hub secret (/api/tokens/stats).
+      const endpoint = SERVER_PROXY
+        ? '/api/tokens/stats'
+        : (mode === 'public'
+          ? String(cfg.publicUrl || '').trim()
+          : String(cfg.proxyEndpoint || 'token_proxy.php').trim());
 
       if (!endpoint) {
         tmStatus = 'idle';

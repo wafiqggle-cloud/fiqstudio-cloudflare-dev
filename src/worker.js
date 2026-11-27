@@ -10,6 +10,9 @@
  * Fiq AI proxy (Cloudflare dashboard, kept on every deploy):
  *   FIQ_AI_URL         -> Variable: https://fiq-ai.<your-account>.workers.dev
  *   FIQ_AI_SECRET      -> Secret: the fiq-ai API_SECRET PIN
+ * Token Monitor proxy (Cloudflare dashboard, kept on every deploy):
+ *   TOKEN_MONITOR_URL    -> Variable: https://token-monitor-hub.<your-account>.workers.dev
+ *   TOKEN_MONITOR_SECRET -> Secret: the token-monitor-hub stats secret
  * Variables to set in the Cloudflare dashboard (they are kept on every deploy):
  *   ACCESS_TEAM_DOMAIN -> your-team.cloudflareaccess.com (no https://)
  *   ACCESS_AUD         -> Cloudflare Access application AUD tag of THIS Worker
@@ -199,6 +202,28 @@ async function fiqAiProxy(request, env, path, method) {
     });
   } catch {
     return json({ ok: false, error: "Fiq AI is unreachable" }, 502);
+  }
+}
+
+// Server-side proxy to token-monitor-hub (replaces token_proxy.php). Its secret lives only
+// here (env.TOKEN_MONITOR_SECRET). Read-only: GET /api/tokens/stats -> /api/stats.
+async function tokenMonitorProxy(env, path, method) {
+  if (path !== "/api/tokens/stats" || method !== "GET") return null;
+  const base = String(env.TOKEN_MONITOR_URL || "").trim().replace(/\/+$/, "");
+  if (!base || !env.TOKEN_MONITOR_SECRET) {
+    return json({ ok: false, error: "not_configured", message: "Token Monitor proxy is not configured" }, 503);
+  }
+  try {
+    const res = await fetch(`${base}/api/stats`, {
+      method: "GET",
+      headers: { "Accept": "application/json", "Authorization": `Bearer ${env.TOKEN_MONITOR_SECRET}` }
+    });
+    return new Response(await res.text(), {
+      status: res.status,
+      headers: { "content-type": res.headers.get("content-type") || "application/json; charset=utf-8", "cache-control": "no-store" }
+    });
+  } catch {
+    return json({ ok: false, error: "upstream_unreachable", message: "Could not reach Token Monitor Hub" }, 502);
   }
 }
 
@@ -405,6 +430,11 @@ async function route(request, env, user) {
 
   if (path.startsWith("/api/daikin/")) {
     const proxied = await daikinProxy(request, env, path, method);
+    if (proxied) return proxied;
+  }
+
+  if (path.startsWith("/api/tokens/")) {
+    const proxied = await tokenMonitorProxy(env, path, method);
     if (proxied) return proxied;
   }
 
