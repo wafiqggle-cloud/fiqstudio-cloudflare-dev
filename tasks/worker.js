@@ -1,24 +1,29 @@
 /**
- * FIQSTUDIO Tasks: a standalone task manager web app (Worker "fiqstudio-tasks").
+ * FIQSTUDIO Project Management web app (Worker "fiqstudio-task").
  *
  * Static app in ./public; this Worker runs first only for /api/*.
- * Data: D1 fiqstudio-pm-db, tables studio_clients, studio_projects, studio_tasks
- * (the same tables the dashboard used, so existing data carries over).
+ * Data: D1 fiqstudio-pm-db, table pm_docs: one JSON document per client, project or task,
+ * the same shape the original claude.ai artifact stored. Created on first use.
+ *
+ *   GET    /api/docs/:collection        -> { data: [{ id, ...fields }] }
+ *   PUT    /api/docs/:collection/:id    -> save (create or replace) one document
+ *   DELETE /api/docs/:collection/:id    -> delete one document
+ *   collection = clients | projects | tasks
  *
  * Every /api/* call must carry a valid Cloudflare Access login (JWT signature, issuer and audience checked).
- * Variables (Cloudflare dashboard, kept on deploy):
- *   ACCESS_TEAM_DOMAIN -> fiqstudio.cloudflareaccess.com (set in wrangler.jsonc)
- *   ACCESS_AUD         -> the Access "AUD" tag shown when Access is enabled for this Worker
+ *   ACCESS_TEAM_DOMAIN -> fiqstudio.cloudflareaccess.com (wrangler.jsonc)
+ *   ACCESS_AUD         -> the Access AUD tag of this Worker (dashboard variable)
  */
 
 let jwksCache = { expires: 0, keys: null };
+let tableReady = false;
+const COLLECTIONS = new Set(["clients", "projects", "tasks"]);
+const MAX_DOC = 64 * 1024;
+const MAX_DOCS = 5000;
 
 const json = (data, status = 200) => new Response(JSON.stringify(data), {
   status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" }
 });
-const newId = () => crypto.randomUUID();
-const clean = (v, max) => { if (v == null) return null; const s = String(v).trim().slice(0, max); return s || null; };
-const isDate = v => v == null || /^\d{4}-\d{2}-\d{2}$/.test(v);
 
 function b64urlToBytes(value) {
   const padded = value.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((value.length + 3) % 4);
@@ -55,151 +60,54 @@ async function verifyAccess(request, env) {
   } catch { return null; }
 }
 
-async function body(request) {
-  const text = await request.text();
-  if (text.length > 20000) return null;
-  try { const b = JSON.parse(text); return b && typeof b === "object" && !Array.isArray(b) ? b : null; } catch { return null; }
+async function ensureTable(env) {
+  if (tableReady) return;
+  await env.DB.prepare(
+    "CREATE TABLE IF NOT EXISTS pm_docs (collection TEXT NOT NULL, id TEXT NOT NULL, data TEXT NOT NULL, updated_at TEXT NOT NULL, PRIMARY KEY (collection, id))"
+  ).run();
+  tableReady = true;
 }
 
-// Field rules per table: [column, validator]. A validator returns undefined to reject a value.
-const enumOf = list => v => list.includes(v) ? v : undefined;
-const dateField = v => (v === null || v === "") ? null : (isDate(v) ? v : undefined);
-const RULES = {
-  studio_tasks: {
-    required: "title",
-    fields: {
-      title: v => clean(v, 250) || undefined,
-      description: v => clean(v, 5000),
-      status: enumOf(["todo", "in_progress", "blocked", "completed", "cancelled"]),
-      priority: enumOf(["low", "medium", "high", "urgent"]),
-      start_date: dateField, due_date: dateField,
-      project_id: v => clean(v, 100), client_id: v => clean(v, 100),
-      sort_order: v => Number.isInteger(v) ? v : undefined
-    },
-    defaults: { status: "todo", priority: "medium", sort_order: 0 }
-  },
-  studio_projects: {
-    required: "project_name",
-    fields: {
-      project_name: v => clean(v, 200) || undefined,
-      description: v => clean(v, 5000),
-      client_id: v => clean(v, 100),
-      status: enumOf(["planning", "active", "on_hold", "completed", "cancelled"]),
-      priority: enumOf(["low", "medium", "high", "urgent"]),
-      start_date: dateField, due_date: dateField
-    },
-    defaults: { status: "planning", priority: "medium" }
-  },
-  studio_clients: {
-    required: "client_name",
-    fields: {
-      client_name: v => clean(v, 200) || undefined,
-      business_name: v => clean(v, 200),
-      client_type: enumOf(["individual", "business"]),
-      email: v => clean(v, 254), phone: v => clean(v, 50),
-      status: enumOf(["active", "inactive", "archived"]),
-      notes: v => clean(v, 5000)
-    },
-    defaults: { client_type: "business", status: "active" }
-  }
-};
-function pick(table, b, creating) {
-  const rule = RULES[table], out = {};
-  for (const [k, fn] of Object.entries(rule.fields)) {
-    if (!Object.prototype.hasOwnProperty.call(b, k)) continue;
-    const v = fn(b[k]);
-    if (v === undefined) return { error: `Invalid value for ${k}` };
-    out[k] = v;
-  }
-  if (creating) {
-    for (const [k, v] of Object.entries(rule.defaults)) if (!(k in out)) out[k] = v;
-    if (!out[rule.required]) return { error: `${rule.required} is required` };
-  }
-  return { out };
-}
-
-const LIST_SQL = {
-  studio_tasks: `SELECT t.*, p.project_name, c.client_name FROM studio_tasks t
-    LEFT JOIN studio_projects p ON p.id = t.project_id
-    LEFT JOIN studio_clients c ON c.id = COALESCE(t.client_id, p.client_id)
-    ORDER BY CASE t.status WHEN 'in_progress' THEN 1 WHEN 'todo' THEN 2 WHEN 'blocked' THEN 3 WHEN 'completed' THEN 4 ELSE 5 END,
-      CASE t.priority WHEN 'urgent' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 ELSE 4 END,
-      t.due_date IS NULL, t.due_date, t.created_at`,
-  studio_projects: `SELECT p.*, c.client_name FROM studio_projects p LEFT JOIN studio_clients c ON c.id = p.client_id ORDER BY p.created_at DESC`,
-  studio_clients: `SELECT * FROM studio_clients ORDER BY client_name COLLATE NOCASE`
-};
-const TABLE = { tasks: "studio_tasks", projects: "studio_projects", clients: "studio_clients" };
-
-async function api(request, env, user) {
+async function api(request, env) {
   const url = new URL(request.url);
   const path = url.pathname.replace(/\/+$/, "");
   const method = request.method.toUpperCase();
-
-  if (path === "/api/me" && method === "GET") return json({ email: user.email });
-
-  const m = path.match(/^\/api\/(tasks|projects|clients)(?:\/([^/]+))?$/);
-  if (!m) return json({ error: "Not found" }, 404);
-  const table = TABLE[m[1]], id = m[2] ? decodeURIComponent(m[2]) : null;
-
+  const m = path.match(/^\/api\/docs\/([a-z]+)(?:\/([A-Za-z0-9_.~:@+-]{1,120}))?$/);
+  if (!m || !COLLECTIONS.has(m[1])) return json({ error: "Not found" }, 404);
+  const [, collection, id] = m;
   if (method !== "GET") {
     const origin = request.headers.get("Origin");
     if (origin && origin !== url.origin) return json({ error: "Origin not allowed" }, 403);
   }
+  await ensureTable(env);
 
   if (!id && method === "GET") {
-    const { results } = await env.DB.prepare(LIST_SQL[table]).all();
-    return json({ data: results || [] });
+    const { results } = await env.DB.prepare("SELECT id, data FROM pm_docs WHERE collection = ? ORDER BY updated_at").bind(collection).all();
+    const data = [];
+    for (const r of results || []) { try { data.push({ ...JSON.parse(r.data), id: r.id }); } catch {} }
+    return json({ data });
   }
-  if (!id && method === "POST") {
-    const b = await body(request);
-    if (!b) return json({ error: "Invalid JSON body" }, 400);
-    const { out, error } = pick(table, b, true);
-    if (error) return json({ error }, 400);
-    const newRowId = newId();
-    const cols = ["id", ...Object.keys(out)];
-    await env.DB.prepare(`INSERT INTO ${table} (${cols.join(", ")}) VALUES (${cols.map(() => "?").join(", ")})`)
-      .bind(newRowId, ...Object.values(out)).run();
-    return json({ data: await env.DB.prepare(`SELECT * FROM ${table} WHERE id = ?`).bind(newRowId).first() }, 201);
+  if (id && method === "PUT") {
+    const text = await request.text();
+    if (text.length > MAX_DOC) return json({ error: "This item is too large to save" }, 413);
+    let doc;
+    try { doc = JSON.parse(text); } catch { return json({ error: "Invalid JSON" }, 400); }
+    if (!doc || typeof doc !== "object" || Array.isArray(doc)) return json({ error: "Invalid document" }, 400);
+    delete doc.id;
+    const exists = await env.DB.prepare("SELECT 1 FROM pm_docs WHERE collection = ? AND id = ?").bind(collection, id).first();
+    if (!exists) {
+      const row = await env.DB.prepare("SELECT COUNT(*) AS n FROM pm_docs").first();
+      if (row && row.n >= MAX_DOCS) return json({ error: "Storage is full. Delete old items first" }, 507);
+    }
+    await env.DB.prepare(
+      `INSERT INTO pm_docs (collection, id, data, updated_at) VALUES (?, ?, ?, ?)
+       ON CONFLICT(collection, id) DO UPDATE SET data = excluded.data, updated_at = excluded.updated_at`
+    ).bind(collection, id, JSON.stringify(doc), new Date().toISOString()).run();
+    return json({ saved: true, id });
   }
-
-  const existing = id ? await env.DB.prepare(`SELECT * FROM ${table} WHERE id = ?`).bind(id).first() : null;
-  if (!existing) return json({ error: "Not found" }, 404);
-
-  if (method === "PATCH") {
-    const b = await body(request);
-    if (!b) return json({ error: "Invalid JSON body" }, 400);
-    const { out, error } = pick(table, b, false);
-    if (error) return json({ error }, 400);
-    const keys = Object.keys(out);
-    if (!keys.length) return json({ error: "Nothing to update" }, 400);
-    await env.DB.prepare(`UPDATE ${table} SET ${keys.map(k => `${k} = ?`).join(", ")}, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id = ?`)
-      .bind(...Object.values(out), id).run();
-    if (table === "studio_tasks" && out.status && out.status !== existing.status) {
-      try {
-        await env.DB.prepare(`INSERT INTO task_activity_logs (id, task_id, action, old_value, new_value, details) VALUES (?, ?, 'updated', ?, ?, ?)`)
-          .bind(newId(), id, existing.status, out.status, `Updated by ${user.email || "Access user"}`).run();
-      } catch {}
-    }
-    return json({ data: await env.DB.prepare(`SELECT * FROM ${table} WHERE id = ?`).bind(id).first() });
-  }
-
-  if (method === "DELETE") {
-    const stmts = [];
-    if (table === "studio_tasks") {
-      try {
-        const { results } = await env.DB.prepare("SELECT object_key FROM task_attachments WHERE task_id = ?").bind(id).all();
-        if (env.FILES) for (const f of results || []) await env.FILES.delete(f.object_key);
-      } catch {}
-      for (const t of ["task_attachments", "task_comments", "task_activity_logs"]) stmts.push(env.DB.prepare(`DELETE FROM ${t} WHERE task_id = ?`).bind(id));
-    }
-    if (table === "studio_projects") stmts.push(env.DB.prepare("UPDATE studio_tasks SET project_id = NULL WHERE project_id = ?").bind(id));
-    if (table === "studio_clients") {
-      stmts.push(env.DB.prepare("UPDATE studio_projects SET client_id = NULL WHERE client_id = ?").bind(id));
-      stmts.push(env.DB.prepare("UPDATE studio_tasks SET client_id = NULL WHERE client_id = ?").bind(id));
-    }
-    stmts.push(env.DB.prepare(`DELETE FROM ${table} WHERE id = ?`).bind(id));
-    await env.DB.batch(stmts);
-    return json({ deleted: true });
+  if (id && method === "DELETE") {
+    await env.DB.prepare("DELETE FROM pm_docs WHERE collection = ? AND id = ?").bind(collection, id).run();
+    return json({ deleted: true, id });
   }
   return json({ error: "Method not allowed" }, 405);
 }
@@ -212,7 +120,7 @@ export default {
       if (!env.DB) return json({ error: "Database is not connected" }, 503);
       const user = await verifyAccess(request, env);
       if (!user) return json({ error: "Please sign in again (Cloudflare Access)" }, 401);
-      return await api(request, env, user);
+      return await api(request, env);
     } catch {
       return json({ error: "Server error. Try again in a moment" }, 500);
     }

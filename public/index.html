@@ -897,6 +897,27 @@
         <div id="hubDevicesList" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
       </div>
 
+      <!-- TASK MANAGEMENT WIDGET (summary from the FiqStudio Tasks app; opens it) -->
+      <section id="hubTasksCard" class="hub-tasks w-full glass-surface rounded-2xl px-4 py-3.5 flex flex-col gap-3" aria-labelledby="hubTasksTitle">
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span class="hub-tasks-icon w-9 h-9 rounded-xl bg-[#B8431B] text-white flex items-center justify-center shrink-0" aria-hidden="true">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+            </span>
+            <div class="min-w-0">
+              <h2 id="hubTasksTitle" class="font-display text-sm font-bold text-[#1C1917] dark:text-[#F5EFE6] truncate">Task Management</h2>
+              <p id="hubTasksSub" class="text-[11px] text-[#57534E] dark:text-[#C7B8AC] truncate">Clients, projects &amp; tasks</p>
+            </div>
+          </div>
+          <a id="hubTasksOpen" href="https://fiqstudio-task.wafiq-ggle.workers.dev/#tasks" class="hub-tasks-btn shrink-0 min-h-[40px] px-4 rounded-full bg-[#B8431B] hover:bg-[#9A3412] text-white text-xs font-semibold inline-flex items-center gap-1.5 shadow-sm">
+            <span>Open</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+        <div id="hubTasksStats" class="grid grid-cols-4 gap-2"></div>
+        <ul id="hubTasksNext" class="space-y-1.5"></ul>
+      </section>
+
       <div id="hubCardsContainer" class="grid grid-cols-1 gap-4">
       <!-- 1. BIG CCTV DISPLAY (Tall Left Card) -->
       <div id="hubCard-cctv" class="glass-surface rounded-2xl p-3 sm:p-3.5 flex flex-col gap-2.5">
@@ -1775,6 +1796,7 @@
 
       renderHubTokenBar();
       renderHubDevices();
+      if (typeof window.renderHubTasks === 'function') window.renderHubTasks();
 
       const onlyActive = s.webSync ? s.webSync.showOnlyActiveOnHub !== false : true;
       const hubHeading = document.getElementById('hubWebsitesHeading');
@@ -4586,5 +4608,6 @@
       else window.addEventListener('load', boot);
     })();
   </script>
+  <script src="hub-tasks.js?v=1"></script>
 </body>
 </html>

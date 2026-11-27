@@ -608,6 +608,35 @@ async function route(request, env, user) {
     if (res) return res;
   }
 
+  // Summary for the Hub "Task Management" widget, read from the task app's pm_docs table.
+  if (path === "/api/pm/summary" && method === "GET") {
+    const empty = { openTasks: 0, dueToday: 0, overdue: 0, activeProjects: 0, next: [] };
+    let rows;
+    try {
+      ({ results: rows } = await env.DB.prepare("SELECT collection, data FROM pm_docs WHERE collection IN ('tasks','projects')").all());
+    } catch { return json(empty); }
+    const today = new Date().toLocaleString("sv-SE", { timeZone: "Asia/Kuala_Lumpur" }).slice(0, 10);
+    const tasks = [], projects = [];
+    for (const r of rows || []) {
+      let d; try { d = JSON.parse(r.data); } catch { continue; }
+      (r.collection === "tasks" ? tasks : projects).push(d);
+    }
+    const open = tasks.filter(t => t.status !== "done");
+    const due = t => (typeof t.due === "string" && /^\d{4}-\d{2}-\d{2}$/.test(t.due)) ? t.due : "";
+    const rank = { High: 0, Medium: 1, Low: 2 };
+    const next = open.filter(t => due(t))
+      .sort((a, b) => due(a).localeCompare(due(b)) || (rank[a.priority] ?? 1) - (rank[b.priority] ?? 1))
+      .slice(0, 3)
+      .map(t => ({ title: String(t.title || "Untitled task").slice(0, 120), due: due(t), priority: rank[t.priority] !== undefined ? t.priority : "Medium" }));
+    return json({
+      openTasks: open.length,
+      dueToday: open.filter(t => due(t) === today).length,
+      overdue: open.filter(t => due(t) && due(t) < today).length,
+      activeProjects: projects.filter(p => (parseInt(p.progress) || 0) < 100).length,
+      next, today
+    });
+  }
+
   if (path === "/api/settings") {
     const res = await settingsSync(request, env, method);
     if (res) return res;
