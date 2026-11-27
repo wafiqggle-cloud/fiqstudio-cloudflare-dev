@@ -1583,8 +1583,9 @@
         return;
       }
       const ws = (state.settings && state.settings.webSync) || DEFAULT_SETTINGS.webSync;
-      const ordersEp = (ws.ordersEndpoint || 'orders_log.json').trim();
-      const reportsEp = (ws.reportsEndpoint || 'reports_log.json').trim();
+      // On the Cloudflare host the logs come from the Worker (D1); client sites post to /hook/*.
+      const ordersEp = SERVER_PROXY ? '/api/web/orders' : (ws.ordersEndpoint || 'orders_log.json').trim();
+      const reportsEp = SERVER_PROXY ? '/api/web/reports' : (ws.reportsEndpoint || 'reports_log.json').trim();
       let added = 0;
       if (ordersEp) {
         try {
@@ -1623,7 +1624,7 @@
     async function postWebhookAction(payload) {
       if (window.location.protocol === 'file:' || window.location.protocol === 'about:') return;
       const ws = (state.settings && state.settings.webSync) || DEFAULT_SETTINGS.webSync;
-      const webhookEp = (ws.webhookEndpoint || 'order_webhook.php').trim();
+      const webhookEp = SERVER_PROXY ? '/api/web/action' : (ws.webhookEndpoint || 'order_webhook.php').trim();
       if (!webhookEp) return;
       try {
         await fetch(webhookEp, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
