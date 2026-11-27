@@ -784,6 +784,71 @@
     }
     .fiq-think-dot:nth-child(2) { animation-delay: 0.16s; }
     .fiq-think-dot:nth-child(3) { animation-delay: 0.32s; }
+
+    /* ===== Dashboard-wide motion: hover lift on buttons and cards (press spring comes from GSAP) ===== */
+    @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+      .tap-pop { transition: transform .26s cubic-bezier(.34,1.56,.64,1), background-color .16s, border-color .16s, color .16s, box-shadow .2s; }
+      .tap-pop:hover { transform: translateY(-2px); }
+      .glass-card-hover { transition: transform .3s cubic-bezier(.34,1.56,.64,1), background-color .2s, border-color .2s, box-shadow .2s; }
+      .glass-card-hover:hover { transform: translateY(-3px); }
+      #hubDevicesBar, #hubCard-cctv, #hubCard-websites { transition: transform .3s cubic-bezier(.34,1.56,.64,1); }
+      #hubDevicesBar:hover, #hubCard-websites:hover { transform: translateY(-2px); }
+    }
+
+    /* ===== FIQ AI v2: messages, suggestions, input, motion ===== */
+    .fiq-online { width: 8px; height: 8px; border-radius: 9999px; background: #16A34A; box-shadow: 0 0 0 0 rgba(22,163,74,.55); animation: fiqOnline 2.2s ease-out infinite; }
+    @keyframes fiqOnline { 0% { box-shadow: 0 0 0 0 rgba(22,163,74,.55); } 80%, 100% { box-shadow: 0 0 0 7px rgba(22,163,74,0); } }
+    .fiq-icon-btn { transition: transform .25s cubic-bezier(.34,1.56,.64,1), background-color .15s; }
+    .fiq-icon-btn:hover { transform: translateY(-1px); }
+    .fiq-icon-btn:active { transform: scale(.9); }
+    #fiqAiDrawer button[id^="fiqAi"]:not(#fiqAiSendBtn):not(#fiqAiMicBtn) { transition: transform .25s cubic-bezier(.34,1.56,.64,1), background-color .15s; }
+    #fiqAiDrawer button[id^="fiqAi"]:active { transform: scale(.9); }
+    .fiq-welcome { animation: fiqRise .5s cubic-bezier(.16,1,.3,1) both; }
+    .fiq-sugg { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 10px 12px; border-radius: 16px; text-align: left;
+      background: rgba(255,255,255,.7); border: 1px solid rgba(214,201,190,.8); color: #1C1917;
+      transition: transform .28s cubic-bezier(.34,1.56,.64,1), border-color .15s, background-color .15s; animation: fiqRise .5s cubic-bezier(.16,1,.3,1) both; }
+    .fiq-sugg:nth-child(2) { animation-delay: .05s; } .fiq-sugg:nth-child(3) { animation-delay: .1s; } .fiq-sugg:nth-child(4) { animation-delay: .15s; }
+    html.dark .fiq-sugg { background: rgba(41,37,36,.7); border-color: rgba(87,83,78,.7); color: #F5EFE6; }
+    .fiq-sugg:hover { transform: translateY(-2px); border-color: #B8431B; }
+    .fiq-sugg:active { transform: scale(.96); }
+    .fiq-sugg svg { width: 22px; height: 22px; flex: none; fill: none; stroke: #B8431B; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: transform .35s cubic-bezier(.34,1.56,.64,1); }
+    html.dark .fiq-sugg svg { stroke: #FDBA74; }
+    .fiq-sugg:hover svg { transform: rotate(-8deg) scale(1.12); }
+    .fiq-sugg span { display: flex; flex-direction: column; min-width: 0; }
+    .fiq-sugg b { font-size: 12.5px; font-weight: 700; line-height: 1.2; }
+    .fiq-sugg small { font-size: 11px; color: #57534E; line-height: 1.3; }
+    html.dark .fiq-sugg small { color: #C7B8AC; }
+    .fiq-msg { display: flex; gap: 8px; align-items: flex-end; animation: fiqMsgIn .38s cubic-bezier(.16,1,.3,1) both; }
+    .fiq-msg-user { flex-direction: column; align-items: flex-end; gap: 3px; }
+    .fiq-msg-ai .fiq-col { display: flex; flex-direction: column; gap: 3px; min-width: 0; max-width: 86%; }
+    .fiq-ava { width: 28px; height: 28px; border-radius: 9999px; overflow: hidden; flex: none; border: 1px solid rgba(255,255,255,.7); }
+    .fiq-ava.is-busy { animation: fiqBusy 1.2s ease-in-out infinite; }
+    @keyframes fiqBusy { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+    .fiq-bubble { padding: 9px 13px; border-radius: 18px; line-height: 1.55; overflow-wrap: anywhere; }
+    .fiq-bubble-user { max-width: 85%; background: #B8431B; color: #fff; border-bottom-right-radius: 6px; white-space: pre-wrap; }
+    .fiq-bubble-ai { background: rgba(255,255,255,.88); color: #1C1917; border: 1px solid rgba(214,201,190,.8); border-bottom-left-radius: 6px; }
+    html.dark .fiq-bubble-ai { background: rgba(41,37,36,.88); color: #F5EFE6; border-color: rgba(87,83,78,.7); }
+    .fiq-bubble-err { border-color: rgba(220,38,38,.5); }
+    .fiq-bubble-ai p { margin: 0 0 6px; } .fiq-bubble-ai p:last-child { margin-bottom: 0; }
+    .fiq-bubble-ai ul { margin: 4px 0 6px; padding-left: 18px; list-style: disc; } .fiq-bubble-ai li { margin: 2px 0; }
+    .fiq-bubble-ai strong { font-weight: 700; }
+    .fiq-bubble-ai code { font-family: ui-monospace, monospace; font-size: 12px; padding: 1px 5px; border-radius: 6px; background: rgba(184,67,27,.1); }
+    .fiq-meta { font-size: 10.5px; color: #78716C; padding: 0 6px; }
+    html.dark .fiq-meta { color: #A8A29E; }
+    .fiq-copy { font: inherit; color: #9A3412; font-weight: 600; padding: 4px 2px; }
+    html.dark .fiq-copy { color: #FDBA74; }
+    .fiq-copy:hover { text-decoration: underline; }
+    .fiq-input { transition: border-color .15s, box-shadow .15s; }
+    .fiq-input:focus { outline: none; border-color: #B8431B; box-shadow: 0 0 0 3px rgba(184,67,27,.18); }
+    .fiq-send { transition: transform .26s cubic-bezier(.34,1.56,.64,1), background-color .15s, opacity .15s; }
+    .fiq-send:hover:not(:disabled) { transform: translateY(-2px) rotate(-8deg); }
+    .fiq-send:active:not(:disabled) { transform: scale(.9); }
+    .fiq-send:disabled { opacity: .45; cursor: not-allowed; }
+    #fiqAiMicBtn { transition: transform .26s cubic-bezier(.34,1.56,.64,1), background-color .15s, color .15s; }
+    #fiqAiMicBtn:active { transform: scale(.9); }
+    @keyframes fiqRise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    @keyframes fiqMsgIn { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .fiq-online, .fiq-msg, .fiq-sugg, .fiq-welcome, .fiq-ava.is-busy { animation: none !important; } }
   </style>
 </head>
 <body class="text-slate-900 dark:text-zinc-100 antialiased min-h-screen overflow-x-clip transition-colors duration-200">
@@ -992,7 +1057,7 @@
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div>
             <h3 class="text-sm font-bold text-[#1C1917] dark:text-[#F5EFE6]">Order Now Clicks</h3>
-            <p class="text-xs text-[#57534E] dark:text-[#C7B8AC]">Auto-synced from orders_log.json</p>
+            <p id="ordersSubText" class="text-xs text-[#57534E] dark:text-[#C7B8AC]">Live from the Order Now buttons on your client websites</p>
           </div>
           <button type="button" id="testOrderBtn" class="px-3 py-1.5 rounded-full bg-[#B8431B] hover:bg-[#9A3412] text-white text-[11px] font-semibold cursor-pointer tap-pop">+ Simulate Click</button>
         </div>
@@ -1731,7 +1796,7 @@
     }
 
     function renderCamScreenHtml(cam) {
-      const nowStr = new Date().toTimeString().slice(0, 8);
+      const nowStr = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23', timeZone: 'Asia/Kuala_Lumpur' });
       return `
         ${cam.streamUrl
           ? `<iframe src="${escapeHtml(sanitizeUrl(cam.streamUrl))}" title="${escapeHtml(cam.name)}" class="w-full h-full border-0" allow="autoplay; fullscreen" loading="lazy"></iframe>`
@@ -1836,6 +1901,7 @@
     // TAB 2: WEBSITES (Full Management)
     function renderWebsites() {
       const wsCfg = (state.settings && state.settings.webSync) || DEFAULT_SETTINGS.webSync;
+      ['testReportBtn', 'testOrderBtn'].forEach((id) => { const b = document.getElementById(id); if (b) b.classList.toggle('hidden', SERVER_PROXY); });
       const repSec = document.getElementById('webReportsSection');
       const ordSec = document.getElementById('webOrdersSection');
       if (repSec) repSec.classList.toggle('hidden', wsCfg.showReportsOnWebTab === false);
@@ -1988,6 +2054,9 @@
       const re = document.getElementById('setReportsEndpoint');
       const we = document.getElementById('setWebhookEndpoint');
       const as = document.getElementById('setAutoSyncSelect');
+      // On the Cloudflare host logs come from the Worker: hide the old PHP/JSON file fields and the fake test buttons.
+      [oe, re, we].forEach((el) => { if (el && el.parentElement) el.parentElement.classList.toggle('hidden', SERVER_PROXY); });
+      ['testReportBtn', 'testOrderBtn'].forEach((id) => { const b = document.getElementById(id); if (b) b.classList.toggle('hidden', SERVER_PROXY); });
       if (oe && document.activeElement !== oe) oe.value = wsCfg.ordersEndpoint || 'orders_log.json';
       if (re && document.activeElement !== re) re.value = wsCfg.reportsEndpoint || 'reports_log.json';
       if (we && document.activeElement !== we) we.value = wsCfg.webhookEndpoint || 'order_webhook.php';
@@ -2437,14 +2506,17 @@
       const du = document.getElementById('settingsHaDirectUrlWrap');
       const tw = document.getElementById('settingsHaTokenWrap');
       const hint = document.getElementById('settingsDevModeHint');
-      if (wu) wu.classList.toggle('hidden', mode !== 'worker');
-      if (ws) ws.classList.toggle('hidden', mode !== 'worker');
+      // On the Cloudflare host the Worker holds the Daikin URL and secret, so those fields are hidden.
+      if (wu) wu.classList.toggle('hidden', mode !== 'worker' || SERVER_PROXY);
+      if (ws) ws.classList.toggle('hidden', mode !== 'worker' || SERVER_PROXY);
       if (du) du.classList.toggle('hidden', mode !== 'direct');
       if (tw) tw.classList.toggle('hidden', mode !== 'direct');
       if (hint) {
         hint.innerHTML = mode === 'worker'
-          ? '<strong>Daikin Worker mode:</strong> Works 24/7 with no Home Assistant or laptop needed. Deploy <span class="font-mono">godaikin-worker.js</span> on Cloudflare, paste the URL &amp; secret above, click <strong>Test &amp; Sync</strong>, then <strong>Save to Server</strong>.'
-          : '<strong>Home Assistant mode:</strong> Add <span class="font-mono">https://fiqstudio.page.gd</span> under <span class="font-mono">http: cors_allowed_origins:</span> in <span class="font-mono">configuration.yaml</span>, then click <strong>Test &amp; Sync</strong>.';
+          ? (SERVER_PROXY
+            ? '<strong>Daikin Worker mode:</strong> Connected through the FiqStudio server. Your Daikin secret stays on the server, so there is nothing to type here. Tap <strong>Test &amp; Sync</strong> to refresh.'
+            : '<strong>Daikin Worker mode:</strong> Works 24/7 with no Home Assistant or laptop needed. Deploy <span class="font-mono">godaikin-worker.js</span> on Cloudflare, paste the URL &amp; secret above, click <strong>Test &amp; Sync</strong>, then <strong>Save to Server</strong>.')
+          : '<strong>Home Assistant mode:</strong> Add <span class="font-mono">' + escapeHtml(location.origin) + '</span> under <span class="font-mono">http: cors_allowed_origins:</span> in <span class="font-mono">configuration.yaml</span>, then click <strong>Test &amp; Sync</strong>.';
       }
 
       const wui = document.getElementById('setDaikinWorkerUrl');
@@ -3701,10 +3773,15 @@
       showToast('Added ' + name);
     });
 
+    // Malaysia time (Asia/Kuala_Lumpur) everywhere, whatever the device's time zone.
+    function klClock(withSeconds) {
+      return new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: withSeconds ? '2-digit' : undefined, hourCycle: 'h23', timeZone: 'Asia/Kuala_Lumpur' });
+    }
     function tickClock() {
-      const now = new Date();
-      document.getElementById('liveClockPill').textContent = now.toTimeString().slice(0, 5);
-      const full = now.toTimeString().slice(0, 8);
+      const pill = document.getElementById('liveClockPill');
+      pill.textContent = klClock(false);
+      pill.title = 'Malaysia time';
+      const full = klClock(true);
       document.querySelectorAll('.cam-clock').forEach(el => { el.textContent = full; });
     }
     setInterval(tickClock, 1000);
@@ -3807,11 +3884,14 @@
             </svg>
           </div>
           <div class="min-w-0">
-            <p class="font-display font-bold text-sm text-[#1C1917] dark:text-[#F5EFE6] leading-tight truncate">Fiq AI</p>
-            <p id="fiqAiStatusText" class="text-[11px] font-medium text-[#57534E] dark:text-[#C7B8AC] truncate">Weather, AC, CCTV &amp; Chat</p>
+            <p class="font-display font-bold text-sm text-[#1C1917] dark:text-[#F5EFE6] leading-tight truncate flex items-center gap-1.5">Fiq AI <span class="fiq-online" aria-hidden="true"></span></p>
+            <p id="fiqAiStatusText" class="text-[11px] font-medium text-[#57534E] dark:text-[#C7B8AC] truncate">Weather · AC · CCTV · Chat</p>
           </div>
         </div>
         <div class="flex items-center gap-1 shrink-0">
+          <button type="button" id="fiqAiClearBtn" title="Clear chat" aria-label="Clear chat" class="fiq-icon-btn w-9 h-9 rounded-lg flex items-center justify-center text-[#57534E] dark:text-[#C7B8AC] hover:bg-stone-200/60 dark:hover:bg-stone-800/70">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 002 2h8a2 2 0 002-2l1-12M9 7V4h6v3"/></svg>
+          </button>
           <button type="button" id="fiqAiVoiceOutToggle" title="Toggle voice replies" aria-label="Toggle voice replies" aria-pressed="true" class="w-8 h-8 rounded-lg flex items-center justify-center text-[#9A3412] dark:text-[#FDBA74] hover:bg-stone-200/60 dark:hover:bg-stone-800/70 transition-colors">
             <svg id="fiqAiVoiceOutIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14"/></svg>
           </button>
@@ -3840,28 +3920,43 @@
       </div>
 
       <!-- Messages List -->
-      <div id="fiqAiMessages" class="flex-1 overflow-y-auto px-3.5 py-3 space-y-2.5 min-h-[120px] text-xs sm:text-[13px]">
-        <div class="rounded-2xl rounded-tl-sm px-3.5 py-2.5 bg-white/80 dark:bg-stone-800/80 text-[#1C1917] dark:text-[#F5EFE6] border border-stone-200/70 dark:border-stone-700/60 leading-relaxed">
-          Hi Wafiq! Ask me anything, check Kota Bharu weather, check CCTV, or tell me to adjust your GO DAIKIN AC. Tap the mic to speak.
+      <div id="fiqAiMessages" class="flex-1 overflow-y-auto px-3.5 py-3 space-y-3 min-h-[160px] text-[13px]" aria-live="polite">
+        <div id="fiqAiWelcome" class="fiq-welcome space-y-3 py-1">
+          <div class="flex items-center gap-3">
+            <div class="prov-grok-orb w-11 h-11 rounded-full overflow-hidden shadow-inner border border-white/70 shrink-0" aria-hidden="true">
+              <svg class="w-full h-full" viewBox="0 0 240 240"><g class="prov-grok-face"><rect class="prov-eye-blink" x="96" y="92" width="22" height="54" rx="11" fill="#111113"/><rect class="prov-eye-blink" x="134" y="94" width="18" height="50" rx="9" fill="#111113"/></g></svg>
+            </div>
+            <div class="min-w-0">
+              <p id="fiqAiGreet" class="font-display text-base font-bold text-[#1C1917] dark:text-[#F5EFE6] leading-tight">Hi Wafiq</p>
+              <p class="text-xs text-[#57534E] dark:text-[#C7B8AC]">Ask anything, or tap a shortcut. Hold the orb to talk.</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" data-fiq-prompt="What is the weather in Kota Bharu right now?" class="fiq-quick-chip fiq-sugg">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18h10a4 4 0 0 0 .6-7.96A6 6 0 0 0 6.1 11 3.5 3.5 0 0 0 7 18z"/></svg><span><b>Weather</b><small>Kota Bharu now</small></span>
+            </button>
+            <button type="button" data-fiq-prompt="Check my GO DAIKIN AC status" class="fiq-quick-chip fiq-sugg">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="8" rx="2"/><path d="M7 17v2M12 17v3M17 17v2"/></svg><span><b>AC status</b><small>GO DAIKIN</small></span>
+            </button>
+            <button type="button" data-fiq-prompt="Turn on my AC and set it to 24 degrees" class="fiq-quick-chip fiq-sugg">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9"/></svg><span><b>Cool to 24°C</b><small>Turn AC on</small></span>
+            </button>
+            <button type="button" data-fiq-prompt="Check my CCTV cameras" class="fiq-quick-chip fiq-sugg">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 10l4.5-2.3a1 1 0 0 1 1.5.9v6.8a1 1 0 0 1-1.5.9L15 14M5 18h8a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"/></svg><span><b>CCTV</b><small>Camera check</small></span>
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- Quick Prompts -->
-      <div class="px-3.5 pb-2 flex flex-wrap gap-1.5">
-        <button type="button" data-fiq-prompt="What is the weather in Kota Bharu right now?" class="fiq-quick-chip px-2.5 py-1 rounded-full text-[11px] font-medium bg-stone-200/70 dark:bg-stone-800/80 text-[#1C1917] dark:text-[#F5EFE6] hover:bg-[#B8431B] hover:text-white transition-colors">Weather</button>
-        <button type="button" data-fiq-prompt="Check my GO DAIKIN AC status" class="fiq-quick-chip px-2.5 py-1 rounded-full text-[11px] font-medium bg-stone-200/70 dark:bg-stone-800/80 text-[#1C1917] dark:text-[#F5EFE6] hover:bg-[#B8431B] hover:text-white transition-colors">AC Status</button>
-        <button type="button" data-fiq-prompt="Turn on my AC and set it to 24 degrees" class="fiq-quick-chip px-2.5 py-1 rounded-full text-[11px] font-medium bg-stone-200/70 dark:bg-stone-800/80 text-[#1C1917] dark:text-[#F5EFE6] hover:bg-[#B8431B] hover:text-white transition-colors">AC 24°C</button>
-        <button type="button" data-fiq-prompt="Check my CCTV cameras" class="fiq-quick-chip px-2.5 py-1 rounded-full text-[11px] font-medium bg-stone-200/70 dark:bg-stone-800/80 text-[#1C1917] dark:text-[#F5EFE6] hover:bg-[#B8431B] hover:text-white transition-colors">CCTV</button>
-      </div>
-
       <!-- Input Bar + Voice Mic -->
-      <form id="fiqAiForm" class="p-2.5 border-t border-stone-200/70 dark:border-stone-700/60 flex items-center gap-2">
+      <form id="fiqAiForm" class="p-2.5 border-t border-stone-200/70 dark:border-stone-700/60 flex items-end gap-2">
         <button type="button" id="fiqAiMicBtn" title="Voice input" aria-label="Start voice input" class="w-10 h-10 rounded-full shrink-0 flex items-center justify-center bg-stone-200/80 dark:bg-stone-800 text-[#1C1917] dark:text-[#F5EFE6] hover:bg-[#B8431B] hover:text-white transition-colors">
           <svg id="fiqAiMicIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg>
           <span id="fiqAiMicWave" class="hidden items-center gap-0.5"><span class="fiq-voice-bar"></span><span class="fiq-voice-bar"></span><span class="fiq-voice-bar"></span><span class="fiq-voice-bar"></span></span>
         </button>
-        <input type="text" id="fiqAiInput" placeholder="Ask Fiq AI or tap mic..." autocomplete="off" class="flex-1 min-w-0 h-10 px-3 rounded-xl text-xs bg-white/80 dark:bg-stone-900/80 border border-stone-300/80 dark:border-stone-700 text-[#1C1917] dark:text-[#F5EFE6]">
-        <button type="submit" id="fiqAiSendBtn" aria-label="Send message" class="w-10 h-10 rounded-full shrink-0 bg-[#B8431B] hover:bg-[#9A3412] text-white flex items-center justify-center transition-colors">
+        <label for="fiqAiInput" class="sr-only">Message Fiq AI</label>
+        <textarea id="fiqAiInput" rows="1" placeholder="Message Fiq AI…" autocomplete="off" class="fiq-input flex-1 min-w-0 min-h-[40px] max-h-32 px-3.5 py-2.5 rounded-2xl text-[13px] leading-snug resize-none bg-white/80 dark:bg-stone-900/80 border border-stone-300/80 dark:border-stone-700 text-[#1C1917] dark:text-[#F5EFE6]"></textarea>
+        <button type="submit" id="fiqAiSendBtn" aria-label="Send message" disabled class="fiq-send w-10 h-10 rounded-full shrink-0 bg-[#B8431B] hover:bg-[#9A3412] text-white flex items-center justify-center">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 5l7 7-7 7"/></svg>
         </button>
       </form>
@@ -4351,25 +4446,87 @@
         speakWithBrowser(clean);
       }
 
-      function appendBubble(role, text) {
-        const div = document.createElement('div');
-        if (role === 'user') {
-          div.className = 'ml-auto max-w-[85%] rounded-2xl rounded-tr-sm px-3.5 py-2 bg-[#B8431B] text-white leading-relaxed';
-        } else {
-          div.className = 'mr-auto max-w-[90%] rounded-2xl rounded-tl-sm px-3.5 py-2 bg-white/85 dark:bg-stone-800/85 text-[#1C1917] dark:text-[#F5EFE6] border border-stone-200/70 dark:border-stone-700/60 leading-relaxed whitespace-pre-wrap';
-        }
-        div.textContent = text;
-        msgList.appendChild(div);
-        msgList.scrollTop = msgList.scrollHeight;
-        return div;
+      // ---------- Chat rendering (safe mini-markdown, avatar, Malaysia time, copy) ----------
+      const CHAT_KEY = 'fiq_ai_chat_v1';
+      const welcome = document.getElementById('fiqAiWelcome');
+      const orbSvg = '<svg class="w-full h-full" viewBox="0 0 240 240" aria-hidden="true"><g class="prov-grok-face"><rect x="96" y="92" width="22" height="54" rx="11" fill="#111113"/><rect x="134" y="94" width="18" height="50" rx="9" fill="#111113"/></g></svg>';
+      const escHtml = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      const klTime = (ts) => new Date(ts || Date.now()).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kuala_Lumpur' });
+      function miniMd(text) {
+        const lines = escHtml(text).split('\n');
+        let html = '', inList = false;
+        lines.forEach((ln) => {
+          const li = ln.match(/^\s*(?:[-*•]|\d+[.)])\s+(.*)$/);
+          if (li) { if (!inList) { html += '<ul>'; inList = true; } html += '<li>' + li[1] + '</li>'; return; }
+          if (inList) { html += '</ul>'; inList = false; }
+          html += ln.trim() ? '<p>' + ln + '</p>' : '';
+        });
+        if (inList) html += '</ul>';
+        return html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code>$1</code>');
       }
+      function saveChat() {
+        try { localStorage.setItem(CHAT_KEY, JSON.stringify(history.slice(-40))); } catch (e) {}
+      }
+      function updateWelcome() {
+        if (!welcome) return;
+        welcome.classList.toggle('hidden', history.length > 0);
+        const hr = Number(new Date().toLocaleString('en-GB', { hour: '2-digit', hour12: false, timeZone: 'Asia/Kuala_Lumpur' }));
+        const g = document.getElementById('fiqAiGreet');
+        if (g) g.textContent = (hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening') + ', Wafiq';
+      }
+      function appendBubble(role, text, ts, error) {
+        const row = document.createElement('div');
+        row.className = 'fiq-msg ' + (role === 'user' ? 'fiq-msg-user' : 'fiq-msg-ai');
+        const time = klTime(ts);
+        if (role === 'user') {
+          row.innerHTML = `<div class="fiq-bubble fiq-bubble-user"></div><span class="fiq-meta">${time}</span>`;
+          row.querySelector('.fiq-bubble').textContent = text;
+        } else {
+          row.innerHTML = `<div class="fiq-ava prov-grok-orb" aria-hidden="true">${orbSvg}</div>
+            <div class="fiq-col"><div class="fiq-bubble fiq-bubble-ai${error ? ' fiq-bubble-err' : ''}">${miniMd(text)}</div>
+            <span class="fiq-meta">${time}${error ? '' : ' · <button type="button" class="fiq-copy">Copy</button>'}</span></div>`;
+          const cp = row.querySelector('.fiq-copy');
+          if (cp) cp.addEventListener('click', () => {
+            const done = () => { cp.textContent = 'Copied'; setTimeout(() => { cp.textContent = 'Copy'; }, 1500); };
+            (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(done, () => { cp.textContent = 'Select to copy'; });
+          });
+        }
+        msgList.appendChild(row);
+        msgList.scrollTop = msgList.scrollHeight;
+        updateWelcome();
+        return row;
+      }
+      // Restore the last conversation (kept in this browser only).
+      try {
+        const saved = JSON.parse(localStorage.getItem(CHAT_KEY) || '[]');
+        if (Array.isArray(saved)) saved.filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string').slice(-40).forEach((m) => { history.push(m); appendBubble(m.role, m.content, m.t); });
+      } catch (e) {}
+      updateWelcome();
+      const clearBtn = document.getElementById('fiqAiClearBtn');
+      if (clearBtn) clearBtn.addEventListener('click', () => {
+        history.length = 0; saveChat();
+        msgList.querySelectorAll('.fiq-msg').forEach((n) => n.remove());
+        updateWelcome();
+        statusText.textContent = 'Weather · AC · CCTV · Chat';
+        if (typeof showToast === 'function') showToast('Chat cleared');
+      });
+      // Auto-growing input: Enter sends, Shift+Enter adds a line.
+      const sendBtn = document.getElementById('fiqAiSendBtn');
+      const fitInput = () => { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 128) + 'px'; if (sendBtn) sendBtn.disabled = !input.value.trim(); };
+      input.addEventListener('input', fitInput);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); if (input.value.trim()) form.requestSubmit(); }
+      });
 
       async function sendPrompt(text) {
         const prompt = String(text || '').trim();
         if (!prompt) return;
-        appendBubble('user', prompt);
-        history.push({ role: 'user', content: prompt });
+        const sentAt = Date.now();
+        history.push({ role: 'user', content: prompt, t: sentAt });
+        appendBubble('user', prompt, sentAt);
+        saveChat();
         input.value = '';
+        fitInput();
 
         const cfg = loadCfg();
         if (!SERVER_PROXY && !cfg.workerUrl) {
@@ -4381,8 +4538,8 @@
         }
 
         const thinking = document.createElement('div');
-        thinking.className = 'fiq-think-bubble mr-auto max-w-[90%] rounded-2xl rounded-tl-sm px-3.5 py-2.5 text-[#1C1917] dark:text-[#F5EFE6] border border-stone-200/80 dark:border-stone-700/70 flex items-center gap-2.5';
-        thinking.innerHTML = '<span class="inline-flex items-center gap-1" aria-hidden="true"><span class="fiq-think-dot"></span><span class="fiq-think-dot"></span><span class="fiq-think-dot"></span></span><span id="fiqAiThinkStep" class="text-[11px] font-medium text-[#57534E] dark:text-[#C7B8AC]">Understanding request...</span>';
+        thinking.className = 'fiq-msg fiq-msg-ai';
+        thinking.innerHTML = `<div class="fiq-ava prov-grok-orb is-busy" aria-hidden="true">${orbSvg}</div><div class="fiq-think-bubble rounded-2xl rounded-tl-sm px-3.5 py-2.5 text-[#1C1917] dark:text-[#F5EFE6] border border-stone-200/80 dark:border-stone-700/70 flex items-center gap-2.5"><span class="inline-flex items-center gap-1" aria-hidden="true"><span class="fiq-think-dot"></span><span class="fiq-think-dot"></span><span class="fiq-think-dot"></span></span><span id="fiqAiThinkStep" class="text-[11px] font-medium text-[#57534E] dark:text-[#C7B8AC]">Understanding request...</span></div>`;
         msgList.appendChild(thinking);
         msgList.scrollTop = msgList.scrollHeight;
         fab.classList.add('is-thinking');
@@ -4405,7 +4562,7 @@
           const res = await fetch(SERVER_PROXY ? '/api/ai/chat' : normalizeWorkerUrl(cfg.workerUrl) + '/api/chat', {
             method: 'POST',
             headers: chatHeaders,
-            body: JSON.stringify({ messages: history.slice(-10), context: { cameras: cams, memories: mems } }),
+            body: JSON.stringify({ messages: (() => { const m = history.slice(-10).map(({ role, content }) => ({ role, content })); while (m.length && m[0].role !== 'user') m.shift(); return m; })(), context: { cameras: cams, memories: mems } }),
           });
           const data = await res.json().catch(() => ({}));
           if (!res.ok || !data.ok) {
@@ -4413,7 +4570,6 @@
           }
           clearInterval(thinkPhaseTimer);
           fab.classList.remove('is-thinking');
-          thinking.className = 'mr-auto max-w-[90%] rounded-2xl rounded-tl-sm px-3.5 py-2 bg-white/85 dark:bg-stone-800/85 text-[#1C1917] dark:text-[#F5EFE6] border border-stone-200/70 dark:border-stone-700/60 leading-relaxed whitespace-pre-wrap';
           if (typeof state !== 'undefined') {
             if (!Array.isArray(state.aiMemories)) state.aiMemories = [];
             let memChanged = false;
@@ -4442,8 +4598,11 @@
             }
           }
           const reply = String(data.reply || 'Done.');
-          thinking.textContent = reply;
-          history.push({ role: 'assistant', content: reply });
+          const repliedAt = Date.now();
+          thinking.remove();
+          history.push({ role: 'assistant', content: reply, t: repliedAt });
+          appendBubble('assistant', reply, repliedAt);
+          saveChat();
           statusText.textContent = Array.isArray(data.toolsUsed) && data.toolsUsed.length
             ? ('Used: ' + data.toolsUsed.join(', '))
             : 'Ready';
@@ -4451,9 +4610,11 @@
         } catch (err) {
           clearInterval(thinkPhaseTimer);
           fab.classList.remove('is-thinking');
-          thinking.className = 'mr-auto max-w-[90%] rounded-2xl rounded-tl-sm px-3.5 py-2 bg-white/85 dark:bg-stone-800/85 text-[#1C1917] dark:text-[#F5EFE6] border border-stone-200/70 dark:border-stone-700/60 leading-relaxed whitespace-pre-wrap';
-          thinking.textContent = 'Could not reach Fiq AI: ' + (err && err.message ? err.message : 'Check Worker URL & PIN');
-          statusText.textContent = 'Connection error';
+          thinking.remove();
+          // Drop the unanswered message from the history sent to the AI, so the next turn stays valid.
+          if (history.length && history[history.length - 1].role === 'user') { history.pop(); saveChat(); }
+          appendBubble('assistant', 'I could not reach Fiq AI right now (' + (err && err.message ? err.message : 'connection error') + '). Check your internet and try again.', Date.now(), true);
+          statusText.textContent = 'Connection error · try again';
         }
       }
 

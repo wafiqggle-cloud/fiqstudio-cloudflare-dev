@@ -72,7 +72,7 @@
   }
   async function refresh() {
     if (busy || typeof SERVER_PROXY === 'undefined' || !SERVER_PROXY) return;
-    busy = true;
+    busy = true; last = Date.now();
     try {
       const res = await fetch('/api/pm/summary', { cache: 'no-store' });
       data = res.ok ? await res.json() : { error: res.status === 401 ? 'Sign in again to see tasks' : 'Task summary unavailable' };
