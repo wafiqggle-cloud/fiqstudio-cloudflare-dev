@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>(function(){var t=null;try{var q=new URLSearchParams(location.search).get('theme');if(q==='dark'||q==='light'){localStorage.setItem('fq_theme',q);t=q;history.replaceState(null,'',location.pathname+location.hash)}else{t=localStorage.getItem('fq_theme')}}catch(e){}if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t)})();</script>
 <meta name="theme-color" content="#F6EFE4" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#190E09" media="(prefers-color-scheme: dark)">
 <title>FIQSTUDIO Project Management</title>
@@ -233,6 +234,56 @@ a.tr:hover,button.tr:hover{transform:translateX(2px)}
 .hub-link svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .hub-link.sm{margin:0 0 0 auto;min-height:36px;padding:0 10px;font-size:13px;border-style:solid}
 @media (min-width:821px) and (max-width:1100px){.hub-link{justify-content:center}}
+/* Bento dashboard */
+.bento{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px}
+.tile{background:var(--surf);border:1px solid var(--line);border-radius:18px;padding:18px 20px;min-width:0}
+.tile .sh{margin-bottom:6px}
+.hero{grid-column:span 6;grid-row:span 2;background:var(--ink);color:var(--bg);border-color:var(--ink);display:flex;flex-direction:column;justify-content:space-between;gap:14px}
+.hero h1{font-size:30px;color:var(--bg)}
+.hero .eyebrow{margin:0 0 4px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;opacity:.75}
+.hero-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.clock{font:800 44px/1 var(--disp);letter-spacing:-.03em;color:var(--acc);font-variant-numeric:tabular-nums}
+:root[data-theme="dark"] .clock{color:#B8431B}
+.hero-sum{margin:0;opacity:.85;max-width:52ch}
+.hero .btn{background:transparent;color:var(--bg);border-color:color-mix(in srgb,var(--bg) 35%,transparent)}
+.hero .btn:hover{background:color-mix(in srgb,var(--bg) 12%,transparent)}
+.hero .btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+.stat{grid-column:span 3;display:flex;flex-direction:column;gap:2px;transition:transform .26s var(--spring),border-color .16s}
+.stat:hover{transform:translateY(-3px);border-color:var(--acc)}
+.stat:active{transform:scale(.97)}
+.stat .tl{font-size:12px;font-weight:600;color:var(--mute)}
+.stat b{font:800 40px/1.1 var(--disp);letter-spacing:-.03em}
+.stat small{font-size:12px;color:var(--mute)}
+.stat.bad b{color:var(--bad)}
+.stat.acc b{color:var(--acc-tx)}
+.focus,.projs{grid-column:span 6}
+.mixt,.upc,.rec{grid-column:span 4}
+.frow{display:flex;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)}
+.frow:first-of-type{border-top:0}
+.fcheck{width:22px;height:22px;border-radius:50%;flex:none;cursor:pointer;transition:transform .26s var(--spring),background-color .15s,border-color .15s}
+.fcheck:hover{border-color:var(--ok);transform:scale(1.12)}
+.fcheck{position:relative;overflow:visible}.fcheck::after{content:"";position:absolute;inset:-11px}
+.fmain{flex:1;min-width:0;text-align:left;display:flex;flex-direction:column;min-height:44px;justify-content:center}
+.fmain .nm,.prow2 .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prow2{display:grid;grid-template-columns:minmax(0,1fr) 140px;grid-template-rows:auto auto;column-gap:14px;padding:9px 0;border-top:1px solid var(--line);transition:transform .26s var(--spring)}
+.prow2:first-of-type{border-top:0}
+.prow2:hover{transform:translateX(3px)}
+.prow2 .sub{grid-column:1}
+.prow2 .pg{grid-column:2;grid-row:1/3}
+.rec .li{width:100%;text-align:left;min-height:48px}
+/* Theme toggle */
+.theme-btn{display:flex;align-items:center;gap:10px;min-height:40px;padding:8px 10px;margin-top:6px;border-radius:8px;color:var(--mute);font-weight:600;font-size:14px;transition:transform .26s var(--spring),color .16s,background-color .16s}
+.theme-btn:hover{background:var(--sub);color:var(--ink)}
+.theme-btn:active{transform:scale(.94)}
+.theme-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .45s var(--spring)}
+.theme-btn:hover svg{transform:rotate(-25deg)}
+.theme-btn .sun{display:none}
+.theme-btn[data-mode="dark"] .sun{display:inline}
+.theme-btn[data-mode="dark"] .moon{display:none}
+.theme-btn.sm{margin:0 6px 0 auto;min-height:36px;padding:0 8px}
+.theme-btn.sm + .hub-link.sm{margin-left:0}
+@media (min-width:821px) and (max-width:1100px){.theme-btn{justify-content:center}.bento{grid-template-columns:repeat(6,minmax(0,1fr))}.hero,.focus,.projs{grid-column:span 6}.stat,.mixt,.upc,.rec{grid-column:span 3}.rec{grid-column:span 6}}
+@media (max-width:820px){.bento{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.hero,.focus,.projs,.mixt,.upc,.rec{grid-column:span 2}.hero{grid-row:auto}.stat{grid-column:span 1;padding:14px 16px}.stat b{font-size:30px}.hero h1{font-size:24px}.clock{font-size:34px}.tile{padding:16px}.prow2{grid-template-columns:minmax(0,1fr) 96px}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.rip{display:none}}
 
 </style>
@@ -241,14 +292,18 @@ a.tr:hover,button.tr:hover{transform:translateX(2px)}
 <div class="app">
 <aside><div class="brand"><div class="mark">F</div><div><b>FIQSTUDIO</b><span>Project Management</span></div></div><nav id="nav"></nav>
 <a class="hub-link" href="https://fiqstudio-cloudflare-dev.wafiq-ggle.workers.dev/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg><span class="n">FiqStudio Hub</span></a>
+<button class="theme-btn" type="button" data-theme-toggle aria-label="Switch theme"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="moon" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/><g class="sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg><span class="n">Theme</span></button>
 <div class="me"><span class="av">FQ</span><div><b style="font-weight:600">Fiq</b><div class="sub">Studio owner</div></div></div></aside>
-<div><div class="mbar"><span class="mark">F</span>FIQSTUDIO<a class="hub-link sm" href="https://fiqstudio-cloudflare-dev.wafiq-ggle.workers.dev/" aria-label="Back to FiqStudio Hub"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Hub</a></div><main id="main"></main></div>
+<div><div class="mbar"><span class="mark">F</span>FIQSTUDIO<button class="theme-btn sm" type="button" data-theme-toggle aria-label="Switch theme"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="moon" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/><g class="sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg></button><a class="hub-link sm" href="https://fiqstudio-cloudflare-dev.wafiq-ggle.workers.dev/" aria-label="Back to FiqStudio Hub"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Hub</a></div><main id="main"></main></div>
 </div>
 <div class="tabs" id="tabs"></div>
 <div id="modal" hidden></div><div id="toast" role="status"></div><input type="file" id="up" hidden>
 <script>
-const T0=new Date(),NOW=Math.round((Date.UTC(T0.getFullYear(),T0.getMonth(),T0.getDate())-Date.UTC(2026,10,1))/864e5)+1,$=s=>document.querySelector(s);
-const hello=()=>{const hr=T0.getHours();return hr<12?'Good morning':hr<18?'Good afternoon':'Good evening'};
+const KL=()=>{const p={};new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Kuala_Lumpur',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(new Date()).forEach(x=>p[x.type]=x.value);return{y:+p.year,m:+p.month,d:+p.day,h:+p.hour,mi:p.minute,s:p.second}};
+const klDay=()=>{const k=KL();return Math.round((Date.UTC(k.y,k.m-1,k.d)-Date.UTC(2026,10,1))/864e5)+1};
+let NOW=klDay();const $=s=>document.querySelector(s);
+const hello=()=>{const hr=KL().h;return hr<12?'Good morning':hr<18?'Good afternoon':'Good evening'};
+const clock=()=>{const k=KL();return String(k.h).padStart(2,'0')+':'+k.mi};
 const longDay=n=>D(n).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',timeZone:'UTC'});
 const since=iso=>{const d=Date.parse(iso||'');return isNaN(d)?1e9:(Date.now()-d)/864e5};
 const IC={dashboard:'M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z',clients:'M16 8a4 4 0 1 0-8 0 4 4 0 0 0 8 0zM4 21c0-4 4-6 8-6s8 2 8 6',projects:'M3 7h18v13H3zM8 7V4h8v3',tasks:'M4 12l5 5L20 6',calendar:'M4 5h16v16H4zM4 10h16M9 3v4M15 3v4',team:'M9 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 20c0-3 3-5 6-5s6 2 6 5M17 5a3 3 0 0 1 0 6M21 20c0-2-1-4-3-4.5',reports:'M5 20V10M12 20V4M19 20v-7',settings:'M4 7h10M18 7h2M4 17h2M10 17h10M14 5v4M6 15v4',more:'M5 12h.01M12 12h.01M19 12h.01'};
@@ -327,13 +382,25 @@ const seg=(o,cur,id='')=>`<span class='seg' ${id?`id='${id}'`:''}>${o.map(x=>`<b
 const prow=(p,cl=1)=>`<a class='tr' href='#projects' data-p='${PR.indexOf(p)}' style='--c:2fr 1.3fr 1.2fr 56px;--m:1fr 96px 48px'><div style='display:flex;gap:12px;align-items:center;min-width:0'>${th(p)}<div style='min-width:0'><div class='nm'>${p[0]}</div>${cl?`<div class='sub'>${CLx(p[1])[0]}</div>`:''}</div></div><div class='hm'>${stg(p)}</div><div class='pg'>${bar(p)}<b>${p[3]}%</b></div><div class='sub'>${fd(p[4])}</div></a>`;
 const pth=`<div class='tr th' style='--c:2fr 1.3fr 1.2fr 56px;--m:1fr 96px 48px'><span>Project</span><span class='hm'>Stage</span><span>Progress</span><span>Due</span></div>`;
 const V={
-dashboard:()=>{const K=Object.keys(TEAM),up=[...active.map(p=>[p[4],p[0],'Project deadline']),...TK.filter(t=>t[2]!='done'&&t[4]>=NOW).map(t=>[t[4],t[0],'Task, '+pn(t)])].sort((a,b)=>a[0]-b[0]).slice(0,6);
-return head(hello()+', Fiq',`${longDay(NOW)}. ${active.length} projects in progress and ${over.length} tasks past due.`,B('New project','pri'))+
-`<div class='facts'>${[['Active projects',active.length,active.filter(p=>p[2]==2).length+' in development'],['Clients',CL.length,CL.filter(c=>since(c.raw.createdAt)<7).length+' added this week'],['Launched',done.length,done.length?'Projects at 100%':'None launched yet'],['Past due',over.length,over.length?'Tasks, oldest '+Math.max(...over.map(t=>NOW-t[4]))+' days late':'Nothing overdue']].map(f=>`<div><span>${f[0]}</span><b>${f[1]}</b><small>${f[2]}</small></div>`).join('')}</div>
-<div class='dash'><div><div class='sec'>${sech('Active projects',`<a class='lnk' href='#projects'>All projects</a>`)}<div class='tbl'>${pth}${active.map(p=>prow(p)).join('')}</div></div>
-<div class='sec'>${sech('Recently added tasks',`<a class='lnk' href='#tasks'>All tasks</a>`)}${[...TK].sort((a,b)=>String(b.raw.createdAt||'').localeCompare(String(a.raw.createdAt||''))).slice(0,5).map(t=>`<div class='li'><div><div class='nm'>${t[0]}</div><div class='sub'>${pn(t)}, ${t[5]}</div></div><span class='sub'>${COLS.find(c=>c[0]==t[2])[1]}</span></div>`).join('')||`<p class='sub'>No tasks yet. Add one from the Tasks page.</p>`}</div></div>
-<div><div class='sec'>${sech('Past due',`<a class='lnk' href='#tasks'>Open board</a>`)}${over.map(t=>`<div class='li'><div><div class='nm'>${t[0]}</div><div class='sub'>${pn(t)}, ${t[5]}</div></div><span class='late'>${NOW-t[4]}d</span></div>`).join('')||`<p class='sub'>Nothing is past due.</p>`}</div>
-<div class='sec'>${sech('Upcoming')}${up.map(u=>`<div class='dl'><div class='dt'><b>${D(u[0]).getUTCDate()}</b><span>${D(u[0]).toLocaleDateString('en-GB',{month:'short',timeZone:'UTC'})}</span></div><div><div class='nm'>${u[1]}</div><div class='sub'>${u[2]}</div></div></div>`).join('')}</div></div></div>`},
+dashboard:()=>{const open=TK.filter(t=>t[2]!='done'),today=open.filter(t=>t[4]==NOW),focus=[...over,...today].slice(0,7),
+up=[...active.map(p=>[p[4],p[0],'Project deadline']),...open.filter(t=>t[4]>NOW).map(t=>[t[4],t[0],'Task · '+pn(t)])].sort((a,b)=>a[0]-b[0]).slice(0,5),
+mix=COLS.map(c=>[c[1],TK.filter(t=>t[2]==c[0]).length,c[2]]),recent=[...TK].sort((a,b)=>String(b.raw.createdAt||'').localeCompare(String(a.raw.createdAt||''))).slice(0,4),
+doneWk=TK.filter(t=>t[2]=='done'&&since(t.raw.updatedAt||t.raw.createdAt)<7).length,
+stat=(cls,label,val,sub,href)=>`<a class='tile stat ${cls}' href='${href}'><span class='tl'>${label}</span><b>${val}</b><small>${sub}</small></a>`;
+return `<div class='bento'>
+<section class='tile hero'><div class='hero-top'><div><p class='eyebrow'>${longDay(NOW)} · Malaysia time</p><h1>${hello()}, Fiq</h1></div><b class='clock' id='klClock' aria-label='Malaysia time'>${clock()}</b></div>
+<p class='hero-sum'>${open.length} open task${open.length==1?'':'s'} · ${over.length} overdue · ${active.length} active project${active.length==1?'':'s'}. ${SYNC}</p>
+<div class='acts'>${B('New task','pri')}${B('New project')}</div></section>
+${stat(over.length?'bad':'','Overdue',over.length,over.length?'Oldest '+Math.max(...over.map(t=>NOW-t[4]))+' days late':'Nothing late','#tasks')}
+${stat(today.length?'acc':'','Due today',today.length,today.length?'Finish these first':'Nothing due today','#tasks')}
+${stat('','Open tasks',open.length,doneWk+' done this week','#tasks')}
+${stat('','Active projects',active.length,CL.length+' client'+(CL.length==1?'':'s'),'#projects')}
+<section class='tile focus'>${sech('Focus now',`<a class='lnk' href='#tasks'>All tasks</a>`)}${focus.map(t=>`<div class='frow'><button class='cb fcheck' data-done='${TK.indexOf(t)}' aria-label='Mark done: ${t[0]}'></button><button class='fmain' data-t='${TK.indexOf(t)}'><span class='nm'>${t[0]}</span><span class='sub'>${pn(t)}</span></button>${dueT(t)}</div>`).join('')||`<p class='sub'>Nothing overdue or due today. Pick something from the board.</p>`}</section>
+<section class='tile projs'>${sech('Projects',`<a class='lnk' href='#projects'>All projects</a>`)}${active.slice(0,5).map(p=>`<a class='prow2' href='#projects' data-p='${PR.indexOf(p)}'><span class='nm'>${p[0]}</span><span class='sub'>${CLx(p[1])[0]} · due ${fd(p[4])}</span><span class='pg'>${bar(p)}<b>${p[3]}%</b></span></a>`).join('')||`<p class='sub'>No active projects. Create one with New project.</p>`}</section>
+<section class='tile mixt'>${sech('Task status')}<div class='mix'>${mix.map(m=>`<i style='flex:${m[1]||.1};background:${m[2]}'></i>`).join('')}</div><div class='leg'>${mix.map(m=>`<span><i style='background:${m[2]}'></i>${m[0]} ${m[1]}</span>`).join('')}</div></section>
+<section class='tile upc'>${sech('Upcoming')}${up.map(u=>`<div class='dl'><div class='dt'><b>${D(u[0]).getUTCDate()}</b><span>${D(u[0]).toLocaleDateString('en-GB',{month:'short',timeZone:'UTC'})}</span></div><div><div class='nm'>${u[1]}</div><div class='sub'>${u[2]}</div></div></div>`).join('')||`<p class='sub'>No upcoming deadlines.</p>`}</section>
+<section class='tile rec'>${sech('Recently added')}${recent.map(t=>`<button class='li' data-t='${TK.indexOf(t)}'><span><span class='nm'>${t[0]}</span><span class='sub' style='display:block'>${pn(t)}</span></span><span class='sub'>${COLS.find(c=>c[0]==t[2])[1]}</span></button>`).join('')||`<p class='sub'>No tasks yet.</p>`}</section>
+</div>`},
 
 clients:()=>{if(!CL.length)return head('Clients',SYNC,B('Add client','pri'))+empty('No clients yet','Add your first client, then link projects to them.');const c=CL[S.c],ps=PR.filter(p=>p[1]==S.c);return head('Clients',CL.length+' clients. '+SYNC,B('Add client','pri'))+`<div class='split'><div class='lst'>${CL.map((c,i)=>`<button class='li sel ${i==S.c?'on':''}' data-c='${i}'><span class='mk'>${c[0].slice(-1)}</span><div class='grow'><div class='nm'>${c[0]}</div><div class='sub'>${c[1]}, ${PR.filter(p=>p[1]==i).length} projects</div></div></button>`).join('')}</div>
 <div><div class='pf-h'><span class='mk lg'>${c[0].slice(-1)}</span><div><h2 class='ser'>${c[0]}</h2><div class='sub'>${c[1]}</div></div>${B('Edit client')}${c[5]?`<a class='btn' href='https://${c[5]}' target='_blank' rel='noopener'>Visit website</a>`:''}</div>
@@ -373,7 +440,7 @@ settings:()=>{const g=(t,d,r)=>`<div class='sg'><div><b>${t}</b><p>${d}</p></div
 return head('Settings','Workspace preferences')+g('Workspace','Shown to your team and in reports',`<div class='set'><label style='flex:1'>Workspace name<input value='FIQSTUDIO'></label></div><div class='set'><label style='flex:1'>Time zone<input value='Kuala Lumpur (GMT+8)'></label></div>`)+g('Reports and alerts','Choose what reaches you and when',tg('Daily report at 8:00 am','Receive the AI summary every morning',true)+tg('Overdue task alerts','Notify the assignee when a due date passes',true)+tg('Weekly report on Fridays','Progress summary for every client',false))},
 };
 function go(){closeM();render()}
-function render(){recalc();if(!(S.c>=0&&S.c<CL.length))S.c=0;if(!(S.p>=0&&S.p<PR.length))S.p=0;const k=location.hash.slice(1)||'dashboard',key=V[k]?k:'dashboard';$('#main').innerHTML=V[key]();if(key!==LASTKEY){LASTKEY=key;const mm=$('#main');mm.classList.remove('enter');void mm.offsetWidth;mm.classList.add('enter');scrollTo(0,0)}
+function render(){NOW=klDay();recalc();if(!(S.c>=0&&S.c<CL.length))S.c=0;if(!(S.p>=0&&S.p<PR.length))S.p=0;const k=location.hash.slice(1)||'dashboard',key=V[k]?k:'dashboard';$('#main').innerHTML=V[key]();if(key!==LASTKEY){LASTKEY=key;const mm=$('#main');mm.classList.remove('enter');void mm.offsetWidth;mm.classList.add('enter');scrollTo(0,0)}
 $('#nav').innerHTML=PAGES.map(([id,l])=>`<a href='#${id}' class='${id==key?'on':''}'><svg viewBox='0 0 24 24' aria-hidden='true'><path d='${IC[id]}'/></svg><span class='n'>${l}</span></a>`).join('');
 $('#tabs').innerHTML=['dashboard','projects','tasks','calendar'].map(id=>`<a href='#${id}' class='${id==key?'on':''}'><svg viewBox='0 0 24 24' aria-hidden='true'><path d='${IC[id]}'/></svg>${PAGES.find(p=>p[0]==id)[1]}</a>`).join('')+`<button class='${['clients','team','reports','settings'].includes(key)?'on':''}'><svg viewBox='0 0 24 24' aria-hidden='true'><path d='${IC.more}'/></svg>More</button>`;
 document.title=PAGES.find(p=>p[0]==key)[1]+' | FIQSTUDIO'}
@@ -388,6 +455,12 @@ const b=T.closest('button'),a=b&&A[b.textContent.trim()];a&&a()});
 document.addEventListener('keydown',e=>{if(e.key=='Escape')closeM();if(e.key=='Enter'&&e.target.dataset&&e.target.dataset.t!=null)taskM(+e.target.dataset.t)});
 $('#up').addEventListener('change',e=>{const f=e.target.files[0];if(f){(FILES[S.p]=FILES[S.p]||[...DEF]).push(f.name);toast(f.name+' uploaded');go()}e.target.value=''});
 addEventListener('hashchange',go);go();
+document.addEventListener('click',e=>{const d=e.target.closest('[data-done]');if(!d)return;e.stopPropagation();const t=TK[+d.dataset.done];if(!t)return;d.classList.add('d');d.textContent='✓';setTimeout(()=>{put('tasks',t[6],{...t.raw,status:'done',updatedAt:new Date().toISOString()});toast('Done. Nice work');go()},260)},true);
+setInterval(()=>{const c=document.getElementById('klClock');if(c)c.textContent=clock();if(klDay()!==NOW&&$('#modal').hidden)render()},15000);
+const applyTheme=t=>{document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem('fq_theme',t)}catch(e){};document.querySelectorAll('[data-theme-toggle]').forEach(b=>{b.setAttribute('aria-label',t==='dark'?'Switch to light theme':'Switch to dark theme');b.dataset.mode=t})};
+const curTheme=()=>document.documentElement.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+applyTheme(curTheme());
+document.addEventListener('click',e=>{if(e.target.closest('[data-theme-toggle]'))applyTheme(curTheme()==='dark'?'light':'dark')});
 document.addEventListener('pointerdown',e=>{const b=e.target.closest('.btn,.seg button,nav a,.tabs a,.tabs button,.coltabs button,.hub-link,.li.sel,.sheet .acts button');if(!b||matchMedia('(prefers-reduced-motion: reduce)').matches)return;const r=b.getBoundingClientRect(),s=document.createElement('span'),d=Math.max(r.width,r.height)*2;s.className='rip';s.style.cssText='width:'+d+'px;height:'+d+'px;left:'+(e.clientX-r.left-d/2)+'px;top:'+(e.clientY-r.top-d/2)+'px';b.appendChild(s);setTimeout(()=>s.remove(),600)});
 async function loadAll(){
 try{const cols=['clients','projects','tasks'];const res=await Promise.all(cols.map(c=>fetch(API+c,{cache:'no-store'}).then(r=>{if(r.status===401)throw new Error('auth');if(!r.ok)throw new Error('http');return r.json()})));

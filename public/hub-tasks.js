@@ -40,7 +40,15 @@
     const d = new Date(due + 'T00:00:00');
     return `<span class="text-[11px] text-[#57534E] dark:text-[#C7B8AC]">${d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span>`;
   }
+  // Open the task app in the same light/dark theme as the Hub.
+  function syncLink() {
+    const a = document.getElementById('hubTasksOpen');
+    if (!a) return;
+    const dark = typeof state !== 'undefined' && state ? !!state.darkMode : document.documentElement.classList.contains('dark');
+    a.href = TASKS_URL + '?theme=' + (dark ? 'dark' : 'light') + '#dashboard';
+  }
   function paint() {
+    syncLink();
     const stats = document.getElementById('hubTasksStats');
     const next = document.getElementById('hubTasksNext');
     const sub = document.getElementById('hubTasksSub');
@@ -85,7 +93,8 @@
     s.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX - r.left - d / 2}px;top:${e.clientY - r.top - d / 2}px`;
     b.appendChild(s); setTimeout(() => s.remove(), 600);
   });
-  const open = document.getElementById('hubTasksOpen');
-  if (open) open.href = TASKS_URL + '#tasks';
+  // Keep the theme in the link current when the Hub theme toggle is used.
+  document.addEventListener('pointerdown', (e) => { if (e.target.closest('#hubTasksOpen')) syncLink(); }, true);
+  syncLink();
   if (typeof activeView !== 'undefined' && activeView === 'hub') window.renderHubTasks();
 })();
