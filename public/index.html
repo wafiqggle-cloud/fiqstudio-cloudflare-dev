@@ -1456,36 +1456,50 @@
       b.className = `text-[10px] font-bold px-2 py-0.5 rounded-full ${ok ? 'bg-emerald-500/15 text-[#166534] dark:text-[#6EE7B7]' : 'bg-white/70 dark:bg-zinc-800 text-[#57534E] dark:text-[#D6C9BE]'}`;
     }
 
+    // On the Cloudflare host settings sync to the Worker (/api/settings, stored in D1) without secrets.
+    function settingsSyncUrl() { return SERVER_PROXY ? '/api/settings' : 'settings_sync.php'; }
+    function stateForServer() {
+      if (!SERVER_PROXY) return state;
+      const copy = JSON.parse(JSON.stringify(state));
+      if (copy.settings) {
+        if (copy.settings.smartDevices) { copy.settings.smartDevices.workerSecret = ''; copy.settings.smartDevices.haToken = ''; }
+        if (copy.settings.tokenMonitor) copy.settings.tokenMonitor.publicUrl = '';
+        delete copy.settings.fiqAiSecret;
+      }
+      delete copy.chat;
+      return copy;
+    }
+
     async function pushConfigToServer(silent = true) {
       if (window.location.protocol === 'file:' || window.location.protocol === 'about:') {
         if (!silent) showToast('Offline preview - upload settings_sync.php to htdocs/');
         return;
       }
       try {
-        const res = await fetch('settings_sync.php', {
+        const res = await fetch(settingsSyncUrl(), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(state)
+          body: JSON.stringify(stateForServer())
         });
         if (res.ok) {
           const d = await res.json();
           if (d && d.status === 'ok') {
             serverSyncReady = true;
             updateServerSyncBadge('Server Synced', true);
-            if (!silent) showToast('Saved to fiqstudio_config.json');
+            if (!silent) showToast(SERVER_PROXY ? 'Settings saved to server' : 'Saved to fiqstudio_config.json');
             return;
           }
         }
-        if (!silent) showToast('Upload settings_sync.php to htdocs/ to enable server sync');
+        if (!silent) showToast(SERVER_PROXY ? 'Could not save settings (HTTP ' + res.status + ')' : 'Upload settings_sync.php to htdocs/ to enable server sync');
       } catch (e) {
-        if (!silent) showToast('Could not reach settings_sync.php');
+        if (!silent) showToast(SERVER_PROXY ? 'Could not reach the server. Check your connection' : 'Could not reach settings_sync.php');
       }
     }
 
     async function pullConfigFromServer() {
       if (window.location.protocol === 'file:' || window.location.protocol === 'about:') return;
       try {
-        const res = await fetch('settings_sync.php?t=' + Date.now(), { cache: 'no-store' });
+        const res = await fetch(settingsSyncUrl() + '?t=' + Date.now(), { cache: 'no-store' });
         if (!res.ok) return;
         const d = await res.json();
         if (d && d.status === 'ok') {

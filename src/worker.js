@@ -227,6 +227,53 @@ async function tokenMonitorProxy(env, path, method) {
   }
 }
 
+// Dashboard settings sync (replaces settings_sync.php). One JSON document in D1, behind Access.
+// Secrets typed into the browser are stripped before saving; the Worker holds the real ones.
+let settingsTableReady = false;
+function stripSettingsSecrets(state) {
+  const s = state.settings && typeof state.settings === "object" ? state.settings : null;
+  if (s) {
+    if (s.smartDevices && typeof s.smartDevices === "object") { s.smartDevices.workerSecret = ""; s.smartDevices.haToken = ""; }
+    if (s.tokenMonitor && typeof s.tokenMonitor === "object") s.tokenMonitor.publicUrl = "";
+    delete s.fiqAiSecret;
+    delete s.googleDrive;
+  }
+  delete state.chat;
+  return state;
+}
+async function settingsSync(request, env, method) {
+  if (!settingsTableReady) {
+    await env.DB.prepare(
+      "CREATE TABLE IF NOT EXISTS app_settings (id TEXT PRIMARY KEY, data TEXT NOT NULL, updated_at TEXT NOT NULL)"
+    ).run();
+    settingsTableReady = true;
+  }
+  if (method === "GET") {
+    const row = await env.DB.prepare("SELECT data, updated_at FROM app_settings WHERE id = 'dashboard'").first();
+    let data = null;
+    if (row) { try { data = JSON.parse(row.data); } catch { data = null; } }
+    return json({ status: "ok", exists: !!data, data, updatedAt: row ? row.updated_at : null });
+  }
+  if (method === "POST") {
+    const origin = request.headers.get("Origin");
+    if (origin && origin !== env.APP_ORIGIN) return json({ status: "error", error: "Origin not allowed" }, 403);
+    const text = await request.text();
+    if (text.length > 1024 * 1024) return json({ status: "error", error: "Settings are larger than 1 MB" }, 413);
+    let body;
+    try { body = JSON.parse(text); } catch { return json({ status: "error", error: "Invalid JSON" }, 400); }
+    if (!body || typeof body !== "object" || !Array.isArray(body.websites) || !Array.isArray(body.cameras)) {
+      return json({ status: "error", error: "Not a FiqStudio settings object" }, 400);
+    }
+    const now = new Date().toISOString();
+    await env.DB.prepare(
+      `INSERT INTO app_settings (id, data, updated_at) VALUES ('dashboard', ?, ?)
+       ON CONFLICT(id) DO UPDATE SET data = excluded.data, updated_at = excluded.updated_at`
+    ).bind(JSON.stringify(stripSettingsSecrets(body)), now).run();
+    return json({ status: "ok", updatedAt: now });
+  }
+  return null;
+}
+
 async function route(request, env, user) {
   const url = new URL(request.url);
   const path = url.pathname.replace(/\/+$/, "") || "/";
@@ -431,6 +478,11 @@ async function route(request, env, user) {
   if (path.startsWith("/api/daikin/")) {
     const proxied = await daikinProxy(request, env, path, method);
     if (proxied) return proxied;
+  }
+
+  if (path === "/api/settings") {
+    const res = await settingsSync(request, env, method);
+    if (res) return res;
   }
 
   if (path.startsWith("/api/tokens/")) {
