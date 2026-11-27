@@ -1,7 +1,7 @@
 {
   // FIQSTUDIO Tasks: standalone task manager. Deploy from this folder (Build root directory: /tasks).
   // Turn Cloudflare Access ON for this Worker, then set ACCESS_AUD in the dashboard.
-  "name": "fiqstudio-tasks",
+  "name": "fiqstudio-task",
   "main": "worker.js",
   "compatibility_date": "2025-11-01",
   "compatibility_flags": ["global_fetch_strictly_public"],
