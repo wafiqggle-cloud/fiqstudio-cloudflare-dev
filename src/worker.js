@@ -7,6 +7,9 @@
  * Daikin proxy (Cloudflare dashboard, kept on every deploy):
  *   DAIKIN_WORKER_URL  -> Variable: https://godaikin-hub.<your-account>.workers.dev
  *   DAIKIN_API_SECRET  -> Secret: the godaikin-hub API secret
+ * Fiq AI proxy (Cloudflare dashboard, kept on every deploy):
+ *   FIQ_AI_URL         -> Variable: https://fiq-ai.<your-account>.workers.dev
+ *   FIQ_AI_SECRET      -> Secret: the fiq-ai API_SECRET PIN
  * Variables to set in the Cloudflare dashboard (they are kept on every deploy):
  *   ACCESS_TEAM_DOMAIN -> your-team.cloudflareaccess.com (no https://)
  *   ACCESS_AUD         -> Cloudflare Access application AUD tag of THIS Worker
@@ -161,6 +164,41 @@ async function daikinProxy(request, env, path, method) {
     });
   } catch {
     return json({ ok: false, error: "Daikin hub is unreachable" }, 502);
+  }
+}
+
+// Server-side proxy to the fiq-ai Worker. Its PIN lives only here (env.FIQ_AI_SECRET).
+// Fixed allow-list: POST /api/ai/chat -> /api/chat, POST /api/ai/tts -> /api/tts.
+async function fiqAiProxy(request, env, path, method) {
+  const routes = { "/api/ai/chat": "/api/chat", "/api/ai/tts": "/api/tts" };
+  const upstreamPath = routes[path];
+  if (!upstreamPath || method !== "POST") return null;
+
+  const base = String(env.FIQ_AI_URL || "").trim().replace(/\/+$/, "");
+  if (!base || !env.FIQ_AI_SECRET) {
+    return json({ ok: false, error: "Fiq AI proxy is not configured" }, 503);
+  }
+  const origin = request.headers.get("Origin");
+  if (origin && origin !== env.APP_ORIGIN) return json({ ok: false, error: "Origin not allowed" }, 403);
+
+  const text = await request.text();
+  if (text.length > 64000) return json({ ok: false, error: "Payload too large" }, 413);
+  let body;
+  try { body = JSON.parse(text); } catch { return json({ ok: false, error: "Invalid JSON" }, 400); }
+  if (!body || typeof body !== "object" || Array.isArray(body)) return json({ ok: false, error: "Invalid body" }, 400);
+
+  try {
+    const res = await fetch(base + upstreamPath, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-API-Secret": env.FIQ_AI_SECRET },
+      body: JSON.stringify(body)
+    });
+    return new Response(res.body, {
+      status: res.status,
+      headers: { "content-type": res.headers.get("content-type") || "application/json; charset=utf-8", "cache-control": "no-store" }
+    });
+  } catch {
+    return json({ ok: false, error: "Fiq AI is unreachable" }, 502);
   }
 }
 
@@ -367,6 +405,11 @@ async function route(request, env, user) {
 
   if (path.startsWith("/api/daikin/")) {
     const proxied = await daikinProxy(request, env, path, method);
+    if (proxied) return proxied;
+  }
+
+  if (path.startsWith("/api/ai/")) {
+    const proxied = await fiqAiProxy(request, env, path, method);
     if (proxied) return proxied;
   }
 

@@ -5760,7 +5760,19 @@
         if (secretInput && c.workerSecret) secretInput.value = c.workerSecret;
       }
 
+      // On the Cloudflare host the Worker holds the Fiq AI URL & PIN: hide those inputs, keep volume only.
+      if (SERVER_PROXY) {
+        [urlInput, secretInput].forEach((el) => { if (el) el.classList.add('hidden'); });
+        const cfgTitle = cfgPanel.querySelector('p');
+        if (cfgTitle) cfgTitle.textContent = 'Fiq AI connects through this server (no PIN needed)';
+      }
+
       saveCfgBtn.addEventListener('click', () => {
+        if (SERVER_PROXY) {
+          cfgPanel.classList.add('hidden');
+          if (typeof showToast === 'function') showToast('Fiq AI settings saved');
+          return;
+        }
         const cleanUrl = normalizeWorkerUrl(urlInput.value);
         const cleanSecret = (secretInput.value || '').trim();
         urlInput.value = cleanUrl;
@@ -5884,14 +5896,13 @@
         // Try ElevenLabs cloud TTS via fiq-ai Worker first
         const cfg = loadCfg();
         const baseUrl = normalizeWorkerUrl(cfg.workerUrl || '');
-        if (baseUrl) {
+        if (SERVER_PROXY || baseUrl) {
           try {
-            const res = await fetch(baseUrl + '/api/tts', {
+            const ttsHeaders = { 'Content-Type': 'application/json' };
+            if (!SERVER_PROXY) ttsHeaders['X-API-Secret'] = cfg.workerSecret || '';
+            const res = await fetch(SERVER_PROXY ? '/api/ai/tts' : baseUrl + '/api/tts', {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-API-Secret': cfg.workerSecret || '',
-              },
+              headers: ttsHeaders,
               body: JSON.stringify({ text: clean.slice(0, 900) }),
             });
             if (res.ok && (res.headers.get('content-type') || '').includes('audio')) {
@@ -5940,7 +5951,7 @@
         input.value = '';
 
         const cfg = loadCfg();
-        if (!cfg.workerUrl) {
+        if (!SERVER_PROXY && !cfg.workerUrl) {
           const hint = 'Tap the gear icon above to paste your fiq-ai Cloudflare Worker URL and PIN.';
           appendBubble('assistant', hint);
           speakReply(hint);
@@ -5968,12 +5979,11 @@
             ? state.cameras.map((c) => ({ name: c.name, streamUrl: Boolean(c.streamUrl), nightVision: Boolean(c.nightVision) }))
             : [];
           const mems = (typeof state !== 'undefined' && Array.isArray(state.aiMemories)) ? state.aiMemories : [];
-          const res = await fetch(normalizeWorkerUrl(cfg.workerUrl) + '/api/chat', {
+          const chatHeaders = { 'Content-Type': 'application/json' };
+          if (!SERVER_PROXY) chatHeaders['X-API-Secret'] = cfg.workerSecret || '';
+          const res = await fetch(SERVER_PROXY ? '/api/ai/chat' : normalizeWorkerUrl(cfg.workerUrl) + '/api/chat', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-API-Secret': cfg.workerSecret || '',
-            },
+            headers: chatHeaders,
             body: JSON.stringify({ messages: history.slice(-10), context: { cameras: cams, memories: mems } }),
           });
           const data = await res.json().catch(() => ({}));
