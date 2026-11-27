@@ -276,8 +276,8 @@ async function settingsSync(request, env, method) {
 
 // ---------------------------------------------------------------------------
 // Client website logs (replaces order_webhook.php + orders_log.json + reports_log.json).
-// PUBLIC /hook/order and /hook/report: client sites add a log entry (no Access; validated, capped).
-// PRIVATE /api/web/*: the dashboard reads and manages the logs (behind Access).
+// Client sites ADD entries through the separate public Worker in hook/ (fiqstudio-hook).
+// Here, behind Access, the dashboard reads and manages them: /api/web/*.
 // ---------------------------------------------------------------------------
 let webTablesReady = false;
 const WEB_KEEP = 500;
@@ -290,73 +290,6 @@ async function ensureWebTables(env) {
   webTablesReady = true;
 }
 const clip = (v, max, dflt = "") => { const s = String(v ?? "").trim().slice(0, max); return s || dflt; };
-const isHttps = u => /^https:\/\/[^\s"'<>]+$/i.test(u || "");
-const klTime = () => new Date().toLocaleString("sv-SE", { timeZone: "Asia/Kuala_Lumpur" }).slice(0, 16);
-const shortRef = () => crypto.randomUUID().replace(/-/g, "").slice(0, 5).toUpperCase();
-const HOOK_CORS = { "access-control-allow-origin": "*", "access-control-allow-methods": "GET,POST,OPTIONS", "access-control-allow-headers": "Content-Type" };
-
-async function hookParams(request) {
-  const url = new URL(request.url);
-  const params = Object.fromEntries(url.searchParams);
-  if (request.method === "POST") {
-    const text = await request.text();
-    if (text.length > 8000) return null;
-    try { const b = JSON.parse(text); if (b && typeof b === "object" && !Array.isArray(b)) Object.assign(params, b); } catch {}
-  }
-  return params;
-}
-async function insertCapped(env, table, id, entry) {
-  await env.DB.batch([
-    env.DB.prepare(`INSERT INTO ${table} (id, data, created_at) VALUES (?, ?, ?)`).bind(id, JSON.stringify(entry), new Date().toISOString()),
-    env.DB.prepare(`DELETE FROM ${table} WHERE id NOT IN (SELECT id FROM ${table} ORDER BY created_at DESC LIMIT ${WEB_KEEP})`)
-  ]);
-}
-function redirectTo(dest, label) {
-  const safe = dest.replace(/"/g, "%22");
-  return new Response(`<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=${safe}"></head><body>${label}</body></html>`,
-    { status: 302, headers: { location: dest, "content-type": "text/html; charset=utf-8", ...HOOK_CORS } });
-}
-async function handleHook(request, env, path) {
-  if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: HOOK_CORS });
-  if (request.method !== "GET" && request.method !== "POST") return json({ status: "error" }, 405, HOOK_CORS);
-  const p = await hookParams(request);
-  if (!p) return json({ status: "error", reason: "too large" }, 413, HOOK_CORS);
-  await ensureWebTables(env);
-
-  if (path === "/hook/report") {
-    const message = clip(p.message, 2000);
-    if (message) {
-      const id = "rep_" + Date.now() + "_" + shortRef();
-      await insertCapped(env, "web_reports", id, {
-        id, ref: "FIX-" + shortRef().slice(0, 4),
-        siteId: clip(p.site_id, 60, "site_dms"), siteName: clip(p.site_name, 120, "Client Website"),
-        issueType: clip(p.issue_type, 80, "General Issue"), reporter: clip(p.reporter, 120, "Client / Visitor"),
-        message, pageUrl: isHttps(p.page_url) ? clip(p.page_url, 500) : "", status: "Open", timestamp: klTime()
-      });
-    }
-    const back = clip(p.return_url, 500);
-    if (isHttps(back)) return redirectTo(back + (back.includes("?") ? "&" : "?") + "reported=1", "Report sent to FiqStudio...");
-    return json({ status: message ? "reported" : "ignored" }, message ? 200 : 400, HOOK_CORS);
-  }
-
-  if (path === "/hook/order") {
-    const siteId = clip(p.site_id, 60);
-    if (!siteId) return json({ status: "ignored", reason: "missing site_id" }, 400, HOOK_CORS);
-    const pageUrl = isHttps(p.page_url) ? clip(p.page_url, 500) : "";
-    const id = "ord_" + Date.now() + "_" + shortRef();
-    const ref = "ORD-" + shortRef();
-    await insertCapped(env, "web_orders", id, {
-      id, ref, siteId, siteName: clip(p.site_name, 120, "Client Website"), pkg: clip(p.package, 120, "Custom Order"),
-      customer: "Website Visitor", phone: "", pageUrl, stage: "Clicked Order Now",
-      notes: pageUrl ? "Clicked Order Now on " + pageUrl : "Clicked Order Now", timestamp: klTime()
-    });
-    const to = clip(p.to, 1000);
-    if (/^https:\/\/(wa\.me|api\.whatsapp\.com)\//i.test(to) && isHttps(to)) return redirectTo(to, "Redirecting to WhatsApp...");
-    return json({ status: "logged", ref }, 200, HOOK_CORS);
-  }
-  return json({ status: "error", reason: "not found" }, 404, HOOK_CORS);
-}
-
 async function webLogs(request, env, path, method) {
   await ensureWebTables(env);
   const list = async table => {
@@ -626,12 +559,6 @@ export default {
 
     try {
       const url = new URL(request.url);
-
-      // Public webhook for client websites (Order Now clicks, problem reports). No Access login.
-      if (url.pathname.startsWith("/hook/")) {
-        if (!env.DB) return json({ status: "error" }, 503, HOOK_CORS);
-        return await handleHook(request, env, url.pathname.replace(/\/+$/, ""));
-      }
 
       // Anything that is not /api/* is the dashboard itself (static files).
       if (!url.pathname.startsWith("/api/")) {

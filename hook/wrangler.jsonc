@@ -1,0 +1,15 @@
+{
+  // Public webhook Worker for client websites. Deploy from this folder (root directory: hook).
+  // Keep Cloudflare Access OFF for this Worker: client site visitors must reach it.
+  "name": "fiqstudio-hook",
+  "main": "worker.js",
+  "compatibility_date": "2025-11-01",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "fiqstudio-pm-db",
+      "database_id": "36842472-9cec-43f9-a342-07741cbcd0d8"
+    }
+  ],
+  "observability": { "enabled": true }
+}
