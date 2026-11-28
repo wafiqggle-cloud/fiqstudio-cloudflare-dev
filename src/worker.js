@@ -18,6 +18,9 @@
  *   ACCESS_AUD         -> Cloudflare Access application AUD tag of THIS Worker
  *   APP_ORIGIN         -> the exact URL of this Worker, e.g. https://fiqstudio-dev.xxx.workers.dev
  *
+ * Music (optional secret): GDRIVE_API_KEY -> Google API key for Drive. Without it,
+ *   songs stream from a Drive folder shared as "Anyone with the link".
+ *
  * Only /api/* runs this code first. Everything else is served from /public.
  * This Worker validates the Access JWT signature and audience.
  */
@@ -432,10 +435,116 @@ async function prayerRoute(request, env, path, method, url) {
   return null;
 }
 
+// ============================================================================
+// MUSIC: stream songs from a Google Drive folder shared as "Anyone with the link".
+// The browser only talks to this Worker (behind Cloudflare Access), so there is no
+// Google sign-in in the Hub and no key in the browser. Range requests are passed
+// through, so a 90 MB FLAC starts playing at once and seeking works.
+// Optional secret GDRIVE_API_KEY: use the official Drive API instead of public links.
+// ============================================================================
+const DRIVE_ID_RE = /^[A-Za-z0-9_-]{10,100}$/;
+const AUDIO_EXT_TYPES = { flac: "audio/flac", mp3: "audio/mpeg", m4a: "audio/mp4", aac: "audio/aac", wav: "audio/wav", ogg: "audio/ogg" };
+const IMAGE_EXT_TYPES = { jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp" };
+
+function guessDriveMime(name) {
+  const ext = String(name || "").split(".").pop().toLowerCase();
+  return AUDIO_EXT_TYPES[ext] || IMAGE_EXT_TYPES[ext] || "application/octet-stream";
+}
+
+function decodeHtmlText(t) {
+  return String(t || "")
+    .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"').replace(/&#39;|&#x27;/g, "'")
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)));
+}
+
+async function listDriveFolder(folderId, env) {
+  if (env.GDRIVE_API_KEY) {
+    const q = encodeURIComponent(`'${folderId}' in parents and trashed = false`);
+    const fields = encodeURIComponent("files(id,name,mimeType,size)");
+    const r = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=${fields}&orderBy=name&pageSize=200&key=${encodeURIComponent(env.GDRIVE_API_KEY)}`);
+    if (!r.ok) throw new Error("drive_api_" + r.status);
+    const d = await r.json();
+    return Array.isArray(d.files) ? d.files : [];
+  }
+  // No key: read Google's public folder view (works for folders shared by link).
+  const r = await fetch(`https://drive.google.com/embeddedfolderview?id=${folderId}#list`, {
+    headers: { "user-agent": "Mozilla/5.0 (FiqStudio Hub)" }
+  });
+  if (!r.ok) throw new Error("drive_folder_" + r.status);
+  const html = await r.text();
+  const files = [];
+  const seen = new Set();
+  const entryRe = /<div class="flip-entry" id="entry-([A-Za-z0-9_-]+)"[\s\S]*?<a href="([^"]*)"[\s\S]*?<div class="flip-entry-title">([\s\S]*?)<\/div>/g;
+  let m;
+  while ((m = entryRe.exec(html))) {
+    const id = m[1];
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const name = decodeHtmlText(m[3].replace(/<[^>]*>/g, "").trim());
+    const isFolder = /\/folders\//.test(m[2]);
+    files.push({ id, name, mimeType: isFolder ? "application/vnd.google-apps.folder" : guessDriveMime(name) });
+  }
+  files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+  return files;
+}
+
+async function musicRoute(request, env, path, method, url) {
+  if (method !== "GET" && method !== "HEAD") return null;
+
+  if (path === "/api/music/list") {
+    const folderId = String(url.searchParams.get("folder") || "").trim();
+    if (!DRIVE_ID_RE.test(folderId)) return json({ ok: false, error: "Invalid folder ID" }, 400);
+    try {
+      const files = await listDriveFolder(folderId, env);
+      return json({ ok: true, files });
+    } catch (e) {
+      return json({ ok: false, error: "Could not read the Drive folder. Make sure it is shared as 'Anyone with the link'." }, 502);
+    }
+  }
+
+  const fm = path.match(/^\/api\/music\/file\/([A-Za-z0-9_-]{10,100})$/);
+  if (fm) {
+    const id = fm[1];
+    const upstreamUrl = env.GDRIVE_API_KEY
+      ? `https://www.googleapis.com/drive/v3/files/${id}?alt=media&key=${encodeURIComponent(env.GDRIVE_API_KEY)}`
+      : `https://drive.usercontent.google.com/download?id=${id}&export=download&confirm=t`;
+    const headers = { "user-agent": "Mozilla/5.0 (FiqStudio Hub)" };
+    const range = request.headers.get("Range");
+    if (range && /^bytes=\d*-\d*$/.test(range)) headers["Range"] = range;
+    const up = await fetch(upstreamUrl, { method, headers, redirect: "follow" });
+    const upType = (up.headers.get("content-type") || "").toLowerCase();
+    // Google answers with an HTML page when a file is private or blocked.
+    if (!up.ok || upType.startsWith("text/html")) {
+      return json({ ok: false, error: "Drive file is not public or not available" }, up.status === 404 ? 404 : 502);
+    }
+    const name = String(url.searchParams.get("name") || "");
+    const type = (!upType || upType.includes("octet-stream")) && name ? guessDriveMime(name) : (upType || "application/octet-stream");
+    const out = new Headers({
+      "content-type": type,
+      "accept-ranges": "bytes",
+      "cache-control": "private, max-age=3600",
+      "x-content-type-options": "nosniff"
+    });
+    for (const h of ["content-length", "content-range", "etag", "last-modified"]) {
+      const v = up.headers.get(h);
+      if (v) out.set(h, v);
+    }
+    return new Response(method === "HEAD" ? null : up.body, { status: up.status, headers: out });
+  }
+
+  return null;
+}
+
 async function route(request, env, user) {
   const url = new URL(request.url);
   const path = url.pathname.replace(/\/+$/, "") || "/";
   const method = request.method.toUpperCase();
+
+  if (path.startsWith("/api/music/")) {
+    const mr = await musicRoute(request, env, path, method, url);
+    if (mr) return mr;
+  }
 
   if (path.startsWith("/api/prayer")) {
     const pr = await prayerRoute(request, env, path, method, url);
