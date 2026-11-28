@@ -882,8 +882,9 @@
     .fiq-meta { font-size: 10.5px; color: #78716C; padding: 0 6px; }
     html.dark .fiq-meta { color: #A8A29E; }
     .fiq-copy { font: inherit; color: #9A3412; font-weight: 600; padding: 4px 2px; }
-    html.dark .fiq-copy { color: #FDBA74; }
-    .fiq-copy:hover { text-decoration: underline; }
+    .fiq-listen {  font: inherit; color: #9A3412; font-weight: 600; padding: 4px 2px;  }
+    html.dark .fiq-copy, html.dark .fiq-listen { color: #FDBA74; }
+    .fiq-copy:hover, .fiq-listen:hover { text-decoration: underline; }
     .fiq-input { transition: border-color .15s, box-shadow .15s; }
     .fiq-input:focus { outline: none; border-color: #B8431B; box-shadow: 0 0 0 3px rgba(184,67,27,.18); }
     .fiq-send { transition: transform .26s cubic-bezier(.34,1.56,.64,1), background-color .15s, opacity .15s; }
@@ -4458,7 +4459,12 @@
       let ttsAudioCtx = null;
       let ttsGainNode = null;
 
+      // Plain <audio> volume. Routing through Web Audio made replies silent on iPhone
+      // (silent switch mutes Web Audio) and when the audio context was suspended.
       function ensureTtsGain() {
+        ttsAudio.volume = ttsVolume;
+      }
+      function ensureTtsGainOld() {
         if (ttsGainNode) {
           ttsGainNode.gain.value = ttsVolume;
           if (ttsAudioCtx && ttsAudioCtx.state === 'suspended') {
@@ -4535,9 +4541,18 @@
         } catch (e) {}
       }
 
-      async function speakReply(text) {
-        if (!voiceReplyEnabled) return;
-        const clean = String(text || '').replace(/[*_`#]/g, '').trim();
+      // Voice reads the summary line ("Ringkasan:" / "Summary:"), or the first short paragraph.
+      function spokenPart(clean) {
+        const m = clean.match(/^\s*(?:Ringkasan|Summary)\s*:\s*(.+)$/im);
+        if (m && m[1].trim()) return m[1].trim();
+        const first = clean.split(/\n\s*\n/)[0].replace(/\s+/g, ' ').trim();
+        const sentences = first.match(/[^.!?]+[.!?]+/g);
+        return (sentences ? sentences.slice(0, 2).join(' ') : first).slice(0, 400).trim();
+      }
+
+      async function speakReply(text, force) {
+        if (!voiceReplyEnabled && !force) return;
+        const clean = spokenPart(String(text || '').replace(/[*_`#]/g, '').trim());
         if (!clean) return;
 
         // Try ElevenLabs cloud TTS via fiq-ai Worker first
@@ -4571,7 +4586,11 @@
               if (typeof showToast === 'function') showToast(errMsg);
             }
           } catch (e) {
-            if (typeof showToast === 'function') showToast('TTS audio blocked or offline - using device voice');
+            if (e && e.name === 'NotAllowedError') {
+              if (typeof showToast === 'function') showToast('Sound was blocked by the browser. Tap "Listen" on the reply.');
+              return;
+            }
+            if (typeof showToast === 'function') showToast('Voice service offline - using device voice');
           }
         }
         speakWithBrowser(clean);
@@ -4615,7 +4634,9 @@
         } else {
           row.innerHTML = `<div class="fiq-ava prov-grok-orb" aria-hidden="true">${orbSvg}</div>
             <div class="fiq-col"><div class="fiq-bubble fiq-bubble-ai${error ? ' fiq-bubble-err' : ''}">${miniMd(text)}</div>
-            <span class="fiq-meta">${time}${error ? '' : ' · <button type="button" class="fiq-copy">Copy</button>'}</span></div>`;
+            <span class="fiq-meta">${time}${error ? '' : ' · <button type="button" class="fiq-copy">Copy</button> · <button type="button" class="fiq-listen" aria-label="Listen to the summary">Listen</button>'}</span></div>`;
+          const ls = row.querySelector('.fiq-listen');
+          if (ls) ls.addEventListener('click', () => { unlockIosSpeech(); ensureTtsGain(); speakReply(text, true); });
           const cp = row.querySelector('.fiq-copy');
           if (cp) cp.addEventListener('click', () => {
             const done = () => { cp.textContent = 'Copied'; setTimeout(() => { cp.textContent = 'Copy'; }, 1500); };
@@ -4648,6 +4669,8 @@
       input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); if (input.value.trim()) form.requestSubmit(); }
       });
+
+      const SUMMARY_FIRST = '\n\n[Reply format: start with one line "**Ringkasan:** ..." (or "**Summary:** ..." if you reply in English) of 1-2 short sentences with the main answer. Then add details or steps below only if they help. Keep it short.]';
 
       async function sendPrompt(text) {
         const prompt = String(text || '').trim();
@@ -4693,7 +4716,13 @@
           const res = await fetch(SERVER_PROXY ? '/api/ai/chat' : normalizeWorkerUrl(cfg.workerUrl) + '/api/chat', {
             method: 'POST',
             headers: chatHeaders,
-            body: JSON.stringify({ messages: (() => { const m = history.slice(-10).map(({ role, content }) => ({ role, content })); while (m.length && m[0].role !== 'user') m.shift(); return m; })(), context: { cameras: cams, memories: mems } }),
+            body: JSON.stringify({ messages: (() => {
+              const m = history.slice(-10).map(({ role, content }) => ({ role, content }));
+              while (m.length && m[0].role !== 'user') m.shift();
+              const last = m[m.length - 1];
+              if (last && last.role === 'user') last.content += SUMMARY_FIRST;
+              return m;
+            })(), context: { cameras: cams, memories: mems } }),
           });
           const data = await res.json().catch(() => ({}));
           if (!res.ok || !data.ok) {
