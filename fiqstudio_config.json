@@ -1,6 +1,5 @@
 {
     "darkMode": false,
-    "selectedHubCam": "cam_1",
     "websites": [
         {
             "id": "site_dms",
@@ -38,14 +37,6 @@
         }
     ],
     "reports": [],
-    "cameras": [
-        {
-            "id": "cam_1",
-            "name": "Tapo C225",
-            "nightVision": false,
-            "streamUrl": ""
-        }
-    ],
     "settings": {
         "brandTitle": "FiqStudio",
         "brandSubtitle": "HomeLab",
@@ -53,18 +44,15 @@
         "ribbedGlass": true,
         "hubLayout": "bento",
         "hubCards": {
-            "cctv": true,
             "music": true,
             "websites": true,
             "playlist": true
         },
         "hubCardOrder": [
-            "cctv",
             "music",
             "websites",
             "playlist"
         ],
-        "hubCctvHeight": "compact",
         "defaultMusicMode": "flac",
         "webSync": {
             "ordersEndpoint": "orders_log.json",
