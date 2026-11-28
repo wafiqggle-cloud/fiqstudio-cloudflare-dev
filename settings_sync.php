@@ -1,7 +1,7 @@
 <?php
 /**
  * FiqStudio Settings & Drive Config Sync (InfinityFree htdocs/)
- * Stores and loads Hub layout, Websites, CCTV URLs, Drive IDs in fiqstudio_config.json.
+ * Stores and loads Hub layout, Websites, Drive IDs in fiqstudio_config.json.
  *
  * SECURITY CHANGES (same JSON response shape, so index.html needs no change):
  *  1. Secrets are NEVER written to fiqstudio_config.json and NEVER returned by GET.
