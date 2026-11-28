@@ -1,18 +1,16 @@
 {
-  // FIQSTUDIO Tasks: standalone task manager. Deploy from this folder (Build root directory: /tasks).
-  // Turn Cloudflare Access ON for this Worker, then set ACCESS_AUD in the dashboard.
+  // FIQSTUDIO Tasks: standalone task manager with its own sign-in (owner via the Hub, staff by user ID + password).
+  // Deploy from this folder (Build root directory: /tasks). Cloudflare Access must be OFF for this Worker
+  // so staff can reach the sign-in page. Secret to set in the dashboard: TASK_HANDOFF_SECRET (same as the Hub Worker).
   "name": "fiqstudio-task",
   "main": "worker.js",
   "compatibility_date": "2025-11-01",
   "compatibility_flags": ["global_fetch_strictly_public"],
   "keep_vars": true,
-  "vars": {
-    "ACCESS_TEAM_DOMAIN": "fiqstudio.cloudflareaccess.com"
-  },
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
-    "run_worker_first": ["/api/*"]
+    "run_worker_first": ["/api/*", "/auth/*"]
   },
   "d1_databases": [
     {

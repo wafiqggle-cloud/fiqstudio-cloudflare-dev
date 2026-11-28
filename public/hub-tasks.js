@@ -45,7 +45,8 @@
     const a = document.getElementById('hubTasksOpen');
     if (!a) return;
     const dark = typeof state !== 'undefined' && state ? !!state.darkMode : document.documentElement.classList.contains('dark');
-    a.href = TASKS_URL + '?theme=' + (dark ? 'dark' : 'light') + '#dashboard';
+    // Goes through the Hub first: /api/pm/handoff (behind Cloudflare Access) signs a one-time owner pass.
+    a.href = '/api/pm/handoff?theme=' + (dark ? 'dark' : 'light');
   }
   function paint() {
     syncLink();

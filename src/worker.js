@@ -639,6 +639,24 @@ async function route(request, env, user) {
     return json({ checkedAt: new Date().toISOString(), results: checks });
   }
 
+  // Owner pass for the task app: only reachable here, behind Cloudflare Access. Signs a one-time pass
+  // (HMAC-SHA256 with TASK_HANDOFF_SECRET, valid 60 s) and sends the owner to the task app's /auth/owner.
+  if (path === "/api/pm/handoff" && method === "GET") {
+    const secret = String(env.TASK_HANDOFF_SECRET || "");
+    if (secret.length < 16) return json({ error: "Task app sign-in is not set up yet (TASK_HANDOFF_SECRET)" }, 503);
+    const appUrl = String(env.TASK_APP_URL || "https://fiqstudio-task.wafiq-ggle.workers.dev").replace(/\/+$/, "");
+    const b64u = (bytes) => btoa(String.fromCharCode(...new Uint8Array(bytes))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    const payload = b64u(new TextEncoder().encode(JSON.stringify({
+      sub: "owner", name: "Fiq", email: user.email || "", exp: Math.floor(Date.now() / 1000) + 60,
+      nonce: b64u(crypto.getRandomValues(new Uint8Array(18)))
+    })));
+    const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+    const sig = b64u(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload)));
+    const theme = url.searchParams.get("theme");
+    const dest = `${appUrl}/auth/owner?t=${payload}.${sig}${theme === "dark" || theme === "light" ? "&theme=" + theme : ""}`;
+    return new Response(null, { status: 302, headers: { location: dest, "cache-control": "no-store" } });
+  }
+
   // Summary for the Hub "Task Management" widget, read from the task app's pm_docs table.
   if (path === "/api/pm/summary" && method === "GET") {
     const empty = { openTasks: 0, dueToday: 0, overdue: 0, activeProjects: 0, next: [] };
