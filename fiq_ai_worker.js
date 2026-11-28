@@ -1,6 +1,6 @@
 /**
  * FiqStudio - Multi-Provider AI Agent Worker (Gemini / OpenAI / Anthropic Claude)
- * Tools: Live Weather (Open-Meteo), GO DAIKIN AC Control, and CCTV Camera Status
+ * Tools: Live Weather (Open-Meteo) and GO DAIKIN AC Control
  *
  * Deploy on Cloudflare Workers (Free Tier):
  * 1. Create a new Worker (e.g. "fiq-ai") and paste this entire file.
@@ -19,7 +19,7 @@ const RATE_WINDOW_MS = 15 * 60 * 1000;
 const RATE_MAX_FAILS = 20;
 
 const SYSTEM_PROMPT = `You are Fiq AI, Wafiq's personal HomeLab assistant inside FiqStudio (Kota Bharu, Kelantan, Malaysia).
-Be helpful, concise, and friendly. You can answer general everyday questions directly, and you also have live tools to check weather, check/control Wafiq's GO DAIKIN air conditioner, and check CCTV camera status.
+Be helpful, concise, and friendly. You can answer general everyday questions directly, and you also have live tools to check weather and check/control Wafiq's GO DAIKIN air conditioner.
 When replying for voice playback, keep answers clear and natural without excessive markdown symbols.`;
 
 function getAllowedOrigin(request, env) {
@@ -122,11 +122,6 @@ const TOOL_SCHEMAS = [
       required: [],
     },
   },
-  {
-    name: "check_cctv",
-    description: "Check the configured CCTV cameras in FiqStudio (names, stream URL status, night vision state).",
-    parameters: { type: "object", properties: {}, required: [] },
-  },
 ];
 
 // ============================================================================
@@ -195,22 +190,6 @@ async function executeTool(name, args, env, clientContext) {
       body: JSON.stringify(payload),
     });
     return await res.json().catch(() => ({ ok: false, error: `HTTP ${res.status}` }));
-  }
-
-  if (name === "check_cctv") {
-    const cams = Array.isArray(clientContext?.cameras) ? clientContext.cameras : [];
-    if (cams.length === 0) {
-      return { ok: true, count: 0, message: "No CCTV cameras configured in FiqStudio yet." };
-    }
-    return {
-      ok: true,
-      count: cams.length,
-      cameras: cams.map((c) => ({
-        name: String(c.name || "Camera"),
-        streamConfigured: Boolean(c.streamUrl),
-        nightVision: Boolean(c.nightVision),
-      })),
-    };
   }
 
   return { ok: false, error: `Unknown tool: ${name}` };

@@ -180,12 +180,6 @@
       box-shadow: 0 16px 38px -16px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 237, 213, 0.11);
     }
 
-    .cam-viewport { background: #140E0C; }
-    .cam-viewport.night-mode { background: #0C140D; }
-    .cam-grid-lines {
-      background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
-      background-size: 26px 26px;
-    }
     .ai-orb {
       background: #B8431B;
     }
@@ -476,7 +470,6 @@
       grid-template-columns: minmax(0, 1fr);
       gap: 1rem;
     }
-    .hub-bento-asym #hubCard-cctv     { order: 1; min-height: 15rem; }
     .hub-bento-asym #hubCard-websites { order: 2; }
 
     /* Tablet (768px - 1023px): balanced 2-column grid, auto-height rows */
@@ -485,7 +478,6 @@
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
         gap: 1rem;
       }
-      .hub-bento-asym #hubCard-cctv     { order: 1; min-height: 18rem; }
       .hub-bento-asym #hubCard-websites { order: 3; max-height: none; }
     }
 
@@ -507,9 +499,7 @@
         background: rgba(25, 14, 9, 0.55);
         border: 1px solid #3E291F;
       }
-      .hub-bento-asym #hubCard-cctv     { grid-column: 1; grid-row: 1 / span 14; min-height: 0; max-height: none; overflow: hidden; }
       .hub-bento-asym #hubCard-websites { grid-column: 1; grid-row: 15 / span 6; min-height: 0; max-height: none; overflow: hidden; }
-      .hub-bento-asym #hubCard-cctv > #hubBigCamViewport { min-height: 0; }
     }
 
     /* ===== HUB BENTO =====
@@ -832,7 +822,7 @@
       .tap-pop:hover { transform: translateY(-2px); }
       .glass-card-hover { transition: transform .3s cubic-bezier(.34,1.56,.64,1), background-color .2s, border-color .2s, box-shadow .2s; }
       .glass-card-hover:hover { transform: translateY(-3px); }
-      #hubDevicesBar, #hubCard-cctv, #hubCard-websites { transition: transform .3s cubic-bezier(.34,1.56,.64,1); }
+      #hubDevicesBar, #hubCard-websites { transition: transform .3s cubic-bezier(.34,1.56,.64,1); }
       #hubDevicesBar:hover, #hubCard-websites:hover { transform: translateY(-2px); }
     }
 
@@ -980,10 +970,6 @@
           <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/></svg>
           <span>Websites</span>
         </button>
-        <button type="button" data-view="cctv" class="nav-btn relative z-10 h-8 px-4 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer tap-pop transition-colors">
-          <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-          <span>CCTV</span>
-        </button>
         <button type="button" data-view="settings" class="nav-btn relative z-10 h-8 px-4 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer tap-pop transition-colors">
           <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
           <span>Settings</span>
@@ -1004,7 +990,7 @@
   <main id="main-content" tabindex="-1" class="max-w-6xl w-full mx-auto px-3 sm:px-6 pt-5 sm:pt-6 pb-28 md:pb-8 space-y-4">
 
     <!-- ================================================================== -->
-    <!-- TAB 1: HUB (Customizable CCTV, Music Player & Active Websites)     -->
+    <!-- TAB 1: HUB (Customizable Music Player & Active Websites)          -->
     <!-- ================================================================== -->
     <section id="view-hub" class="view-section space-y-3">
       <!-- ANIMATED AI USAGE & QUOTA WIDGET (Header on top + Stacked Provider Rows) -->
@@ -1047,21 +1033,6 @@
           </div>
         </div>
         <div id="hubDevicesList" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
-      </div>
-
-      <!-- 1. BIG CCTV DISPLAY (Tall Left Card) -->
-      <div id="hubCard-cctv" data-size="hero" style="order:10" class="bento-tile glass-surface rounded-2xl p-3 sm:p-3.5 flex flex-col gap-3">
-        <div class="flex items-center justify-between gap-2 px-1 shrink-0">
-          <div class="flex items-center gap-2 min-w-0">
-            <span class="bento-icon" aria-hidden="true"><svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.55-2.28A1 1 0 0121 8.62v6.76a1 1 0 01-1.45.9L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg><span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-red-500 rec-pulse ring-2 ring-white dark:ring-zinc-900"></span></span>
-            <h2 class="bento-title" id="hubCamTitle">CCTV</h2>
-          </div>
-          <div class="flex items-center gap-1.5 shrink-0">
-            <select id="hubCamSelector" aria-label="Select CCTV camera" class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white/65 dark:bg-zinc-800/80 border border-white/80 dark:border-zinc-700 cursor-pointer"></select>
-            <button type="button" id="hubEditCamBtn" class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white/65 dark:bg-zinc-800/80 border border-white/80 dark:border-zinc-700 hover:border-orange-400 cursor-pointer tap-pop">Stream URL</button>
-          </div>
-        </div>
-        <div id="hubBigCamViewport" class="relative flex-1 min-h-[14rem] rounded-2xl overflow-hidden cam-viewport flex items-center justify-center"></div>
       </div>
 
 
@@ -1119,20 +1090,6 @@
         </div>
         <div id="reportsList" class="space-y-2.5"></div>
       </div>
-    </section>
-
-    <!-- ================================================================== -->
-    <!-- TAB 3: CCTV (Dedicated Simple CCTV Cameras View - Tapo C225 Ready) -->
-    <!-- ================================================================== -->
-    <section id="view-cctv" class="view-section hidden space-y-4">
-      <div class="glass-surface rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 class="font-display text-base font-bold text-[#1C1917] dark:text-[#F5EFE6]">CCTV Cameras</h2>
-          <p class="text-xs text-[#57534E] dark:text-[#C7B8AC]">Connect TP-Link Tapo C225 or any camera via a go2rtc HTTPS stream URL.</p>
-        </div>
-        <button type="button" id="addCameraBtn" class="px-4 py-2 rounded-full bg-[#B8431B] hover:bg-[#9A3412] text-white text-xs font-semibold cursor-pointer tap-pop shadow-sm">+ Add Camera</button>
-      </div>
-      <div id="cctvCamerasGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </section>
 
     <!-- ================================================================== -->
@@ -1205,14 +1162,6 @@
               <div class="grid grid-cols-2 p-1 rounded-full bg-white/50 dark:bg-zinc-900/65 border border-white/75 dark:border-zinc-700 text-xs font-semibold">
                 <button type="button" data-set-layout="bento" class="set-layout-btn py-1.5 rounded-full cursor-pointer tap-pop transition-colors">Bento 2&times;2</button>
                 <button type="button" data-set-layout="stacked" class="set-layout-btn py-1.5 rounded-full cursor-pointer tap-pop transition-colors">Stacked</button>
-              </div>
-            </div>
-            <div class="space-y-1.5">
-              <label class="block text-[11px] font-semibold text-slate-700 dark:text-zinc-300">CCTV Height</label>
-              <div class="grid grid-cols-3 p-1 rounded-full bg-white/50 dark:bg-zinc-900/65 border border-white/75 dark:border-zinc-700 text-[11px] font-semibold">
-                <button type="button" data-set-camh="compact" class="set-camh-btn py-1.5 rounded-full cursor-pointer tap-pop transition-colors">Compact</button>
-                <button type="button" data-set-camh="normal" class="set-camh-btn py-1.5 rounded-full cursor-pointer tap-pop transition-colors">Normal</button>
-                <button type="button" data-set-camh="tall" class="set-camh-btn py-1.5 rounded-full cursor-pointer tap-pop transition-colors">Tall</button>
               </div>
             </div>
           </div>
@@ -1379,8 +1328,8 @@
 
   </main>
 
-  <!-- FLOATING MOBILE BOTTOM GLASS DOCK (5 Clean Tabs) -->
-  <nav id="mobileNavTrack" class="md:hidden fixed bottom-3 left-3 right-3 z-40 glass-dock rounded-full p-1.5 grid grid-cols-4 items-center" aria-label="Mobile navigation">
+  <!-- FLOATING MOBILE BOTTOM GLASS DOCK -->
+  <nav id="mobileNavTrack" class="md:hidden fixed bottom-3 left-3 right-3 z-40 glass-dock rounded-full p-1.5 grid grid-cols-3 items-center" aria-label="Mobile navigation">
     <div id="mobileNavSlider" class="nav-pill-slider absolute top-1.5 bottom-1.5 left-0 rounded-full bg-[#B8431B] shadow-md  pointer-events-none" style="width:0;opacity:0;"></div>
     <button type="button" data-view="hub" class="mob-nav-btn relative z-10 flex flex-col items-center justify-center min-h-[44px] py-1.5 rounded-full text-[10px] font-bold cursor-pointer tap-pop transition-colors">
       <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
@@ -1389,10 +1338,6 @@
     <button type="button" data-view="websites" class="mob-nav-btn relative z-10 flex flex-col items-center justify-center min-h-[44px] py-1.5 rounded-full text-[10px] font-bold cursor-pointer tap-pop transition-colors">
       <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/></svg>
       <span>Websites</span>
-    </button>
-    <button type="button" data-view="cctv" class="mob-nav-btn relative z-10 flex flex-col items-center justify-center min-h-[44px] py-1.5 rounded-full text-[10px] font-bold cursor-pointer tap-pop transition-colors">
-      <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-      <span>CCTV</span>
     </button>
     <button type="button" data-view="settings" class="mob-nav-btn relative z-10 flex flex-col items-center justify-center min-h-[44px] py-1.5 rounded-full text-[10px] font-bold cursor-pointer tap-pop transition-colors">
       <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -1437,31 +1382,6 @@
     </div>
   </div>
 
-  <!-- MODAL: ADD / EDIT CCTV -->
-  <div id="cameraModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-    <div id="cameraModalBackdrop" class="absolute inset-0 bg-black/55 backdrop-blur-xs"></div>
-    <div class="relative glass-surface rounded-2xl w-full max-w-md overflow-hidden">
-      <div class="px-5 py-4 border-b border-white/60 dark:border-zinc-800 flex items-center justify-between">
-        <h3 id="cameraModalTitle" class="text-sm font-bold text-[#1C1917] dark:text-[#F5EFE6]">Add CCTV Camera</h3>
-        <button type="button" id="closeCameraModalBtn" class="w-7 h-7 rounded-full bg-white/60 dark:bg-zinc-800 flex items-center justify-center cursor-pointer">&times;</button>
-      </div>
-      <form id="cameraForm" class="p-5 space-y-3.5">
-        <input type="hidden" id="camId">
-        <div>
-          <label class="block text-xs font-semibold mb-1">Camera Name *</label>
-          <input type="text" id="camName" required placeholder="e.g. Tapo C225 - Living Room" class="w-full px-3.5 py-2 text-sm rounded-xl border border-white/75 dark:border-zinc-700 bg-white/65 dark:bg-zinc-800/80">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold mb-1">go2rtc / HTTPS Stream URL (Optional)</label>
-          <input type="url" id="camStreamUrl" placeholder="https://your-tunnel.trycloudflare.com/stream.html?src=tapo_c225" class="w-full px-3.5 py-2 text-sm rounded-xl border border-white/75 dark:border-zinc-700 bg-white/65 dark:bg-zinc-800/80">
-        </div>
-        <div class="flex justify-end gap-2 pt-1">
-          <button type="button" id="cancelCameraModalBtn" class="px-4 py-2 rounded-full border border-white/75 dark:border-zinc-700 text-xs font-semibold cursor-pointer">Cancel</button>
-          <button type="submit" class="px-5 py-2 rounded-full bg-[#B8431B] hover:bg-[#9A3412] text-white text-xs font-semibold cursor-pointer">Save</button>
-        </div>
-      </form>
-    </div>
-  </div>
 
 
 
@@ -1477,9 +1397,8 @@
       showClock: true,
       ribbedGlass: true,
       hubLayout: 'bento',
-      hubCards: { cctv: true, websites: true },
-      hubCardOrder: ['cctv', 'websites'],
-      hubCctvHeight: 'normal',
+      hubCards: { websites: true },
+      hubCardOrder: ['websites'],
       webSync: {
         ordersEndpoint: 'orders_log.json',
         reportsEndpoint: 'reports_log.json',
@@ -1510,16 +1429,12 @@
 
     const DEFAULT_STATE = {
       darkMode: true,
-      selectedHubCam: 'cam_1',
       aiMemories: [],
       websites: [
         { id: 'site_dms', name: 'Design Mania Studio', status: 'Active', url: 'https://designmaniastudio.page.gd/' }
       ],
       orders: [],
       reports: [],
-      cameras: [
-        { id: 'cam_1', name: 'Tapo C225', nightVision: false, streamUrl: '' }
-      ],
       settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS))
     };
 
@@ -1540,13 +1455,15 @@
             : base.smartDevices.items
         }
       };
-      const validKeys = ['cctv', 'websites'];
+      const validKeys = ['websites'];
       const order = Array.isArray(rawSettings.hubCardOrder)
         ? rawSettings.hubCardOrder.filter(k => validKeys.includes(k))
         : [];
       validKeys.forEach(k => { if (!order.includes(k)) order.push(k); });
       merged.hubCardOrder = order;
       if (merged.hubLayout === 'grid') merged.hubLayout = 'bento';
+      if (merged.hubCards) delete merged.hubCards.cctv;
+      delete merged.hubCctvHeight;
       return merged;
     }
 
@@ -1562,8 +1479,9 @@
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) {
           const p = JSON.parse(raw);
-          if (p && Array.isArray(p.websites) && Array.isArray(p.cameras)) {
+          if (p && Array.isArray(p.websites)) {
             p.settings = mergeSettings(p.settings);
+            delete p.cameras; delete p.selectedHubCam;
             if (!Array.isArray(p.aiMemories)) p.aiMemories = [];
             delete p.chat;
             return p;
@@ -1576,7 +1494,6 @@
           if (Array.isArray(v4.websites) && v4.websites.length) fresh.websites = v4.websites;
           if (Array.isArray(v4.orders)) fresh.orders = v4.orders;
           if (Array.isArray(v4.reports)) fresh.reports = v4.reports;
-          if (Array.isArray(v4.cameras) && v4.cameras.length) fresh.cameras = v4.cameras;
           if (typeof v4.darkMode === 'boolean') fresh.darkMode = v4.darkMode;
           return fresh;
         }
@@ -1643,7 +1560,8 @@
         if (d && d.status === 'ok') {
           serverSyncReady = true;
           updateServerSyncBadge(d.exists ? 'Server Synced' : 'Server Ready', true);
-          if (d.exists && d.data && Array.isArray(d.data.websites) && Array.isArray(d.data.cameras)) {
+          if (d.exists && d.data && Array.isArray(d.data.websites)) {
+            delete d.data.cameras; delete d.data.selectedHubCam;
             const localSecrets = {
               tmUrl: state.settings?.tokenMonitor?.publicUrl || '',
               dkSec: state.settings?.smartDevices?.workerSecret || '',
@@ -1848,25 +1766,6 @@
       updateNavSliders();
     }
 
-    function renderCamScreenHtml(cam) {
-      const nowStr = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23', timeZone: 'Asia/Kuala_Lumpur' });
-      return `
-        ${cam.streamUrl
-          ? `<iframe src="${escapeHtml(sanitizeUrl(cam.streamUrl))}" title="${escapeHtml(cam.name)}" class="w-full h-full border-0" allow="autoplay; fullscreen" loading="lazy"></iframe>`
-          : `<div class="absolute inset-0 cam-grid-lines opacity-70"></div>
-             <div class="relative z-10 text-center px-4">
-               <svg class="w-9 h-9 mx-auto text-orange-300/80 mb-1.5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-               <p class="text-sm font-bold text-white/95">${escapeHtml(cam.name)}</p>
-               <p class="text-[11px] text-orange-200/75 mt-0.5">${cam.nightVision ? 'Night Vision Active' : 'Paste go2rtc HTTPS URL to stream live'}</p>
-             </div>`
-        }
-        <div class="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/55 text-[10px] font-bold text-white pointer-events-none">
-          <span class="w-2 h-2 rounded-full bg-red-500 rec-pulse"></span><span>LIVE</span>
-        </div>
-        <div class="absolute top-3 right-3 px-2.5 py-0.5 rounded-md bg-black/55 text-[10px] font-mono text-white/90 cam-clock pointer-events-none">${nowStr}</div>
-      `;
-    }
-
     // Hub bento grid. Add a new widget with FiqBento.add(el, { size: 'md' | 'half' | 'sm' | 'wide' | 'hero', order: 60 }).
     window.FiqBento = {
       grid: () => document.getElementById('hubCardsContainer'),
@@ -1898,19 +1797,18 @@
       }
     };
 
-    // TAB 1: HUB (CCTV & Websites)
+    // TAB 1: HUB (Websites)
     function renderHub() {
       const s = state.settings || DEFAULT_SETTINGS;
       const container = document.getElementById('hubCardsContainer');
       const isBento = (s.hubLayout || 'bento') !== 'stacked';
 
       const cardMap = {
-        cctv: document.getElementById('hubCard-cctv'),
         websites: document.getElementById('hubCard-websites')
       };
 
       let visibleCount = 0;
-      (s.hubCardOrder || ['cctv', 'websites']).forEach((key, idx) => {
+      (s.hubCardOrder || ['websites']).forEach((key, idx) => {
         const el = cardMap[key];
         if (!el) return;
         const visible = s.hubCards ? s.hubCards[key] !== false : true;
@@ -1919,27 +1817,8 @@
         if (visible) visibleCount++;
         el.style.order = idx === 0 ? '10' : '40';
       });
-      const useAsym = false;
       container.className = 'hub-bento' + (isBento ? '' : ' is-stacked');
       document.getElementById('hubEmptyNotice').classList.toggle('hidden', visibleCount > 0);
-
-      const heightMap = {
-        compact: 'min-h-[11rem] md:min-h-0',
-        normal: 'min-h-[14rem] md:min-h-0',
-        tall: 'min-h-[18rem] md:min-h-0'
-      };
-      const vpHeightClass = useAsym ? 'min-h-[13rem] md:min-h-0' : (heightMap[s.hubCctvHeight] || heightMap.normal);
-
-      const camSel = document.getElementById('hubCamSelector');
-      const activeCam = state.cameras.find(c => c.id === state.selectedHubCam) || state.cameras[0];
-      if (activeCam) {
-        state.selectedHubCam = activeCam.id;
-        document.getElementById('hubCamTitle').textContent = 'CCTV';
-        camSel.innerHTML = state.cameras.map(c => `<option value="${escapeHtml(c.id)}" ${c.id === activeCam.id ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('');
-        const vp = document.getElementById('hubBigCamViewport');
-        vp.className = `relative flex-1 ${vpHeightClass} rounded-2xl overflow-hidden cam-viewport ${activeCam.nightVision ? 'night-mode' : ''} flex items-center justify-center`;
-        vp.innerHTML = renderCamScreenHtml(activeCam);
-      }
 
       renderHubTokenBar();
       renderHubDevices();
@@ -2114,25 +1993,6 @@
       }
     }
 
-    // TAB 3: CCTV ONLY (Clean & Simple)
-    function renderCctv() {
-      document.getElementById('cctvCamerasGrid').innerHTML = state.cameras.map(c => `
-        <div class="glass-surface rounded-2xl p-3 space-y-2.5">
-          <div class="relative h-52 rounded-2xl overflow-hidden cam-viewport ${c.nightVision ? 'night-mode' : ''} flex items-center justify-center">
-            ${renderCamScreenHtml(c)}
-          </div>
-          <div class="flex items-center justify-between px-1 text-xs">
-            <span class="font-bold text-[#1C1917] dark:text-[#F5EFE6] truncate">${escapeHtml(c.name)}</span>
-            <div class="flex items-center gap-1.5 shrink-0">
-              <button type="button" data-cam-night="${escapeHtml(c.id)}" class="px-2.5 py-1 rounded-full text-[10px] font-bold cursor-pointer tap-pop ${c.nightVision ? 'bg-orange-600 text-white' : 'bg-white/70 dark:bg-zinc-800 border border-white/80 dark:border-zinc-700'}">IR</button>
-              <button type="button" data-edit-cam="${escapeHtml(c.id)}" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-white/70 dark:bg-zinc-800 border border-white/80 dark:border-zinc-700 cursor-pointer">Edit</button>
-              ${state.cameras.length > 1 ? `<button type="button" data-del-cam="${escapeHtml(c.id)}" class="text-[10px] font-bold text-red-600 px-1.5 cursor-pointer">Del</button>` : ''}
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-
     function paintSwitch(btn, on) {
       if (!btn) return;
       btn.setAttribute('aria-checked', on ? 'true' : 'false');
@@ -2156,11 +2016,10 @@
       const wsCfg = s.webSync || DEFAULT_SETTINGS.webSync;
 
       const cardMeta = {
-        cctv: { label: 'Tapo C225 CCTV Display', desc: 'Live camera viewport & stream selector' },
         websites: { label: 'Active Websites', desc: 'Site health & open footer reports' }
       };
 
-      const order = s.hubCardOrder || ['cctv', 'websites'];
+      const order = s.hubCardOrder || ['websites'];
       document.getElementById('settingsHubCardsList').innerHTML = order.map((key, idx) => {
         const meta = cardMeta[key];
         const on = s.hubCards ? s.hubCards[key] !== false : true;
@@ -2182,10 +2041,6 @@
       document.querySelectorAll('.set-layout-btn').forEach(btn => {
         const active = btn.dataset.setLayout === (s.hubLayout || 'bento');
         btn.className = `set-layout-btn py-1.5 rounded-full cursor-pointer tap-pop transition-colors ${active ? 'bg-[#B8431B] hover:bg-[#9A3412] text-white shadow-xs' : 'text-slate-700 dark:text-zinc-300'}`;
-      });
-      document.querySelectorAll('.set-camh-btn').forEach(btn => {
-        const active = btn.dataset.setCamh === (s.hubCctvHeight || 'normal');
-        btn.className = `set-camh-btn py-1.5 rounded-full cursor-pointer tap-pop transition-colors ${active ? 'bg-[#B8431B] hover:bg-[#9A3412] text-white shadow-xs' : 'text-slate-700 dark:text-zinc-300'}`;
       });
       document.querySelectorAll('.set-theme-btn').forEach(btn => {
         const active = (btn.dataset.setTheme === 'dark') === !!state.darkMode;
@@ -2239,15 +2094,6 @@
       }).join('');
     }
 
-    function openCameraEditor(camId) {
-      const c = state.cameras.find(x => x.id === camId);
-      if (!c) return;
-      document.getElementById('cameraModalTitle').textContent = `Edit ${c.name}`;
-      document.getElementById('camId').value = c.id;
-      document.getElementById('camName').value = c.name;
-      document.getElementById('camStreamUrl').value = c.streamUrl || '';
-      document.getElementById('cameraModal').classList.remove('hidden');
-    }
 
 
     // =========================================================================
@@ -3593,15 +3439,12 @@
       if (activeView === 'hub') renderHub();
       if (activeView === 'tokens') renderTokenMonitor();
       if (activeView === 'websites') renderWebsites();
-      if (activeView === 'cctv') renderCctv();
       if (activeView === 'settings') renderSettings();
     }
 
     // Listeners
     document.querySelectorAll('.nav-btn, .mob-nav-btn').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
     document.getElementById('themeToggleBtn').addEventListener('click', () => { state.darkMode = !state.darkMode; saveState(); renderAll(); });
-    document.getElementById('hubCamSelector').addEventListener('change', (e) => { state.selectedHubCam = e.target.value; saveState(); renderHub(); });
-    document.getElementById('hubEditCamBtn').addEventListener('click', () => openCameraEditor(state.selectedHubCam));
     document.getElementById('hubRefreshStatusBtn').addEventListener('click', () => { pullLiveLogs(true); checkWebHealth(true); });
     document.getElementById('hubEmptyOpenSettingsBtn').addEventListener('click', () => setView('settings'));
 
@@ -3673,7 +3516,7 @@
       reader.onload = () => {
         try {
           const parsed = JSON.parse(String(reader.result || '{}'));
-          if (!parsed || !Array.isArray(parsed.websites) || !Array.isArray(parsed.cameras)) {
+          if (!parsed || !Array.isArray(parsed.websites)) {
             showToast('Invalid FiqStudio JSON file');
             return;
           }
@@ -3710,7 +3553,6 @@
 
     // Modals
     const closeWs = () => document.getElementById('websiteModal').classList.add('hidden');
-    const closeCam = () => document.getElementById('cameraModal').classList.add('hidden');
 
     document.getElementById('addWebsiteBtn').addEventListener('click', () => openWebsiteEditor(null));
     document.getElementById('checkSitesBtn').addEventListener('click', () => { pullLiveLogs(true); checkWebHealth(true); });
@@ -3731,23 +3573,6 @@
         showToast('Website added');
       }
       saveState(); closeWs(); renderAll();
-    });
-
-    document.getElementById('addCameraBtn').addEventListener('click', () => {
-      document.getElementById('cameraModalTitle').textContent = 'Add CCTV Camera';
-      document.getElementById('camId').value = ''; document.getElementById('camName').value = ''; document.getElementById('camStreamUrl').value = '';
-      document.getElementById('cameraModal').classList.remove('hidden');
-    });
-    document.getElementById('closeCameraModalBtn').addEventListener('click', closeCam);
-    document.getElementById('cancelCameraModalBtn').addEventListener('click', closeCam);
-    document.getElementById('cameraModalBackdrop').addEventListener('click', closeCam);
-    document.getElementById('cameraForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const id = document.getElementById('camId').value;
-      const payload = { name: document.getElementById('camName').value.trim(), streamUrl: document.getElementById('camStreamUrl').value.trim() };
-      if (id) { const idx = state.cameras.findIndex(c => c.id === id); if (idx !== -1) state.cameras[idx] = { ...state.cameras[idx], ...payload }; showToast('Camera updated'); }
-      else { state.cameras.push({ id: 'cam_' + Date.now(), nightVision: false, ...payload }); showToast('Camera added'); }
-      saveState(); closeCam(); renderAll();
     });
 
     document.getElementById('saveToServerBtn').addEventListener('click', () => pushConfigToServer(false));
@@ -3831,9 +3656,6 @@
       const sl = e.target.closest('[data-set-layout]');
       if (sl) { state.settings.hubLayout = sl.dataset.setLayout; saveState(); renderSettings(); showToast('Hub layout updated'); return; }
 
-      const sch = e.target.closest('[data-set-camh]');
-      if (sch) { state.settings.hubCctvHeight = sch.dataset.setCamh; saveState(); renderSettings(); showToast('CCTV height updated'); return; }
-
       const tmp = e.target.closest('[data-tm-period]');
       if (tmp) { tmPeriod = tmp.dataset.tmPeriod; renderTokenMonitor(); return; }
 
@@ -3857,15 +3679,6 @@
         }
         return;
       }
-
-      const cn = e.target.closest('[data-cam-night]');
-      if (cn) { const c = state.cameras.find(x => x.id === cn.dataset.camNight); if (c) { c.nightVision = !c.nightVision; saveState(); renderAll(); } return; }
-
-      const ec = e.target.closest('[data-edit-cam]');
-      if (ec) { openCameraEditor(ec.dataset.editCam); return; }
-
-      const dc = e.target.closest('[data-del-cam]');
-      if (dc) { state.cameras = state.cameras.filter(x => x.id !== dc.dataset.delCam); saveState(); renderAll(); showToast('Camera removed'); return; }
 
       const dw = e.target.closest('[data-del-ws]');
       if (dw) { state.websites = state.websites.filter(x => x.id !== dw.dataset.delWs); saveState(); renderAll(); showToast('Website removed'); return; }
@@ -3928,7 +3741,6 @@
       pill.textContent = klClock(false);
       pill.title = 'Malaysia time';
       const full = klClock(true);
-      document.querySelectorAll('.cam-clock').forEach(el => { el.textContent = full; });
     }
     setInterval(tickClock, 1000);
     tickClock();
@@ -3996,7 +3808,7 @@
             splash.click();
             return;
           }
-          var closeIds = ['closeWebsiteModalBtn', 'closeCameraModalBtn', 'closeMusicModalBtn'];
+          var closeIds = ['closeWebsiteModalBtn', 'closeMusicModalBtn'];
           for (var i = 0; i < closeIds.length; i++) {
             var btn = document.getElementById(closeIds[i]);
             if (btn) {
@@ -4035,7 +3847,7 @@
           </div>
           <div class="min-w-0">
             <p class="font-display font-bold text-sm text-[#1C1917] dark:text-[#F5EFE6] leading-tight truncate flex items-center gap-1.5">Fiq AI <span class="fiq-online" aria-hidden="true"></span></p>
-            <p id="fiqAiStatusText" class="text-[11px] font-medium text-[#57534E] dark:text-[#C7B8AC] truncate">Weather · AC · CCTV · Chat</p>
+            <p id="fiqAiStatusText" class="text-[11px] font-medium text-[#57534E] dark:text-[#C7B8AC] truncate">Weather · AC · Chat</p>
           </div>
         </div>
         <div class="flex items-center gap-1 shrink-0">
@@ -4090,9 +3902,6 @@
             </button>
             <button type="button" data-fiq-prompt="Turn on my AC and set it to 24 degrees" class="fiq-quick-chip fiq-sugg">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9"/></svg><span><b>Cool to 24°C</b><small>Turn AC on</small></span>
-            </button>
-            <button type="button" data-fiq-prompt="Check my CCTV cameras" class="fiq-quick-chip fiq-sugg">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 10l4.5-2.3a1 1 0 0 1 1.5.9v6.8a1 1 0 0 1-1.5.9L15 14M5 18h8a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"/></svg><span><b>CCTV</b><small>Camera check</small></span>
             </button>
           </div>
         </div>
@@ -4677,7 +4486,7 @@
         history.length = 0; saveChat();
         msgList.querySelectorAll('.fiq-msg').forEach((n) => n.remove());
         updateWelcome();
-        statusText.textContent = 'Weather · AC · CCTV · Chat';
+        statusText.textContent = 'Weather · AC · Chat';
         if (typeof showToast === 'function') showToast('Chat cleared');
       });
       // Auto-growing input: Enter sends, Shift+Enter adds a line.
@@ -4779,9 +4588,6 @@
           }
         }, 1100);
         try {
-          const cams = (typeof state !== 'undefined' && Array.isArray(state.cameras))
-            ? state.cameras.map((c) => ({ name: c.name, streamUrl: Boolean(c.streamUrl), nightVision: Boolean(c.nightVision) }))
-            : [];
           const mems = (typeof state !== 'undefined' && Array.isArray(state.aiMemories)) ? state.aiMemories : [];
           // Every message carries a live Task Manager snapshot, so Fiq AI is always connected to it.
           let taskBrief = '';
@@ -4802,7 +4608,7 @@
               const last = m[m.length - 1];
               if (last && last.role === 'user') last.content += (taskBrief ? '\n\n[Live data from my FiqStudio Task Manager. Use it for questions about tasks, projects, clients, staff and deadlines. You are connected to it through the FiqStudio Hub, so do not say you have no tool or connection for tasks.\n' + taskBrief + '\n' + TASK_ACTION_HELP + ']' : '') + SUMMARY_FIRST;
               return m;
-            })(), context: { cameras: cams, memories: mems } }),
+            })(), context: { memories: mems } }),
           });
           const data = await res.json().catch(() => ({}));
           if (!res.ok || !data.ok) {
@@ -4987,7 +4793,7 @@
           }
 
           // 5. Smooth modal pop-in with GSAP
-          ['websiteModal', 'cameraModal', 'musicModal'].forEach((mid) => {
+          ['websiteModal', 'musicModal'].forEach((mid) => {
             const m = document.getElementById(mid);
             if (!m) return;
             const obs = new MutationObserver(() => {
