@@ -42,7 +42,13 @@ async function params(request) {
   if (request.method === "POST") {
     const text = await request.text();
     if (text.length > 8000) return null;
-    try { const b = JSON.parse(text); if (b && typeof b === "object" && !Array.isArray(b)) Object.assign(out, b); } catch {}
+    const type = (request.headers.get("content-type") || "").toLowerCase();
+    if (type.includes("application/x-www-form-urlencoded")) {
+      // Plain HTML <form method="POST"> (keeps the message out of the URL).
+      for (const [k, v] of new URLSearchParams(text)) out[k] = v;
+    } else {
+      try { const b = JSON.parse(text); if (b && typeof b === "object" && !Array.isArray(b)) Object.assign(out, b); } catch {}
+    }
   }
   return out;
 }
