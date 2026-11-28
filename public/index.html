@@ -795,6 +795,11 @@
       #hubDevicesBar:hover, #hubCard-websites:hover { transform: translateY(-2px); }
     }
 
+    /* Website status: gentle pulse on the "Online" dot */
+    .web-live-dot { animation: webLive 2s ease-out infinite; }
+    @keyframes webLive { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,.55); } 80%, 100% { box-shadow: 0 0 0 5px rgba(16,185,129,0); } }
+    @media (prefers-reduced-motion: reduce) { .web-live-dot { animation: none; } }
+
     /* ===== FIQ AI v2: messages, suggestions, input, motion ===== */
     .fiq-online { width: 8px; height: 8px; border-radius: 9999px; background: #16A34A; box-shadow: 0 0 0 0 rgba(22,163,74,.55); animation: fiqOnline 2.2s ease-out infinite; }
     @keyframes fiqOnline { 0% { box-shadow: 0 0 0 0 rgba(22,163,74,.55); } 80%, 100% { box-shadow: 0 0 0 7px rgba(22,163,74,0); } }
@@ -1033,35 +1038,26 @@
       <div class="glass-surface rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 class="font-display text-base font-bold text-[#1C1917] dark:text-[#F5EFE6]">Client Websites</h2>
-          <p class="text-xs text-[#57534E] dark:text-[#C7B8AC]">Manage live sites, Order Now clicks, and footer troubleshooting reports.</p>
+          <p id="webHealthSummary" class="text-xs text-[#57534E] dark:text-[#C7B8AC]">Live status of your client websites and every problem found.</p>
         </div>
-        <button type="button" id="addWebsiteBtn" class="px-4 py-2 rounded-full bg-[#B8431B] hover:bg-[#9A3412] text-white text-xs font-semibold cursor-pointer tap-pop shadow-sm">+ Add Website</button>
+        <div class="flex items-center gap-2">
+          <button type="button" id="checkSitesBtn" class="px-4 py-2 rounded-full bg-white/65 dark:bg-zinc-800/80 border border-white/80 dark:border-zinc-700 hover:border-orange-400 text-xs font-semibold cursor-pointer tap-pop">Check now</button>
+          <button type="button" id="addWebsiteBtn" class="px-4 py-2 rounded-full bg-[#B8431B] hover:bg-[#9A3412] text-white text-xs font-semibold cursor-pointer tap-pop shadow-sm">+ Add Website</button>
+        </div>
       </div>
 
       <div id="websitesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
 
-      <!-- Client Troubleshooting Reports -->
+      <!-- Website Problems: automatic checks (down / slow / HTTP errors) + client reports -->
       <div id="webReportsSection" class="glass-surface rounded-2xl p-4 sm:p-5 space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h3 class="text-sm font-bold text-[#1C1917] dark:text-[#F5EFE6]">Troubleshooting Reports</h3>
-            <p class="text-xs text-[#57534E] dark:text-[#C7B8AC]">Live messages from the "Report a Problem" button on client footers</p>
+            <h3 class="text-sm font-bold text-[#1C1917] dark:text-[#F5EFE6] flex items-center gap-2">Website Problems <span id="problemsCount" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/70 dark:bg-zinc-800 text-[#57534E] dark:text-[#D6C9BE]">0</span></h3>
+            <p class="text-xs text-[#57534E] dark:text-[#C7B8AC]">Sites that are down or slow, plus reports sent from the "Report a Problem" button</p>
           </div>
           <button type="button" id="testReportBtn" class="px-3 py-1.5 rounded-full bg-white/60 dark:bg-zinc-800/70 border border-white/75 dark:border-zinc-700 text-[11px] font-semibold cursor-pointer tap-pop">+ Test Report</button>
         </div>
         <div id="reportsList" class="space-y-2.5"></div>
-      </div>
-
-      <!-- Order Now Click Feed -->
-      <div id="webOrdersSection" class="glass-surface rounded-2xl p-4 sm:p-5 space-y-3">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <h3 class="text-sm font-bold text-[#1C1917] dark:text-[#F5EFE6]">Order Now Clicks</h3>
-            <p id="ordersSubText" class="text-xs text-[#57534E] dark:text-[#C7B8AC]">Live from the Order Now buttons on your client websites</p>
-          </div>
-          <button type="button" id="testOrderBtn" class="px-3 py-1.5 rounded-full bg-[#B8431B] hover:bg-[#9A3412] text-white text-[11px] font-semibold cursor-pointer tap-pop">+ Simulate Click</button>
-        </div>
-        <div id="ordersList" class="space-y-2"></div>
       </div>
     </section>
 
@@ -1273,12 +1269,8 @@
             <button type="button" id="toggleHubActiveOnlyBtn" role="switch" aria-checked="true" class="w-11 h-6 rounded-full p-0.5 transition-colors cursor-pointer shrink-0"></button>
           </div>
           <div class="p-3 rounded-2xl border border-white/70 dark:border-zinc-800 bg-white/40 dark:bg-zinc-800/40 flex items-center justify-between gap-2">
-            <span class="text-xs font-semibold text-slate-800 dark:text-zinc-200">Show Reports</span>
+            <span class="text-xs font-semibold text-slate-800 dark:text-zinc-200">Show Website Problems</span>
             <button type="button" id="toggleWebReportsBtn" role="switch" aria-checked="true" class="w-11 h-6 rounded-full p-0.5 transition-colors cursor-pointer shrink-0"></button>
-          </div>
-          <div class="p-3 rounded-2xl border border-white/70 dark:border-zinc-800 bg-white/40 dark:bg-zinc-800/40 flex items-center justify-between gap-2">
-            <span class="text-xs font-semibold text-slate-800 dark:text-zinc-200">Show Orders</span>
-            <button type="button" id="toggleWebOrdersBtn" role="switch" aria-checked="true" class="w-11 h-6 rounded-full p-0.5 transition-colors cursor-pointer shrink-0"></button>
           </div>
         </div>
 
@@ -1670,7 +1662,8 @@
       }
       const ws = (state.settings && state.settings.webSync) || DEFAULT_SETTINGS.webSync;
       // On the Cloudflare host the logs come from the Worker (D1); client sites post to /hook/*.
-      const ordersEp = SERVER_PROXY ? '/api/web/orders' : (ws.ordersEndpoint || 'orders_log.json').trim();
+      // Order Now clicks are no longer shown on the Cloudflare dashboard, so they are not fetched there.
+      const ordersEp = SERVER_PROXY ? '' : (ws.ordersEndpoint || 'orders_log.json').trim();
       const reportsEp = SERVER_PROXY ? '/api/web/reports' : (ws.reportsEndpoint || 'reports_log.json').trim();
       let added = 0;
       if (ordersEp) {
@@ -1875,21 +1868,18 @@
         ? `<p class="text-xs text-[#57534E] dark:text-[#C7B8AC] p-4 rounded-2xl border border-dashed border-orange-300/70 bg-white/25 text-center">No matching websites to show. Add or update one in Websites or Settings.</p>`
         : shownSites.map(w => {
             const openIssues = state.reports.filter(r => r.siteId === w.id && r.status !== 'Resolved');
-            const hasIssue = openIssues.length > 0;
-            const isActive = w.status === 'Active' || w.status === 'Live';
-            const badgeClass = isActive
-              ? 'bg-emerald-500/15 text-[#166534] dark:text-[#6EE7B7]'
-              : (w.status === 'Offline' ? 'bg-red-500/15 text-red-700 dark:text-red-300' : 'bg-amber-500/15 text-amber-700 dark:text-amber-300');
+            const hs = healthOf(w);
+            const problem = hs.kind === 'down' || hs.kind === 'slow' ? hs.detail
+              : openIssues.length ? `${openIssues[0].issueType}: ${openIssues[0].message}` : '';
             return `
               <div class="px-3 py-2.5 rounded-2xl border border-white/75 dark:border-zinc-800 bg-white/45 dark:bg-zinc-800/40 flex items-center justify-between gap-2">
                 <div class="min-w-0">
-                  <div class="flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full shrink-0 ${hasIssue || w.status === 'Offline' ? 'bg-red-500' : (isActive ? 'bg-emerald-500' : 'bg-amber-500')}"></span>
+                  <div class="flex items-center gap-1.5 min-w-0">
                     <p class="text-xs font-bold text-[#1C1917] dark:text-[#F5EFE6] truncate">${escapeHtml(w.name)}</p>
-                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${badgeClass}">${escapeHtml(w.status)}</span>
+                    ${healthBadge(hs)}
                   </div>
-                  <p class="text-[11px] truncate mt-0.5 ${hasIssue ? 'text-red-600 dark:text-red-400 font-semibold' : 'text-[#57534E] dark:text-[#C7B8AC]'}">
-                    ${hasIssue ? `${escapeHtml(openIssues[0].issueType)}: ${escapeHtml(openIssues[0].message)}` : (isActive ? 'Running smoothly' : escapeHtml(w.status))}
+                  <p class="text-[11px] truncate mt-0.5 ${problem ? (hs.kind === 'slow' && !openIssues.length ? 'text-amber-700 dark:text-amber-300 font-semibold' : 'text-red-600 dark:text-red-400 font-semibold') : 'text-[#57534E] dark:text-[#C7B8AC]'}">
+                    ${escapeHtml(problem || (hs.kind === 'up' ? 'Running smoothly' : hs.detail))}
                   </p>
                 </div>
                 ${w.url ? `<a href="${escapeHtml(sanitizeUrl(w.url))}" target="_blank" rel="noopener noreferrer" class="text-[11px] font-semibold text-[#C85A32] dark:text-orange-400 hover:underline shrink-0">Visit</a>` : ''}
@@ -1901,19 +1891,22 @@
     // TAB 2: WEBSITES (Full Management)
     function renderWebsites() {
       const wsCfg = (state.settings && state.settings.webSync) || DEFAULT_SETTINGS.webSync;
-      ['testReportBtn', 'testOrderBtn'].forEach((id) => { const b = document.getElementById(id); if (b) b.classList.toggle('hidden', SERVER_PROXY); });
+      ['testReportBtn'].forEach((id) => { const b = document.getElementById(id); if (b) b.classList.toggle('hidden', SERVER_PROXY); });
       const repSec = document.getElementById('webReportsSection');
-      const ordSec = document.getElementById('webOrdersSection');
       if (repSec) repSec.classList.toggle('hidden', wsCfg.showReportsOnWebTab === false);
-      if (ordSec) ordSec.classList.toggle('hidden', wsCfg.showOrdersOnWebTab === false);
-      document.getElementById('websitesGrid').innerHTML = state.websites.map(w => `
+      const sumEl = document.getElementById('webHealthSummary');
+      if (sumEl) sumEl.textContent = webHealthSummaryText();
+      document.getElementById('websitesGrid').innerHTML = state.websites.map(w => {
+        const hs = healthOf(w);
+        return `
         <article class="glass-surface glass-card-hover rounded-2xl p-5 flex flex-col justify-between gap-3">
           <div>
             <div class="flex items-start justify-between gap-2">
               <h4 class="font-display text-base font-bold text-[#1C1917] dark:text-[#F5EFE6] truncate">${escapeHtml(w.name)}</h4>
-              <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full ${w.status === 'Active' || w.status === 'Live' ? 'bg-emerald-500/15 text-[#166534] dark:text-[#6EE7B7]' : 'bg-amber-500/15 text-amber-700'} shrink-0">${escapeHtml(w.status)}</span>
+              ${healthBadge(hs)}
             </div>
             ${w.url ? `<a href="${escapeHtml(sanitizeUrl(w.url))}" target="_blank" rel="noopener noreferrer" class="text-xs font-mono text-[#C85A32] dark:text-orange-400 hover:underline block truncate mt-1">${escapeHtml(w.url.replace(/^https?:\/\//, ''))}</a>` : ''}
+            <p class="text-[11px] mt-2 ${hs.kind === 'down' ? 'text-red-700 dark:text-red-300 font-semibold' : hs.kind === 'slow' ? 'text-amber-700 dark:text-amber-300 font-semibold' : 'text-[#57534E] dark:text-[#C7B8AC]'}">${escapeHtml(hs.detail)}</p>
           </div>
           <div class="flex items-center justify-between pt-2 border-t border-white/50 dark:border-zinc-800 text-[11px]">
             ${w.url ? `<a href="${escapeHtml(sanitizeUrl(w.url.replace(/\/$/, '') + '/admin.php'))}" target="_blank" rel="noopener noreferrer" class="font-semibold text-slate-700 dark:text-zinc-300 hover:text-orange-600">Admin Panel</a>` : '<span></span>'}
@@ -1923,11 +1916,37 @@
             </div>
           </div>
         </article>
-      `).join('');
+      `;
+      }).join('');
 
-      document.getElementById('reportsList').innerHTML = state.reports.length === 0
-        ? `<p class="text-xs text-[#57534E] dark:text-[#C7B8AC] p-4 rounded-2xl border border-dashed border-orange-300/70 bg-white/25 text-center">No troubleshooting reports right now.</p>`
-        : state.reports.map(r => {
+      // Website Problems: automatic issues first (down / slow), then client reports.
+      const autoIssues = state.websites.map(w => ({ w, hs: healthOf(w) })).filter(x => x.hs.kind === 'down' || x.hs.kind === 'slow');
+      const openReports = state.reports.filter(r => r.status !== 'Resolved').length;
+      const pc = document.getElementById('problemsCount');
+      if (pc) {
+        const n = autoIssues.length + openReports;
+        pc.textContent = String(n);
+        pc.className = `text-[10px] font-bold px-2 py-0.5 rounded-full ${n ? 'bg-red-500/15 text-red-700 dark:text-red-300' : 'bg-emerald-500/15 text-[#166534] dark:text-[#6EE7B7]'}`;
+      }
+      const autoHtml = autoIssues.map(({ w, hs }) => `
+              <div class="p-3.5 rounded-2xl border ${hs.kind === 'down' ? 'border-red-500/40 bg-red-500/5' : 'border-amber-500/40 bg-amber-500/5'} flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="min-w-0 space-y-0.5">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white/80 dark:bg-zinc-700">${escapeHtml(w.name)}</span>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${hs.kind === 'down' ? 'bg-red-500/15 text-red-700 dark:text-red-300' : 'bg-amber-500/15 text-amber-700 dark:text-amber-300'}">${hs.kind === 'down' ? 'Site down' : 'Slow site'}</span>
+                    <span class="text-[10px] font-mono text-slate-500">Auto check · ${escapeHtml(hs.when)}</span>
+                  </div>
+                  <p class="text-xs font-semibold text-[#1C1917] dark:text-[#F5EFE6]">${escapeHtml(hs.detail)}</p>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <button type="button" data-recheck-sites="1" class="px-3 py-1.5 rounded-full text-[11px] font-bold cursor-pointer tap-pop bg-[#B8431B] hover:bg-[#9A3412] text-white">Check again</button>
+                  ${w.url ? `<a href="${escapeHtml(sanitizeUrl(w.url))}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 rounded-full text-[11px] font-semibold text-[#9A3412] dark:text-[#FDBA74] hover:bg-orange-500/10">Open site</a>` : ''}
+                </div>
+              </div>`).join('');
+
+      document.getElementById('reportsList').innerHTML = (autoIssues.length + state.reports.length) === 0
+        ? `<p class="text-xs text-[#166534] dark:text-[#6EE7B7] font-semibold p-4 rounded-2xl border border-dashed border-emerald-500/40 bg-emerald-500/5 text-center">All websites are running well. No problems reported.</p>`
+        : autoHtml + state.reports.map(r => {
             const done = r.status === 'Resolved';
             return `
               <div class="p-3.5 rounded-2xl border border-white/75 dark:border-zinc-800 bg-white/45 dark:bg-zinc-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -1947,18 +1966,62 @@
               </div>
             `;
           }).join('');
+    }
 
-      document.getElementById('ordersList').innerHTML = state.orders.length === 0
-        ? `<p class="text-xs text-[#57534E] dark:text-[#C7B8AC] p-4 rounded-2xl border border-dashed border-orange-300/70 bg-white/25 text-center">No Order Now clicks logged yet.</p>`
-        : state.orders.map(o => `
-            <div class="p-3 rounded-2xl border border-white/75 dark:border-zinc-800 bg-white/45 dark:bg-zinc-800/40 flex items-center justify-between gap-2">
-              <div class="min-w-0">
-                <p class="text-xs font-bold text-[#1C1917] dark:text-[#F5EFE6] truncate">${escapeHtml(o.siteName || 'Design Mania Studio')} &bull; ${escapeHtml(o.pkg)}</p>
-                <p class="text-[11px] text-[#57534E] dark:text-[#C7B8AC]">${escapeHtml(o.ref || '')} &bull; ${escapeHtml(o.timestamp || '')}</p>
-              </div>
-              <button type="button" data-del-ord="${escapeHtml(o.id)}" class="text-[11px] font-semibold text-red-600 hover:underline cursor-pointer shrink-0">Delete</button>
-            </div>
-          `).join('');
+    // ---------- Website health (automatic up / down / slow checks through the Worker) ----------
+    let WEB_HEALTH = {}, webHealthAt = 0, webHealthBusy = false;
+    const SLOW_MS = 3000;
+    function healthOf(w) {
+      if (!w.url) return { kind: 'none', label: w.status || 'No URL', detail: 'Add a URL to check this site automatically', when: '' };
+      const h = WEB_HEALTH[w.id];
+      if (!h) return { kind: 'unknown', label: webHealthBusy ? 'Checking…' : 'Not checked', detail: webHealthBusy ? 'Checking now…' : 'Tap Check now to test this site', when: '' };
+      const when = new Date(h.at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: 'Asia/Kuala_Lumpur' });
+      if (!h.ok) return { kind: 'down', label: 'Down', detail: `${h.error || 'Not responding'}${h.status ? '' : ''} · checked ${when}`, when, ms: h.ms };
+      if (h.ms > SLOW_MS) return { kind: 'slow', label: 'Slow', detail: `Took ${(h.ms / 1000).toFixed(1)} s to respond · checked ${when}`, when, ms: h.ms };
+      return { kind: 'up', label: 'Online', detail: `Responding in ${h.ms} ms · checked ${when}`, when, ms: h.ms };
+    }
+    function healthBadge(hs) {
+      const cls = hs.kind === 'up' ? 'bg-emerald-500/15 text-[#166534] dark:text-[#6EE7B7]'
+        : hs.kind === 'down' ? 'bg-red-500/15 text-red-700 dark:text-red-300'
+        : hs.kind === 'slow' ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300'
+        : 'bg-white/70 dark:bg-zinc-800 text-[#57534E] dark:text-[#C7B8AC]';
+      const dot = hs.kind === 'up' ? 'bg-emerald-500' : hs.kind === 'down' ? 'bg-red-500' : hs.kind === 'slow' ? 'bg-amber-500' : 'bg-slate-400';
+      return `<span class="inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-0.5 rounded-full shrink-0 ${cls}"><span class="w-1.5 h-1.5 rounded-full ${dot}${hs.kind === 'up' ? ' web-live-dot' : ''}"></span>${escapeHtml(hs.label)}${hs.kind === 'up' && hs.ms ? ` · ${hs.ms} ms` : ''}</span>`;
+    }
+    function webHealthSummaryText() {
+      const withUrl = state.websites.filter(w => w.url);
+      if (!withUrl.length) return 'Add a website URL to start automatic status checks.';
+      if (!webHealthAt) return webHealthBusy ? 'Checking your websites…' : 'Live status of your client websites and every problem found.';
+      const down = withUrl.filter(w => healthOf(w).kind === 'down').length;
+      const slow = withUrl.filter(w => healthOf(w).kind === 'slow').length;
+      const t = new Date(webHealthAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: 'Asia/Kuala_Lumpur' });
+      if (!down && !slow) return `All ${withUrl.length} website${withUrl.length === 1 ? ' is' : 's are'} online · checked ${t}`;
+      return `${down ? down + ' down' : ''}${down && slow ? ', ' : ''}${slow ? slow + ' slow' : ''} · checked ${t}`;
+    }
+    async function checkWebHealth(manual) {
+      if (!SERVER_PROXY || webHealthBusy) return;
+      const sites = state.websites.filter(w => w.url).map(w => ({ id: w.id, url: w.url }));
+      if (!sites.length) { if (manual) showToast('Add a website URL first'); return; }
+      webHealthBusy = true;
+      if (activeView === 'websites') renderWebsites(); else if (activeView === 'hub') renderHub();
+      try {
+        const res = await fetch('/api/web/status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sites }) });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+        const at = Date.parse(data.checkedAt) || Date.now();
+        WEB_HEALTH = {};
+        (data.results || []).forEach(r => { if (r && r.id) WEB_HEALTH[r.id] = { ...r, at }; });
+        webHealthAt = at;
+        if (manual) {
+          const bad = sites.filter(s => { const h = WEB_HEALTH[s.id]; return !h || !h.ok; }).length;
+          showToast(bad ? `${bad} website${bad === 1 ? ' is' : 's are'} down` : 'All websites are online');
+        }
+      } catch (e) {
+        if (manual) showToast('Could not check websites. Try again');
+      } finally {
+        webHealthBusy = false;
+        if (activeView === 'websites') renderWebsites(); else if (activeView === 'hub') renderHub();
+      }
     }
 
     // TAB 3: CCTV ONLY (Clean & Simple)
@@ -2048,7 +2111,6 @@
       paintSwitch(document.getElementById('toggleClockBtn'), s.showClock !== false);
       paintSwitch(document.getElementById('toggleHubActiveOnlyBtn'), wsCfg.showOnlyActiveOnHub !== false);
       paintSwitch(document.getElementById('toggleWebReportsBtn'), wsCfg.showReportsOnWebTab !== false);
-      paintSwitch(document.getElementById('toggleWebOrdersBtn'), wsCfg.showOrdersOnWebTab !== false);
 
       const oe = document.getElementById('setOrdersEndpoint');
       const re = document.getElementById('setReportsEndpoint');
@@ -3450,7 +3512,7 @@
     document.getElementById('themeToggleBtn').addEventListener('click', () => { state.darkMode = !state.darkMode; saveState(); renderAll(); });
     document.getElementById('hubCamSelector').addEventListener('change', (e) => { state.selectedHubCam = e.target.value; saveState(); renderHub(); });
     document.getElementById('hubEditCamBtn').addEventListener('click', () => openCameraEditor(state.selectedHubCam));
-    document.getElementById('hubRefreshStatusBtn').addEventListener('click', () => pullLiveLogs(false));
+    document.getElementById('hubRefreshStatusBtn').addEventListener('click', () => { pullLiveLogs(true); checkWebHealth(true); });
     document.getElementById('hubEmptyOpenSettingsBtn').addEventListener('click', () => setView('settings'));
 
     // Settings Listeners
@@ -3478,10 +3540,6 @@
     });
     document.getElementById('toggleWebReportsBtn').addEventListener('click', () => {
       state.settings.webSync.showReportsOnWebTab = !state.settings.webSync.showReportsOnWebTab;
-      saveState(); renderSettings();
-    });
-    document.getElementById('toggleWebOrdersBtn').addEventListener('click', () => {
-      state.settings.webSync.showOrdersOnWebTab = !state.settings.webSync.showOrdersOnWebTab;
       saveState(); renderSettings();
     });
     document.getElementById('setOrdersEndpoint').addEventListener('input', (e) => {
@@ -3565,6 +3623,8 @@
     const closeCam = () => document.getElementById('cameraModal').classList.add('hidden');
 
     document.getElementById('addWebsiteBtn').addEventListener('click', () => openWebsiteEditor(null));
+    document.getElementById('checkSitesBtn').addEventListener('click', () => { pullLiveLogs(true); checkWebHealth(true); });
+    document.addEventListener('click', (e) => { if (e.target.closest('[data-recheck-sites]')) checkWebHealth(true); });
     document.getElementById('closeWebsiteModalBtn').addEventListener('click', closeWs);
     document.getElementById('cancelWebsiteModalBtn').addEventListener('click', closeWs);
     document.getElementById('websiteModalBackdrop').addEventListener('click', closeWs);
@@ -3605,10 +3665,6 @@
     document.getElementById('testReportBtn').addEventListener('click', () => {
       state.reports.unshift({ id: 'rep_' + Date.now(), siteId: 'site_dms', siteName: 'Design Mania Studio', issueType: 'Website Bug', reporter: 'Test Client', message: 'Sample footer report from Design Mania Studio.', status: 'Open', timestamp: new Date().toISOString().slice(0, 16).replace('T', ' ') });
       saveState(); renderAll(); showToast('Test report added');
-    });
-    document.getElementById('testOrderBtn').addEventListener('click', () => {
-      state.orders.unshift({ id: 'ord_' + Date.now(), ref: 'ORD-' + String(state.orders.length + 1).padStart(3, '0'), siteId: 'site_dms', siteName: 'Design Mania Studio', pkg: 'Logo', timestamp: new Date().toISOString().slice(0, 16).replace('T', ' ') });
-      saveState(); renderAll(); showToast('Simulated click added');
     });
 
     // Delegated Actions
@@ -3797,6 +3853,10 @@
     renderAll();
     pullLiveLogs(true);
     pullConfigFromServer();
+    // Automatic website checks: on load, every 5 minutes while the page is visible, and when it comes back into view.
+    setTimeout(() => checkWebHealth(false), 1500);
+    setInterval(() => { if (!document.hidden) checkWebHealth(false); }, 5 * 60 * 1000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - webHealthAt > 60 * 1000) checkWebHealth(false); });
     if (getSmartDevicesCfg().workerUrl || getSmartDevicesCfg().haUrl || SERVER_PROXY) syncSmartDevices(true);
   
     // Clean Settings Category Sub-Tabs

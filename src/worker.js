@@ -608,6 +608,37 @@ async function route(request, env, user) {
     if (res) return res;
   }
 
+  // Website health check: the dashboard sends its site URLs, the Worker fetches each one and
+  // reports up/down, HTTP status and response time. Max 12 sites, 8 s timeout each.
+  if (path === "/api/web/status" && method === "POST") {
+    const origin = request.headers.get("Origin");
+    if (origin && origin !== env.APP_ORIGIN) return json({ error: "Origin not allowed" }, 403);
+    const b = await bodyJson(request);
+    const sites = Array.isArray(b && b.sites) ? b.sites.slice(0, 12) : [];
+    const checks = await Promise.all(sites.map(async (s) => {
+      const id = cleanString(s && s.id, 100);
+      let url;
+      try { url = new URL(String(s && s.url || "")); } catch { return { id, ok: false, error: "Invalid URL" }; }
+      if (url.protocol !== "https:" && url.protocol !== "http:") return { id, ok: false, error: "Invalid URL" };
+      const started = Date.now();
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 8000);
+      try {
+        const res = await fetch(url.href, {
+          method: "GET", redirect: "follow", signal: ctrl.signal,
+          headers: { "User-Agent": "FiqStudio-Status/1.0 (+uptime check)", "Accept": "text/html,*/*" }
+        });
+        const ms = Date.now() - started;
+        try { await res.body?.cancel(); } catch {}
+        return { id, ok: res.status < 400, status: res.status, ms, error: res.status >= 400 ? `HTTP ${res.status}` : "" };
+      } catch (e) {
+        const ms = Date.now() - started;
+        return { id, ok: false, status: 0, ms, error: e && e.name === "AbortError" ? "No response after 8 seconds" : "Could not connect" };
+      } finally { clearTimeout(timer); }
+    }));
+    return json({ checkedAt: new Date().toISOString(), results: checks });
+  }
+
   // Summary for the Hub "Task Management" widget, read from the task app's pm_docs table.
   if (path === "/api/pm/summary" && method === "GET") {
     const empty = { openTasks: 0, dueToday: 0, overdue: 0, activeProjects: 0, next: [] };
