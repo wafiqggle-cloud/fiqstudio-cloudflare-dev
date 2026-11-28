@@ -323,10 +323,124 @@ async function webLogs(request, env, path, method) {
   return null;
 }
 
+// ---------- Prayer times (JAKIM zones) + azan audio ----------
+const PRAYER_KEYS = ["imsak", "fajr", "syuruk", "dhuhr", "asr", "maghrib", "isha"];
+const AZAN_KEY = "settings/azan-audio";
+const klParts = (ms) => {
+  const d = new Date(ms + 8 * 3600e3);
+  return { y: d.getUTCFullYear(), m: d.getUTCMonth() + 1, day: d.getUTCDate() };
+};
+const ymd = (p) => `${p.y}-${String(p.m).padStart(2, "0")}-${String(p.day).padStart(2, "0")}`;
+
+async function cachedJson(url, ttl) {
+  const cache = caches.default;
+  const key = new Request(url);
+  const hit = await cache.match(key);
+  if (hit) return hit.json();
+  const res = await fetch(url, { headers: { accept: "application/json", "user-agent": "fiqstudio-hub" }, signal: AbortSignal.timeout(8000) });
+  if (!res.ok) throw new Error("upstream " + res.status);
+  const data = await res.json();
+  await cache.put(key, new Response(JSON.stringify(data), { headers: { "content-type": "application/json", "cache-control": "public, max-age=" + ttl } }));
+  return data;
+}
+
+async function monthFromWaktuSolat(zone, y, m) {
+  const d = await cachedJson(`https://api.waktusolat.app/v2/solat/${zone}?year=${y}&month=${m}`, 21600);
+  if (!d || !Array.isArray(d.prayers) || !d.prayers.length) throw new Error("empty");
+  return d.prayers.map((p) => {
+    const times = {};
+    for (const k of PRAYER_KEYS) times[k] = Number(p[k]) || null;
+    return { date: ymd({ y, m, day: p.day }), hijri: p.hijri || "", times };
+  });
+}
+
+async function weekFromEsolat(zone) {
+  const d = await cachedJson(`https://www.e-solat.gov.my/index.php?r=esolatApi/TakwimSolat&period=week&zone=${zone}`, 21600);
+  const mon = { Jan: 1, Feb: 2, Mar: 3, Apr: 4, May: 5, Jun: 6, Jul: 7, Aug: 8, Sep: 9, Oct: 10, Nov: 11, Dec: 12 };
+  return (d.prayerTime || []).map((p) => {
+    const [dd, mm, yy] = String(p.date).split("-");
+    const date = ymd({ y: +yy, m: mon[mm], day: +dd });
+    const times = {};
+    for (const k of PRAYER_KEYS) times[k] = p[k] ? Math.floor(Date.parse(`${date}T${p[k]}+08:00`) / 1000) : null;
+    return { date, hijri: p.hijri || "", times };
+  });
+}
+
+async function prayerRoute(request, env, path, method, url) {
+  if (path === "/api/prayer" && method === "GET") {
+    const zone = String(url.searchParams.get("zone") || "KTN01").toUpperCase();
+    if (!/^[A-Z]{3}\d{2}$/.test(zone)) return json({ error: "Unknown zone" }, 400);
+    const now = Date.now();
+    const today = klParts(now), tomorrow = klParts(now + 86400e3);
+    const want = [ymd(today), ymd(tomorrow)];
+    let days = [], source = "JAKIM (waktusolat.app)";
+    try {
+      days = await monthFromWaktuSolat(zone, today.y, today.m);
+      if (tomorrow.m !== today.m) days = days.concat(await monthFromWaktuSolat(zone, tomorrow.y, tomorrow.m));
+    } catch {
+      try { days = await weekFromEsolat(zone); source = "JAKIM e-solat"; }
+      catch { return json({ error: "Prayer times are not available right now" }, 502); }
+    }
+    days = days.filter((d) => want.includes(d.date));
+    if (!days.length) return json({ error: "Prayer times are not available right now" }, 502);
+    return json({ zone, source, days }, 200, { "cache-control": "private, max-age=600" });
+  }
+
+  if (path === "/api/prayer/zones" && method === "GET") {
+    try {
+      const list = await cachedJson("https://api.waktusolat.app/zones", 604800);
+      return json({ data: (list || []).map((z) => ({ code: z.jakimCode, state: z.negeri, area: z.daerah })) });
+    } catch { return json({ error: "Zone list is not available right now" }, 502); }
+  }
+
+  if (path === "/api/prayer/locate" && method === "GET") {
+    const lat = Number(url.searchParams.get("lat")), lon = Number(url.searchParams.get("lon"));
+    if (!(lat >= 0 && lat <= 8 && lon >= 99 && lon <= 120)) return json({ error: "That location is outside Malaysia" }, 400);
+    try {
+      const r = await fetch(`https://api.waktusolat.app/zones/${lat.toFixed(4)}/${lon.toFixed(4)}`, { signal: AbortSignal.timeout(8000) });
+      const z = await r.json();
+      if (!z || !z.zone) return json({ error: "No prayer zone found for this location" }, 404);
+      return json({ zone: z.zone, area: z.district || "", state: z.state || "" });
+    } catch { return json({ error: "Could not look up the location right now" }, 502); }
+  }
+
+  if (path === "/api/prayer/azan") {
+    if (method === "GET") {
+      const obj = await env.FILES.get(AZAN_KEY);
+      if (!obj) return json({ error: "No azan audio uploaded" }, 404);
+      return new Response(obj.body, { headers: { "content-type": obj.httpMetadata?.contentType || "audio/mpeg", "cache-control": "private, max-age=86400", etag: obj.httpEtag } });
+    }
+    if (method === "HEAD") {
+      const obj = await env.FILES.head(AZAN_KEY);
+      return new Response(null, { status: obj ? 200 : 404 });
+    }
+    if (method === "PUT") {
+      const type = String(request.headers.get("content-type") || "").split(";")[0].trim().toLowerCase();
+      if (!/^audio\/(mpeg|mp3|mp4|aac|x-m4a|m4a|ogg|wav|x-wav|webm)$/.test(type)) return json({ error: "Choose an audio file (MP3, M4A, OGG or WAV)" }, 415);
+      const buf = await request.arrayBuffer();
+      if (!buf.byteLength) return json({ error: "The file is empty" }, 400);
+      if (buf.byteLength > 10 * 1024 * 1024) return json({ error: "The file is too big (10 MB max)" }, 413);
+      await env.FILES.put(AZAN_KEY, buf, { httpMetadata: { contentType: type } });
+      return json({ ok: true, size: buf.byteLength });
+    }
+    if (method === "DELETE") {
+      await env.FILES.delete(AZAN_KEY);
+      return json({ ok: true });
+    }
+    return json({ error: "Method not allowed" }, 405);
+  }
+  return null;
+}
+
 async function route(request, env, user) {
   const url = new URL(request.url);
   const path = url.pathname.replace(/\/+$/, "") || "/";
   const method = request.method.toUpperCase();
+
+  if (path.startsWith("/api/prayer")) {
+    const pr = await prayerRoute(request, env, path, method, url);
+    if (pr) return pr;
+  }
 
   if (path === "/api/health" && method === "GET") {
     const row = await env.DB.prepare("SELECT 1 AS ok").first();
