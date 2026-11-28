@@ -81,9 +81,9 @@
     busy = false; last = Date.now(); paint();
   }
 
-  window.renderHubTasks = function () {
+  window.renderHubTasks = function (force) {
     paint();
-    if (Date.now() - last > 60000) refresh();
+    if (force || Date.now() - last > 60000) refresh();
   };
   document.addEventListener('visibilitychange', () => { if (!document.hidden) { last = 0; if (typeof activeView !== 'undefined' && activeView === 'hub') window.renderHubTasks(); } });
   document.addEventListener('pointerdown', (e) => {

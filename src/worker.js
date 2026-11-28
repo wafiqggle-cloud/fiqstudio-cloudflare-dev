@@ -809,8 +809,13 @@ async function route(request, env, user) {
     const col = { tasks: [], projects: new Map(), clients: new Map() };
     for (const r of rows || []) {
       let d; try { d = JSON.parse(r.data); } catch { continue; }
-      if (r.collection === "tasks") col.tasks.push(d); else col[r.collection].set(r.id, d);
+      if (r.collection === "tasks") col.tasks.push({ ...d, _id: r.id }); else col[r.collection].set(r.id, d);
     }
+    let team = [];
+    try {
+      const { results } = await env.DB.prepare("SELECT name, role FROM pm_users WHERE active = 1 ORDER BY name").all();
+      team = (results || []).map(u => `${String(u.name).slice(0, 40)} (${u.role})`);
+    } catch {}
     const today = new Date().toLocaleString("sv-SE", { timeZone: "Asia/Kuala_Lumpur" }).slice(0, 10);
     const clip = (v, n) => String(v ?? "").replace(/\s+/g, " ").trim().slice(0, n);
     const due = t => (typeof t.due === "string" && /^\d{4}-\d{2}-\d{2}$/.test(t.due)) ? t.due : "";
@@ -835,7 +840,7 @@ async function route(request, env, user) {
       for (const t of open.slice(0, 40)) {
         const d = due(t);
         const flag = d && d < today ? " OVERDUE" : d === today ? " DUE TODAY" : "";
-        lines.push(`- ${clip(t.title, 120) || "Untitled task"} | ${STATUS[t.status] || "To Do"} | ${rank[t.priority] !== undefined ? t.priority : "Medium"} | due ${d || "none"}${flag} | ${clip(t.assignee, 40) || "unassigned"}${t.projectId && projLabel(t.projectId) ? " | " + projLabel(t.projectId) : ""}`);
+        lines.push(`- [${t._id}] ${clip(t.title, 120) || "Untitled task"} | ${STATUS[t.status] || "To Do"} | ${rank[t.priority] !== undefined ? t.priority : "Medium"} | due ${d || "none"}${flag} | ${clip(t.assignee, 40) || "unassigned"}${t.projectId && projLabel(t.projectId) ? " | " + projLabel(t.projectId) : ""}`);
       }
       if (open.length > 40) lines.push(`(+${open.length - 40} more open tasks)`);
     }
@@ -848,7 +853,67 @@ async function route(request, env, user) {
       }
     }
     if (col.clients.size) lines.push("Clients: " + [...col.clients.values()].map(c => clip(c.name, 60)).filter(Boolean).slice(0, 40).join(", ") + ".");
+    lines.push("Team: Fiq (owner)" + (team.length ? ", " + team.join(", ") : "") + ".");
     return json({ text: lines.join("\n").slice(0, 6000) }, 200, { "cache-control": "no-store" });
+  }
+
+  // Task changes that Fiq AI suggested and the owner confirmed in the Hub.
+  if (path === "/api/pm/ai-action" && method === "POST") {
+    const origin = request.headers.get("Origin");
+    if (origin && env.APP_ORIGIN && origin !== env.APP_ORIGIN) return json({ error: "Origin not allowed" }, 403);
+    let a;
+    try { a = JSON.parse(await request.text()); } catch { return json({ error: "Invalid JSON" }, 400); }
+    if (!a || typeof a !== "object") return json({ error: "Invalid action" }, 400);
+    const clip = (v, n) => String(v ?? "").replace(/\s+/g, " ").trim().slice(0, n);
+    const isDate = v => typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v);
+    const PRI = ["High", "Medium", "Low"], STATUS = ["todo", "prog", "rev", "hold", "done"];
+    const now = new Date().toISOString();
+    const save = (id, doc) => env.DB.prepare(
+      `INSERT INTO pm_docs (collection, id, data, updated_at) VALUES ('tasks', ?, ?, ?)
+       ON CONFLICT(collection, id) DO UPDATE SET data = excluded.data, updated_at = excluded.updated_at`
+    ).bind(id, JSON.stringify(doc), now).run();
+
+    if (a.type === "add") {
+      const title = clip(a.title, 200);
+      if (!title) return json({ error: "The task needs a title" }, 400);
+      const count = await env.DB.prepare("SELECT COUNT(*) AS n FROM pm_docs").first().catch(() => null);
+      if (count && count.n >= 5000) return json({ error: "Task Manager storage is full" }, 507);
+      let projectId = "";
+      if (a.project) {
+        const want = clip(a.project, 80).toLowerCase();
+        const { results } = await env.DB.prepare("SELECT id, data FROM pm_docs WHERE collection = 'projects'").all();
+        for (const r of results || []) {
+          try { if (String(JSON.parse(r.data).name || "").toLowerCase().includes(want)) { projectId = r.id; break; } } catch {}
+        }
+      }
+      const id = "x" + Date.now().toString(36) + crypto.randomUUID().replace(/-/g, "").slice(0, 6);
+      const doc = {
+        title, projectId, status: "todo",
+        priority: PRI.includes(a.priority) ? a.priority : "Medium",
+        due: isDate(a.due) ? a.due : "",
+        assignee: clip(a.assignee, 60) || "Fiq",
+        createdAt: now, createdBy: "Fiq AI", updatedBy: "Fiq AI"
+      };
+      await save(id, doc);
+      return json({ ok: true, id, task: doc });
+    }
+
+    if (a.type === "update") {
+      const id = clip(a.id, 120);
+      if (!/^[A-Za-z0-9_.~:@+-]{1,120}$/.test(id)) return json({ error: "Unknown task" }, 400);
+      const row = await env.DB.prepare("SELECT data FROM pm_docs WHERE collection = 'tasks' AND id = ?").bind(id).first();
+      if (!row) return json({ error: "That task was not found. It may have been deleted." }, 404);
+      let doc; try { doc = JSON.parse(row.data); } catch { doc = {}; }
+      if (a.title) doc.title = clip(a.title, 200);
+      if (STATUS.includes(a.status)) doc.status = a.status;
+      if (PRI.includes(a.priority)) doc.priority = a.priority;
+      if (isDate(a.due)) doc.due = a.due;
+      if (a.assignee) doc.assignee = clip(a.assignee, 60);
+      doc.updatedBy = "Fiq AI";
+      await save(id, doc);
+      return json({ ok: true, id, task: doc });
+    }
+    return json({ error: "Unknown action" }, 400);
   }
 
   if (path === "/api/settings") {

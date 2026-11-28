@@ -885,6 +885,24 @@
     .fiq-listen {  font: inherit; color: #9A3412; font-weight: 600; padding: 4px 2px;  }
     html.dark .fiq-copy, html.dark .fiq-listen { color: #FDBA74; }
     .fiq-copy:hover, .fiq-listen:hover { text-decoration: underline; }
+    .fiq-task-card { border: 1px solid rgba(184,67,27,.35); background: rgba(255,247,237,.92); border-radius: 16px; padding: 10px 12px; max-width: 300px; }
+    html.dark .fiq-task-card { background: rgba(41,37,36,.88); border-color: rgba(253,186,116,.35); }
+    .fiq-task-head { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #9A3412; margin: 0; }
+    html.dark .fiq-task-head { color: #FDBA74; }
+    .fiq-task-body { font-size: 13px; font-weight: 600; color: #1C1917; margin: 2px 0 8px; overflow-wrap: anywhere; }
+    html.dark .fiq-task-body { color: #F5EFE6; }
+    .fiq-task-acts { display: flex; gap: 6px; align-items: center; }
+    .fiq-task-ok, .fiq-task-no { min-height: 34px; padding: 0 14px; border-radius: 999px; font-size: 12px; font-weight: 700; transition: transform .2s cubic-bezier(.34,1.56,.64,1), background-color .15s; }
+    .fiq-task-ok { background: #B8431B; color: #fff; }
+    .fiq-task-ok:hover { background: #9A3412; }
+    .fiq-task-no { background: transparent; color: #57534E; border: 1px solid rgba(87,83,78,.3); }
+    html.dark .fiq-task-no { color: #D6C9BE; border-color: rgba(214,201,190,.3); }
+    .fiq-task-ok:active, .fiq-task-no:active { transform: scale(.95); }
+    .fiq-task-ok:disabled, .fiq-task-no:disabled { opacity: .6; }
+    .fiq-task-note { font-size: 12px; font-weight: 600; color: #57534E; }
+    .fiq-task-note.is-ok { color: #047857; }
+    html.dark .fiq-task-note { color: #C7B8AC; }
+    html.dark .fiq-task-note.is-ok { color: #6EE7B7; }
     .fiq-input { transition: border-color .15s, box-shadow .15s; }
     .fiq-input:focus { outline: none; border-color: #B8431B; box-shadow: 0 0 0 3px rgba(184,67,27,.18); }
     .fiq-send { transition: transform .26s cubic-bezier(.34,1.56,.64,1), background-color .15s, opacity .15s; }
@@ -4672,7 +4690,59 @@
 
       const SUMMARY_FIRST = '\n\n[Reply format: start with one line "**Ringkasan:** ..." (or "**Summary:** ..." if you reply in English) of 1-2 short sentences with the main answer. Then add details or steps below only if they help. Keep it short.]';
 
-      const TASK_WORDS = /\b(task|tasks|tugas|todo|to-do|kerja|projek|project|projects|client|clients|klien|pelanggan|deadline|due|overdue|lewat|tertunggak|staff|assign|assigned|siap|pending|progress|team|pasukan)\b/i;
+      // Fiq AI can suggest task changes; the owner confirms each one before it is saved.
+      const TASK_ACTION_HELP = 'To add or change a task when I ask, put one line per change at the very end of your reply, exactly like: TASK_ACTION {"type":"add","title":"...","due":"YYYY-MM-DD","priority":"High|Medium|Low","assignee":"Name","project":"Project name"} or TASK_ACTION {"type":"update","id":"<id in square brackets above>","status":"todo|prog|rev|hold|done","due":"YYYY-MM-DD","priority":"High|Medium|Low","assignee":"Name","title":"..."}. Leave out fields you do not change. Only use ids from the data. Do not say it is done: the app asks me to confirm first. Use today\'s Malaysia date from the data to work out dates like "esok" or "Jumaat ini".';
+      const STATUS_LABEL = { todo: 'To Do', prog: 'In Progress', rev: 'Review', hold: 'On Hold', done: 'Completed' };
+
+      function takeTaskActions(text) {
+        const actions = [];
+        const kept = text.split('\n').filter((line) => {
+          const m = line.match(/^\s*`{0,3}\s*TASK_ACTION\s*:?\s*(\{.*\})\s*`{0,3}\s*$/);
+          if (!m) return true;
+          try { const a = JSON.parse(m[1]); if (a && (a.type === 'add' || a.type === 'update')) actions.push(a); } catch (e) {}
+          return false;
+        });
+        return { text: kept.join('\n').replace(/\n{3,}/g, '\n\n').trim(), actions: actions.slice(0, 5) };
+      }
+
+      function describeTaskAction(a) {
+        const bits = [];
+        if (a.due) bits.push('due ' + a.due);
+        if (a.priority) bits.push(a.priority);
+        if (a.assignee) bits.push(a.assignee);
+        if (a.project) bits.push(a.project);
+        if (a.type === 'add') return { head: 'Add task', body: (a.title || 'Untitled task') + (bits.length ? ' · ' + bits.join(' · ') : '') };
+        const what = [];
+        if (a.status) what.push(a.status === 'done' ? 'mark as Completed' : 'status ' + (STATUS_LABEL[a.status] || a.status));
+        if (a.title) what.push('rename to "' + a.title + '"');
+        return { head: 'Update task', body: (what.concat(bits).join(' · ') || 'change task') };
+      }
+
+      function appendTaskActionCard(a) {
+        const d = describeTaskAction(a);
+        const row = document.createElement('div');
+        row.className = 'fiq-msg fiq-msg-ai';
+        row.innerHTML = `<div class="fiq-ava" aria-hidden="true"></div><div class="fiq-col"><div class="fiq-task-card">
+          <p class="fiq-task-head">${escHtml(d.head)}</p><p class="fiq-task-body">${escHtml(d.body)}</p>
+          <div class="fiq-task-acts"><button type="button" class="fiq-task-ok">Confirm</button><button type="button" class="fiq-task-no">Cancel</button></div></div></div>`;
+        const ok = row.querySelector('.fiq-task-ok'), no = row.querySelector('.fiq-task-no'), acts = row.querySelector('.fiq-task-acts');
+        no.addEventListener('click', () => { acts.innerHTML = '<span class="fiq-task-note">Cancelled</span>'; });
+        ok.addEventListener('click', async () => {
+          ok.disabled = true; no.disabled = true; ok.textContent = 'Saving…';
+          try {
+            const r = await fetch('/api/pm/ai-action', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(a) });
+            const j = await r.json().catch(() => ({}));
+            if (!r.ok || !j.ok) throw new Error(j.error || ('HTTP ' + r.status));
+            acts.innerHTML = '<span class="fiq-task-note is-ok">Saved to Task Manager</span>';
+            if (typeof window.renderHubTasks === 'function') { try { window.renderHubTasks(true); } catch (e) {} }
+          } catch (err) {
+            ok.disabled = false; no.disabled = false; ok.textContent = 'Try again';
+            if (typeof showToast === 'function') showToast(err.message || 'Could not save the task');
+          }
+        });
+        msgList.appendChild(row);
+        msgList.scrollTop = msgList.scrollHeight;
+      }
 
       async function sendPrompt(text) {
         const prompt = String(text || '').trim();
@@ -4713,10 +4783,9 @@
             ? state.cameras.map((c) => ({ name: c.name, streamUrl: Boolean(c.streamUrl), nightVision: Boolean(c.nightVision) }))
             : [];
           const mems = (typeof state !== 'undefined' && Array.isArray(state.aiMemories)) ? state.aiMemories : [];
-          // Questions about work (this one or the last two) get a live Task Manager snapshot.
+          // Every message carries a live Task Manager snapshot, so Fiq AI is always connected to it.
           let taskBrief = '';
-          const recentAsks = history.filter((h) => h.role === 'user').slice(-3).map((h) => h.content).join(' ');
-          if (SERVER_PROXY && TASK_WORDS.test(recentAsks)) {
+          if (SERVER_PROXY) {
             try {
               const br = await fetch('/api/pm/brief', { cache: 'no-store' });
               if (br.ok) taskBrief = String((await br.json()).text || '').slice(0, 6000);
@@ -4731,7 +4800,7 @@
               const m = history.slice(-10).map(({ role, content }) => ({ role, content }));
               while (m.length && m[0].role !== 'user') m.shift();
               const last = m[m.length - 1];
-              if (last && last.role === 'user') last.content += (taskBrief ? '\n\n[Live data from my FiqStudio Task Manager (read-only, use it to answer about tasks, projects, clients, staff and deadlines):\n' + taskBrief + ']' : '') + SUMMARY_FIRST;
+              if (last && last.role === 'user') last.content += (taskBrief ? '\n\n[Live data from my FiqStudio Task Manager. Use it for questions about tasks, projects, clients, staff and deadlines. You are connected to it through the FiqStudio Hub, so do not say you have no tool or connection for tasks.\n' + taskBrief + '\n' + TASK_ACTION_HELP + ']' : '') + SUMMARY_FIRST;
               return m;
             })(), context: { cameras: cams, memories: mems } }),
           });
@@ -4768,11 +4837,13 @@
               if (typeof showToast === 'function') showToast('Saved info to FiqStudio server');
             }
           }
-          const reply = String(data.reply || 'Done.');
+          const parsed = takeTaskActions(String(data.reply || 'Done.'));
+          const reply = parsed.text || 'Done.';
           const repliedAt = Date.now();
           thinking.remove();
           history.push({ role: 'assistant', content: reply, t: repliedAt });
           appendBubble('assistant', reply, repliedAt);
+          parsed.actions.forEach(appendTaskActionCard);
           saveChat();
           statusText.textContent = Array.isArray(data.toolsUsed) && data.toolsUsed.length
             ? ('Used: ' + data.toolsUsed.join(', '))
@@ -4940,7 +5011,7 @@
       else window.addEventListener('load', boot);
     })();
   </script>
-  <script src="hub-tasks.js?v=2"></script>
+  <script src="hub-tasks.js?v=3"></script>
   <script src="hub-prayer.js?v=2"></script>
   <script src="motion.js?v=1"></script>
 </body>
