@@ -5059,7 +5059,7 @@
           </div>
           <div class="min-w-0">
             <p class="font-display font-bold text-sm text-[#1C1917] dark:text-[#F5EFE6] leading-tight truncate flex items-center gap-1.5">Fiq AI <span class="fiq-online" aria-hidden="true"></span></p>
-            <p id="fiqAiStatusText" class="text-[11px] font-medium text-[#57534E] dark:text-[#C7B8AC] truncate">Weather · AC · Chat</p>
+            <p id="fiqAiStatusText" class="text-[11px] font-medium text-[#57534E] dark:text-[#C7B8AC] truncate">Weather · AC · Music · Chat</p>
           </div>
         </div>
         <div class="flex items-center gap-1 shrink-0">
@@ -5114,6 +5114,9 @@
             </button>
             <button type="button" data-fiq-prompt="Turn on my AC and set it to 24 degrees" class="fiq-quick-chip fiq-sugg">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9"/></svg><span><b>Cool to 24°C</b><small>Turn AC on</small></span>
+            </button>
+            <button type="button" data-fiq-prompt="Play my music" class="fiq-quick-chip fiq-sugg">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span><b>Music</b><small>Play my songs</small></span>
             </button>
           </div>
         </div>
@@ -5539,6 +5542,7 @@
       }
 
       function unlockIosSpeech() {
+        try { unlockMusicAudio(); } catch (e) {}
         ensureTtsGain();
         if (iosSpeechUnlocked || !voiceReplyEnabled) return;
         iosSpeechUnlocked = true;
@@ -5698,7 +5702,7 @@
         history.length = 0; saveChat();
         msgList.querySelectorAll('.fiq-msg').forEach((n) => n.remove());
         updateWelcome();
-        statusText.textContent = 'Weather · AC · Chat';
+        statusText.textContent = 'Weather · AC · Music · Chat';
         if (typeof showToast === 'function') showToast('Chat cleared');
       });
       // Auto-growing input: Enter sends, Shift+Enter adds a line.
@@ -5765,6 +5769,121 @@
         msgList.scrollTop = msgList.scrollHeight;
       }
 
+      // Fiq AI can control the Hub music player. Music actions run straight away (no confirm step).
+      const MUSIC_ACTION_HELP = 'To control my music when I ask (play, pause, next, a song, louder, shuffle...), put one line per action at the very end of your reply, exactly like: MUSIC_ACTION {"type":"play","index":3} (index = song number from the list above) or MUSIC_ACTION {"type":"play","query":"song, artist or album name"} or MUSIC_ACTION {"type":"play"} to resume. Other actions: {"type":"pause"}, {"type":"next"}, {"type":"prev"}, {"type":"shuffle","on":true}, {"type":"repeat","on":false}, {"type":"volume","level":60} (0-100), {"type":"favorite","index":3}, {"type":"sync"} (reload songs from Google Drive). Only use song numbers from the list. The app runs the action at once, so say briefly what you did.';
+
+      function musicBrief() {
+        if (typeof flacQueue === 'undefined') return '';
+        const a = document.getElementById('flacAudioEl');
+        if (!flacQueue.length) return 'Music player: no songs loaded yet. Use {"type":"sync"} to load them from the Google Drive folder.';
+        const cur = flacQueue[flacIndex] || flacQueue[0];
+        const playing = !!(a && !a.paused && a.getAttribute('src'));
+        const list = flacQueue.slice(0, 80).map((t, i) => (i + 1) + '. ' + t.title + (t.artist ? ' - ' + t.artist : '') + (t.album ? ' [' + t.album + ']' : '') + (isTrackFavorite(t) ? ' (favourite)' : ''));
+        return 'Music player: ' + (playing ? 'playing' : 'paused') + ' song ' + (flacIndex + 1) + ' "' + cur.title + '"' + (cur.artist ? ' by ' + cur.artist : '') +
+          ', volume ' + Math.round((a ? a.volume : 1) * 100) + '%, shuffle ' + (flacShuffle ? 'on' : 'off') + ', repeat ' + (flacRepeat ? 'on' : 'off') + '.\nSongs:\n' + list.join('\n') +
+          (flacQueue.length > 80 ? '\n...and ' + (flacQueue.length - 80) + ' more' : '');
+      }
+
+      function takeMusicActions(text) {
+        const actions = [];
+        const kept = text.split('\n').filter((line) => {
+          const m = line.match(/^\s*`{0,3}\s*MUSIC_ACTION\s*:?\s*(\{.*\})\s*`{0,3}\s*$/);
+          if (!m) return true;
+          try { const a = JSON.parse(m[1]); if (a && typeof a.type === 'string') actions.push(a); } catch (e) {}
+          return false;
+        });
+        return { text: kept.join('\n').replace(/\n{3,}/g, '\n\n').trim(), actions: actions.slice(0, 4) };
+      }
+
+      function findTrackIndex(query) {
+        const norm = (v) => String(v || '').toLowerCase().normalize('NFKD').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+        const q = norm(query);
+        if (!q) return -1;
+        const words = q.split(' ');
+        let best = -1, bestScore = 0;
+        flacQueue.forEach((t, i) => {
+          const hay = norm([t.title, t.artist, t.album].join(' '));
+          let score = hay.includes(q) ? 100 : 0;
+          words.forEach((w) => { if (w.length > 1 && hay.includes(w)) score += 10; });
+          if (score > bestScore) { bestScore = score; best = i; }
+        });
+        return bestScore >= 10 ? best : -1;
+      }
+
+      // iOS only lets the music element start from code after it has played once from a tap.
+      let musicAudioUnlocked = false;
+      function unlockMusicAudio() {
+        if (musicAudioUnlocked || typeof flacQueue === 'undefined') return;
+        const a = document.getElementById('flacAudioEl');
+        if (!a) return;
+        if (!a.paused) { musicAudioUnlocked = true; return; }
+        if (!a.getAttribute('src')) {
+          if (!flacQueue.length) return;
+          loadFlacTrack(flacIndex, false);
+        }
+        const at = a.currentTime;
+        musicAudioUnlocked = true;
+        try {
+          a.muted = true;
+          const p = a.play();
+          const done = () => { a.pause(); a.muted = false; try { a.currentTime = at; } catch (e) {} };
+          if (p && typeof p.then === 'function') p.then(done).catch(() => { a.muted = false; musicAudioUnlocked = false; });
+          else done();
+        } catch (e) { a.muted = false; musicAudioUnlocked = false; }
+      }
+
+      async function runMusicAction(act) {
+        const a = document.getElementById('flacAudioEl');
+        const name = (t) => '"' + t.title + '"' + (t.artist ? ' - ' + t.artist : '');
+        const playIdx = (i) => { loadFlacTrack(i, true); return 'Now playing ' + name(flacQueue[flacIndex]); };
+        const type = String(act.type || '').toLowerCase();
+        if (type === 'sync') {
+          await syncGoogleDriveFolder(true);
+          return flacQueue.length ? 'Loaded ' + flacQueue.length + ' songs from Google Drive' : 'No songs found in the Drive folder';
+        }
+        if (!flacQueue.length) {
+          await syncGoogleDriveFolder(true);
+          if (!flacQueue.length) return 'No songs loaded. Check Settings > Music';
+        }
+        if (type === 'play') {
+          if (Number.isFinite(Number(act.index)) && Number(act.index) >= 1 && Number(act.index) <= flacQueue.length) return playIdx(Number(act.index) - 1);
+          if (act.query) {
+            const i = findTrackIndex(act.query);
+            return i >= 0 ? playIdx(i) : 'Could not find "' + act.query + '" in your playlist';
+          }
+          if (!a.getAttribute('src')) return playIdx(flacIndex);
+          a.play().catch(() => {});
+          return 'Playing ' + name(flacQueue[flacIndex]);
+        }
+        if (type === 'pause' || type === 'stop') { a.pause(); return 'Music paused'; }
+        if (type === 'next') { nextFlacTrack(); return 'Now playing ' + name(flacQueue[flacIndex]); }
+        if (type === 'prev' || type === 'previous') { if (a) a.currentTime = 0; prevFlacTrack(); return 'Now playing ' + name(flacQueue[flacIndex]); }
+        if (type === 'shuffle') { flacShuffle = act.on !== false; renderMusicPlayer(); return 'Shuffle ' + (flacShuffle ? 'on' : 'off'); }
+        if (type === 'repeat') { flacRepeat = act.on !== false; renderMusicPlayer(); return 'Repeat ' + (flacRepeat ? 'on' : 'off'); }
+        if (type === 'volume') {
+          const lvl = Math.max(0, Math.min(100, Math.round(Number(act.level))));
+          if (!Number.isFinite(lvl)) return 'Volume not changed';
+          a.volume = lvl / 100; renderMusicPlayer(); return 'Volume ' + lvl + '%';
+        }
+        if (type === 'favorite' || type === 'favourite') {
+          const i = Number(act.index) - 1;
+          const t = flacQueue[i >= 0 ? i : flacIndex];
+          if (!t) return 'Song not found';
+          toggleTrackFavorite(t);
+          return (isTrackFavorite(t) ? 'Added to favourites: ' : 'Removed from favourites: ') + name(t);
+        }
+        return '';
+      }
+
+      function appendMusicNote(lines) {
+        if (!lines.length) return;
+        const row = document.createElement('div');
+        row.className = 'fiq-msg fiq-msg-ai';
+        row.innerHTML = `<div class="fiq-ava" aria-hidden="true"></div><div class="fiq-col"><div class="fiq-task-card"><p class="fiq-task-head">Music</p>${lines.map((l) => `<p class="fiq-task-body">${escHtml(l)}</p>`).join('')}</div></div>`;
+        msgList.appendChild(row);
+        msgList.scrollTop = msgList.scrollHeight;
+      }
+
       async function sendPrompt(text) {
         const prompt = String(text || '').trim();
         if (!prompt) return;
@@ -5818,7 +5937,9 @@
               const m = history.slice(-10).map(({ role, content }) => ({ role, content }));
               while (m.length && m[0].role !== 'user') m.shift();
               const last = m[m.length - 1];
-              if (last && last.role === 'user') last.content += (taskBrief ? '\n\n[Live data from my FiqStudio Task Manager. Use it for questions about tasks, projects, clients, staff and deadlines. You are connected to it through the FiqStudio Hub, so do not say you have no tool or connection for tasks.\n' + taskBrief + '\n' + TASK_ACTION_HELP + ']' : '') + SUMMARY_FIRST;
+              const mBrief = musicBrief();
+              if (last && last.role === 'user') last.content += (taskBrief ? '\n\n[Live data from my FiqStudio Task Manager. Use it for questions about tasks, projects, clients, staff and deadlines. You are connected to it through the FiqStudio Hub, so do not say you have no tool or connection for tasks.\n' + taskBrief + '\n' + TASK_ACTION_HELP + ']' : '') +
+                (mBrief ? '\n\n[My FiqStudio Hub music player (songs from my Google Drive). You can control it, so do not say you cannot play music.\n' + mBrief + '\n' + MUSIC_ACTION_HELP + ']' : '') + SUMMARY_FIRST;
               return m;
             })(), context: { memories: mems } }),
           });
@@ -5855,13 +5976,21 @@
               if (typeof showToast === 'function') showToast('Saved info to FiqStudio server');
             }
           }
-          const parsed = takeTaskActions(String(data.reply || 'Done.'));
+          const musicParsed = takeMusicActions(String(data.reply || 'Done.'));
+          const parsed = takeTaskActions(musicParsed.text);
           const reply = parsed.text || 'Done.';
           const repliedAt = Date.now();
           thinking.remove();
           history.push({ role: 'assistant', content: reply, t: repliedAt });
           appendBubble('assistant', reply, repliedAt);
           parsed.actions.forEach(appendTaskActionCard);
+          if (musicParsed.actions.length) {
+            const notes = [];
+            for (const act of musicParsed.actions) {
+              try { const n = await runMusicAction(act); if (n) notes.push(n); } catch (e) { notes.push('Music action failed'); }
+            }
+            appendMusicNote(notes);
+          }
           saveChat();
           statusText.textContent = Array.isArray(data.toolsUsed) && data.toolsUsed.length
             ? ('Used: ' + data.toolsUsed.join(', '))
@@ -5893,6 +6022,7 @@
 
       // Drawer mic button uses the same voice capture helper
       micBtn.addEventListener('click', () => {
+        unlockIosSpeech();
         startVoiceCapture(false);
       });
     })();
