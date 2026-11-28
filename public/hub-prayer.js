@@ -38,21 +38,21 @@
 
   function mount() {
     if (document.getElementById('hubPrayerCard')) return true;
-    const after = document.getElementById('hubTasksCard') || document.getElementById('hubDevicesBar');
-    if (!after) return false;
+    const grid = document.getElementById('hubCardsContainer');
+    if (!grid) return false;
     const el = document.createElement('section');
     el.id = 'hubPrayerCard';
-    el.className = 'hub-prayer w-full glass-surface rounded-2xl px-4 py-3.5 flex flex-col gap-3';
+    el.className = 'hub-prayer px-4 py-3.5 flex flex-col gap-3';
     el.setAttribute('aria-labelledby', 'hubPrayerTitle');
     el.innerHTML = `
-      <div class="flex items-center justify-between gap-3">
-        <div class="flex items-center gap-2.5 min-w-0">
-          <span class="hp-icon w-9 h-9 rounded-xl bg-[#B8431B] text-white flex items-center justify-center shrink-0" aria-hidden="true">
+      <div class="bento-head">
+        <div class="bento-head-main">
+          <span class="hp-icon bento-icon" aria-hidden="true">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>
           </span>
           <div class="min-w-0">
-            <h2 id="hubPrayerTitle" class="font-display text-sm font-bold text-[#1C1917] dark:text-[#F5EFE6] truncate">Waktu Solat</h2>
-            <p id="hubPrayerSub" class="text-[11px] text-[#57534E] dark:text-[#C7B8AC] truncate"></p>
+            <h2 id="hubPrayerTitle" class="bento-title">Waktu Solat</h2>
+            <p id="hubPrayerSub" class="bento-sub"></p>
           </div>
         </div>
         <div class="flex items-center gap-1.5 shrink-0">
@@ -81,7 +81,8 @@
           <p class="text-[10px] text-[#57534E] dark:text-[#A8A29E]">Azan plays while FiqStudio Hub is open in a tab. Times from JAKIM.</p>
         </div>
       </div>`;
-    after.insertAdjacentElement('afterend', el);
+    if (window.FiqBento) window.FiqBento.add(el, { size: 'md', order: 20 });
+    else { el.classList.add('glass-surface', 'rounded-2xl'); grid.prepend(el); }
     wire();
     return true;
   }
@@ -246,7 +247,7 @@
     const d = today || data.days[0];
     grid.innerHTML = SHOW.map((k) => {
       const t = d.times[k], cls = n && n.date === d.date && n.key === k ? 'is-next' : (t && t <= nowSec ? 'is-past' : '');
-      return `<div class="hp-time ${cls} rounded-xl bg-white/45 dark:bg-zinc-900/55 border border-white/70 dark:border-zinc-800 px-2.5 py-2 text-center min-w-0">
+      return `<div class="hp-time bento-stat ${cls} text-center">
         <p class="text-[10px] font-semibold text-[#57534E] dark:text-[#C7B8AC] truncate">${NAMES[k]}</p>
         <p class="font-display text-sm font-bold tabular-nums text-[#1C1917] dark:text-[#F5EFE6]">${t ? hhmm(t) : '–'}</p></div>`;
     }).join('');

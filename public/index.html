@@ -511,6 +511,46 @@
       .hub-bento-asym #hubCard-cctv > #hubBigCamViewport { min-height: 0; }
     }
 
+    /* ===== HUB BENTO =====
+       Every Hub widget is a .bento-tile inside #hubCardsContainer (.hub-bento).
+       Sizes (data-size): hero = big 7x2, md = 5 cols, half = 6 cols, sm = 4 cols, wide = full row.
+       New widget: FiqBento.add(element, { size: 'md', order: 60 }) and use the .bento-head / .bento-icon /
+       .bento-title / .bento-sub / .bento-stat classes so it looks like the rest. */
+    .hub-bento { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; grid-auto-flow: row dense; align-items: stretch; }
+    .bento-tile { min-width: 0; border-radius: 1.25rem !important; transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .25s; }
+    .bento-tile:hover { transform: translateY(-2px); box-shadow: 0 14px 30px -22px rgba(184, 67, 27, .55); }
+    .bento-tile.hidden, .bento-tile[hidden] { display: none !important; }
+    .bento-head { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+    .bento-head-main { display: flex; align-items: center; gap: .625rem; min-width: 0; }
+    .bento-icon { position: relative; width: 2.25rem; height: 2.25rem; border-radius: .75rem; background: #B8431B; color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform .35s cubic-bezier(.34,1.56,.64,1); }
+    .bento-icon svg { width: 1rem; height: 1rem; }
+    .bento-tile:hover .bento-icon { transform: rotate(-8deg) scale(1.08); }
+    .bento-title { font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif; font-size: .875rem; font-weight: 700; color: #1C1917; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .dark .bento-title { color: #F5EFE6; }
+    .bento-sub { font-size: 11px; color: #57534E; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .dark .bento-sub { color: #C7B8AC; }
+    .bento-stat { border-radius: .75rem; background: rgba(255,255,255,.45); border: 1px solid rgba(255,255,255,.7); padding: .5rem .625rem; min-width: 0; }
+    .dark .bento-stat { background: rgba(24,24,27,.55); border-color: #27272a; }
+    .bento-tile[data-stretch] { grid-column: 1 / -1 !important; }
+    @media (min-width: 768px) {
+      .hub-bento { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+      .hub-bento > .bento-tile { grid-column: span 3; }
+      .hub-bento > .bento-tile[data-size="hero"], .hub-bento > .bento-tile[data-size="wide"] { grid-column: 1 / -1; }
+    }
+    @media (min-width: 1024px) {
+      .hub-bento { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+      .hub-bento > .bento-tile[data-size="hero"] { grid-column: span 7; grid-row: span 2; }
+      .hub-bento > .bento-tile[data-size="md"] { grid-column: span 5; }
+      .hub-bento > .bento-tile[data-size="half"] { grid-column: span 6; }
+      .hub-bento > .bento-tile[data-size="sm"] { grid-column: span 4; }
+      .hub-bento > .bento-tile[data-size="wide"] { grid-column: 1 / -1; }
+      .hub-bento:not(:has(> .bento-tile[data-size="hero"]:not(.hidden):not([hidden]))) > .bento-tile[data-size="md"] { grid-column: span 6; }
+      .hub-bento > .bento-tile[data-size="hero"] #hubBigCamViewport { min-height: 0; }
+    }
+    .hub-bento.is-stacked { grid-template-columns: minmax(0, 1fr) !important; }
+    .hub-bento.is-stacked > .bento-tile { grid-column: 1 / -1 !important; grid-row: auto !important; }
+    @media (prefers-reduced-motion: reduce) { .bento-tile, .bento-icon { transition: none; } .bento-tile:hover { transform: none; } .bento-tile:hover .bento-icon { transform: none; } }
+
     /* ===== FIQSTUDIO INTRO SPLASH (one-shot, honors reduced motion) ===== */
     #fiqIntroSplash {
       position: fixed;
@@ -949,29 +989,12 @@
     <section id="view-hub" class="view-section space-y-3">
       <!-- ANIMATED AI USAGE & QUOTA WIDGET (Header on top + Stacked Provider Rows) -->
 
-      <!-- QUICK DEVICE CONTROL STRIP (GO DAIKIN AC & Home Assistant Devices) -->
-      <div id="hubDevicesBar" class="w-full glass-surface rounded-2xl px-4 py-3 flex flex-col gap-2.5">
-        <div class="flex items-center justify-between gap-2">
-          <div class="flex items-center gap-2 min-w-0">
-            <span class="w-7 h-7 rounded-full bg-[#B8431B] hover:bg-[#9A3412] text-white flex items-center justify-center shrink-0 shadow-xs">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v9m6.364-5.364a9 9 0 11-12.728 0"/></svg>
-            </span>
-            <span class="font-display text-sm font-bold text-[#1C1917] dark:text-[#F5EFE6] truncate">Devices</span>
-            <span id="hubDevStatusBadge" class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/60 dark:bg-zinc-800 text-[#57534E] dark:text-[#C7B8AC]">Standby</span>
-          </div>
-          <div class="flex items-center gap-2 shrink-0">
-            <button type="button" id="hubDevSyncBtn" class="text-[11px] font-semibold text-[#57534E] dark:text-[#D6C9BE] hover:text-[#C85A32] cursor-pointer tap-pop">Sync</button>
-            <button type="button" data-open-settings-tab="devices" class="text-[11px] font-semibold text-[#C85A32] dark:text-orange-400 hover:underline cursor-pointer tap-pop">Settings</button>
-          </div>
-        </div>
-        <div id="hubDevicesList" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
-      </div>
-
+      <div id="hubCardsContainer" class="hub-bento">
       <!-- TASK MANAGEMENT WIDGET (summary from the FiqStudio Tasks app; opens it) -->
-      <section id="hubTasksCard" class="hub-tasks w-full glass-surface rounded-2xl px-4 py-3.5 flex flex-col gap-3" aria-labelledby="hubTasksTitle">
+      <section id="hubTasksCard" data-size="md" style="order:30" class="hub-tasks bento-tile glass-surface rounded-2xl px-4 py-3.5 flex flex-col gap-3" aria-labelledby="hubTasksTitle">
         <div class="flex items-center justify-between gap-3">
           <div class="flex items-center gap-2.5 min-w-0">
-            <span class="hub-tasks-icon w-9 h-9 rounded-xl bg-[#B8431B] text-white flex items-center justify-center shrink-0" aria-hidden="true">
+            <span class="hub-tasks-icon bento-icon" aria-hidden="true">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
             </span>
             <div class="min-w-0">
@@ -988,13 +1011,30 @@
         <ul id="hubTasksNext" class="space-y-1.5"></ul>
       </section>
 
-      <div id="hubCardsContainer" class="grid grid-cols-1 gap-4">
+      <!-- QUICK DEVICE CONTROL STRIP (GO DAIKIN AC & Home Assistant Devices) -->
+      <div id="hubDevicesBar" class="bento-tile glass-surface rounded-2xl px-4 py-3.5 flex flex-col gap-3" data-size="half" style="order:50">
+        <div class="bento-head">
+          <div class="bento-head-main">
+            <span class="bento-icon" aria-hidden="true">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v9m6.364-5.364a9 9 0 11-12.728 0"/></svg>
+            </span>
+            <h2 class="bento-title">Devices</h2>
+            <span id="hubDevStatusBadge" class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/60 dark:bg-zinc-800 text-[#57534E] dark:text-[#C7B8AC]">Standby</span>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button type="button" id="hubDevSyncBtn" class="text-[11px] font-semibold text-[#57534E] dark:text-[#D6C9BE] hover:text-[#C85A32] cursor-pointer tap-pop">Sync</button>
+            <button type="button" data-open-settings-tab="devices" class="text-[11px] font-semibold text-[#C85A32] dark:text-orange-400 hover:underline cursor-pointer tap-pop">Settings</button>
+          </div>
+        </div>
+        <div id="hubDevicesList" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+      </div>
+
       <!-- 1. BIG CCTV DISPLAY (Tall Left Card) -->
-      <div id="hubCard-cctv" class="glass-surface rounded-2xl p-3 sm:p-3.5 flex flex-col gap-2.5">
+      <div id="hubCard-cctv" data-size="hero" style="order:10" class="bento-tile glass-surface rounded-2xl p-3 sm:p-3.5 flex flex-col gap-3">
         <div class="flex items-center justify-between gap-2 px-1 shrink-0">
           <div class="flex items-center gap-2 min-w-0">
-            <span class="w-2.5 h-2.5 rounded-full bg-red-500 rec-pulse shrink-0"></span>
-            <h2 class="font-display text-sm font-bold text-[#1C1917] dark:text-[#F5EFE6] truncate" id="hubCamTitle">CCTV</h2>
+            <span class="bento-icon" aria-hidden="true"><svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.55-2.28A1 1 0 0121 8.62v6.76a1 1 0 01-1.45.9L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg><span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-red-500 rec-pulse ring-2 ring-white dark:ring-zinc-900"></span></span>
+            <h2 class="bento-title" id="hubCamTitle">CCTV</h2>
           </div>
           <div class="flex items-center gap-1.5 shrink-0">
             <select id="hubCamSelector" aria-label="Select CCTV camera" class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white/65 dark:bg-zinc-800/80 border border-white/80 dark:border-zinc-700 cursor-pointer"></select>
@@ -1006,13 +1046,13 @@
 
 
       <!-- 3. WEB STATUS (Compact Bottom-Left Card) -->
-      <div id="hubCard-websites" class="glass-surface rounded-2xl p-3.5 sm:p-4 flex flex-col gap-2">
+      <div id="hubCard-websites" data-size="half" style="order:40" class="bento-tile glass-surface rounded-2xl px-4 py-3.5 flex flex-col gap-3">
         <div class="flex items-center justify-between gap-2 shrink-0">
           <div class="flex items-center gap-2 min-w-0">
-            <span class="w-6 h-6 rounded-full bg-white/60 dark:bg-zinc-800/80 border border-white/75 dark:border-zinc-700 text-[#C85A32] dark:text-orange-300 flex items-center justify-center shrink-0">
+            <span class="bento-icon" aria-hidden="true">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/></svg>
             </span>
-            <h3 id="hubWebsitesHeading" class="font-display text-sm font-bold text-[#1C1917] dark:text-[#F5EFE6] truncate">Web</h3>
+            <h2 id="hubWebsitesHeading" class="bento-title">Web</h2>
           </div>
           <button type="button" id="hubRefreshStatusBtn" class="text-[11px] font-semibold text-[#C85A32] dark:text-orange-400 hover:underline cursor-pointer tap-pop shrink-0">Refresh Status</button>
         </div>
@@ -1807,6 +1847,37 @@
       `;
     }
 
+    // Hub bento grid. Add a new widget with FiqBento.add(el, { size: 'md' | 'half' | 'sm' | 'wide' | 'hero', order: 60 }).
+    window.FiqBento = {
+      grid: () => document.getElementById('hubCardsContainer'),
+      add(el, opts = {}) {
+        const grid = this.grid();
+        if (!grid || !el) return false;
+        el.classList.add('bento-tile', 'glass-surface', 'rounded-2xl');
+        el.dataset.size = opts.size || el.dataset.size || 'md';
+        el.style.order = String(opts.order != null ? opts.order : 60);
+        grid.appendChild(el);
+        this.layout();
+        return true;
+      },
+      // A lone tile in a row stretches to fill it, so the grid never has a hole.
+      layout() {
+        const grid = this.grid();
+        if (!grid) return;
+        const tiles = [...grid.children].filter(t => t.classList.contains('bento-tile'));
+        tiles.forEach(t => t.removeAttribute('data-stretch'));
+        const shown = tiles.filter(t => !t.classList.contains('hidden') && !t.hidden)
+          .sort((a, b) => (+a.style.order || 0) - (+b.style.order || 0));
+        const hasHero = shown.some(t => t.dataset.size === 'hero');
+        const groups = { half: [], sm: [], md: [] };
+        shown.forEach(t => { if (groups[t.dataset.size]) groups[t.dataset.size].push(t); });
+        if (groups.half.length % 2) groups.half[groups.half.length - 1].setAttribute('data-stretch', '');
+        if (groups.sm.length % 3 === 1) groups.sm[groups.sm.length - 1].setAttribute('data-stretch', '');
+        // Without a hero, md tiles sit two per row.
+        if (!hasHero && groups.md.length % 2) groups.md[groups.md.length - 1].setAttribute('data-stretch', '');
+      }
+    };
+
     // TAB 1: HUB (CCTV & Websites)
     function renderHub() {
       const s = state.settings || DEFAULT_SETTINGS;
@@ -1819,19 +1890,17 @@
       };
 
       let visibleCount = 0;
-      (s.hubCardOrder || ['cctv', 'websites']).forEach(key => {
+      (s.hubCardOrder || ['cctv', 'websites']).forEach((key, idx) => {
         const el = cardMap[key];
         if (!el) return;
         const visible = s.hubCards ? s.hubCards[key] !== false : true;
         el.classList.toggle('hidden', !visible);
         el.classList.remove('lg:col-span-2');
         if (visible) visibleCount++;
-        container.appendChild(el);
+        el.style.order = idx === 0 ? '10' : '40';
       });
-      const useAsym = isBento && visibleCount === 4;
-      container.className = useAsym
-        ? 'grid grid-cols-1 gap-4 hub-bento-asym'
-        : (isBento ? 'grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch' : 'grid grid-cols-1 gap-4');
+      const useAsym = false;
+      container.className = 'hub-bento' + (isBento ? '' : ' is-stacked');
       document.getElementById('hubEmptyNotice').classList.toggle('hidden', visibleCount > 0);
 
       const heightMap = {
@@ -1855,6 +1924,7 @@
       renderHubTokenBar();
       renderHubDevices();
       if (typeof window.renderHubTasks === 'function') window.renderHubTasks();
+      if (window.FiqBento) window.FiqBento.layout();
 
       const onlyActive = s.webSync ? s.webSync.showOnlyActiveOnHub !== false : true;
       const hubHeading = document.getElementById('hubWebsitesHeading');
@@ -4830,7 +4900,7 @@
     })();
   </script>
   <script src="hub-tasks.js?v=2"></script>
-  <script src="hub-prayer.js?v=1"></script>
+  <script src="hub-prayer.js?v=2"></script>
   <script src="motion.js?v=1"></script>
 </body>
 </html>
