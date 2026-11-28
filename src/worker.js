@@ -800,6 +800,57 @@ async function route(request, env, user) {
     });
   }
 
+  // Plain-text snapshot of the Task Manager for Fiq AI (read-only, behind Access like everything here).
+  if (path === "/api/pm/brief" && method === "GET") {
+    let rows;
+    try {
+      ({ results: rows } = await env.DB.prepare("SELECT collection, id, data FROM pm_docs WHERE collection IN ('tasks','projects','clients')").all());
+    } catch { return json({ text: "Task Manager has no data yet." }); }
+    const col = { tasks: [], projects: new Map(), clients: new Map() };
+    for (const r of rows || []) {
+      let d; try { d = JSON.parse(r.data); } catch { continue; }
+      if (r.collection === "tasks") col.tasks.push(d); else col[r.collection].set(r.id, d);
+    }
+    const today = new Date().toLocaleString("sv-SE", { timeZone: "Asia/Kuala_Lumpur" }).slice(0, 10);
+    const clip = (v, n) => String(v ?? "").replace(/\s+/g, " ").trim().slice(0, n);
+    const due = t => (typeof t.due === "string" && /^\d{4}-\d{2}-\d{2}$/.test(t.due)) ? t.due : "";
+    const STATUS = { todo: "To Do", prog: "In Progress", rev: "Review", hold: "On Hold", done: "Completed" };
+    const STAGE = ["Discovery", "Design", "Development", "Review", "Launched"];
+    const clientName = id => clip(col.clients.get(id)?.name, 60);
+    const projLabel = id => {
+      const p = col.projects.get(id); if (!p) return "";
+      const c = clientName(p.clientId);
+      return clip(p.name, 60) + (c ? " / " + c : "");
+    };
+    const rank = { High: 0, Medium: 1, Low: 2 };
+    const open = col.tasks.filter(t => t.status !== "done")
+      .sort((a, b) => (due(a) || "9999").localeCompare(due(b) || "9999") || (rank[a.priority] ?? 1) - (rank[b.priority] ?? 1));
+    const done = col.tasks.length - open.length;
+    const lines = [
+      `Task Manager snapshot (today ${today}, Malaysia time).`,
+      `Open tasks: ${open.length}. Overdue: ${open.filter(t => due(t) && due(t) < today).length}. Due today: ${open.filter(t => due(t) === today).length}. Completed: ${done}.`
+    ];
+    if (open.length) {
+      lines.push("Open tasks (soonest first):");
+      for (const t of open.slice(0, 40)) {
+        const d = due(t);
+        const flag = d && d < today ? " OVERDUE" : d === today ? " DUE TODAY" : "";
+        lines.push(`- ${clip(t.title, 120) || "Untitled task"} | ${STATUS[t.status] || "To Do"} | ${rank[t.priority] !== undefined ? t.priority : "Medium"} | due ${d || "none"}${flag} | ${clip(t.assignee, 40) || "unassigned"}${t.projectId && projLabel(t.projectId) ? " | " + projLabel(t.projectId) : ""}`);
+      }
+      if (open.length > 40) lines.push(`(+${open.length - 40} more open tasks)`);
+    }
+    const projects = [...col.projects.values()];
+    if (projects.length) {
+      lines.push("Projects:");
+      for (const p of projects.slice(0, 25)) {
+        const c = clientName(p.clientId);
+        lines.push(`- ${clip(p.name, 80) || "Untitled project"}${c ? " (" + c + ")" : ""} | ${STAGE[Math.min(4, Math.max(0, parseInt(p.stage) || 0))]} | ${Math.min(100, Math.max(0, parseInt(p.progress) || 0))}%${due(p) ? " | deadline " + due(p) : ""}`);
+      }
+    }
+    if (col.clients.size) lines.push("Clients: " + [...col.clients.values()].map(c => clip(c.name, 60)).filter(Boolean).slice(0, 40).join(", ") + ".");
+    return json({ text: lines.join("\n").slice(0, 6000) }, 200, { "cache-control": "no-store" });
+  }
+
   if (path === "/api/settings") {
     const res = await settingsSync(request, env, method);
     if (res) return res;

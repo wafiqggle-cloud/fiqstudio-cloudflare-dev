@@ -4672,6 +4672,8 @@
 
       const SUMMARY_FIRST = '\n\n[Reply format: start with one line "**Ringkasan:** ..." (or "**Summary:** ..." if you reply in English) of 1-2 short sentences with the main answer. Then add details or steps below only if they help. Keep it short.]';
 
+      const TASK_WORDS = /\b(task|tasks|tugas|todo|to-do|kerja|projek|project|projects|client|clients|klien|pelanggan|deadline|due|overdue|lewat|tertunggak|staff|assign|assigned|siap|pending|progress|team|pasukan)\b/i;
+
       async function sendPrompt(text) {
         const prompt = String(text || '').trim();
         if (!prompt) return;
@@ -4711,6 +4713,15 @@
             ? state.cameras.map((c) => ({ name: c.name, streamUrl: Boolean(c.streamUrl), nightVision: Boolean(c.nightVision) }))
             : [];
           const mems = (typeof state !== 'undefined' && Array.isArray(state.aiMemories)) ? state.aiMemories : [];
+          // Questions about work (this one or the last two) get a live Task Manager snapshot.
+          let taskBrief = '';
+          const recentAsks = history.filter((h) => h.role === 'user').slice(-3).map((h) => h.content).join(' ');
+          if (SERVER_PROXY && TASK_WORDS.test(recentAsks)) {
+            try {
+              const br = await fetch('/api/pm/brief', { cache: 'no-store' });
+              if (br.ok) taskBrief = String((await br.json()).text || '').slice(0, 6000);
+            } catch (e) {}
+          }
           const chatHeaders = { 'Content-Type': 'application/json' };
           if (!SERVER_PROXY) chatHeaders['X-API-Secret'] = cfg.workerSecret || '';
           const res = await fetch(SERVER_PROXY ? '/api/ai/chat' : normalizeWorkerUrl(cfg.workerUrl) + '/api/chat', {
@@ -4720,7 +4731,7 @@
               const m = history.slice(-10).map(({ role, content }) => ({ role, content }));
               while (m.length && m[0].role !== 'user') m.shift();
               const last = m[m.length - 1];
-              if (last && last.role === 'user') last.content += SUMMARY_FIRST;
+              if (last && last.role === 'user') last.content += (taskBrief ? '\n\n[Live data from my FiqStudio Task Manager (read-only, use it to answer about tasks, projects, clients, staff and deadlines):\n' + taskBrief + ']' : '') + SUMMARY_FIRST;
               return m;
             })(), context: { cameras: cams, memories: mems } }),
           });
